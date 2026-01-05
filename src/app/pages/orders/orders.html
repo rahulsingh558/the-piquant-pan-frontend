@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-green-50 py-10 px-4">
+﻿<div class="min-h-screen bg-orange-50 py-10 px-4">
   <div class="max-w-4xl mx-auto">
 
-    <h1 class="text-3xl font-bold text-green-700 mb-8">
+    <h1 class="text-3xl font-bold text-orange-700 mb-8">
       My Orders
     </h1>
 
@@ -11,11 +11,11 @@
       class="bg-white p-8 rounded-xl shadow text-center"
     >
       <p class="text-gray-600 mb-4">
-        You haven’t placed any orders yet.
+        You havenâ€™t placed any orders yet.
       </p>
       <a
         routerLink="/menu"
-        class="inline-block bg-green-600 text-white px-6 py-3 rounded"
+        class="inline-block bg-orange-600 text-white px-6 py-3 rounded"
       >
         Browse Menu
       </a>
@@ -36,8 +36,8 @@
           </p>
         </div>
 
-        <p class="font-bold text-green-700">
-          ₹{{ order.total }}
+        <p class="font-bold text-orange-700">
+          â‚¹{{ order.total }}
         </p>
       </div>
 
@@ -47,10 +47,10 @@
           class="flex justify-between text-sm mb-2"
         >
           <span>
-            {{ item.name }} × {{ item.quantity }}
+            {{ item.name }} Ã— {{ item.quantity }}
           </span>
           <span>
-            ₹{{ item.totalPrice * item.quantity }}
+            â‚¹{{ item.totalPrice * item.quantity }}
           </span>
         </div>
       </div>

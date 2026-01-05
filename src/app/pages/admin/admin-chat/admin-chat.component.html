@@ -1,4 +1,4 @@
-<div class="admin-chat-container">
+﻿<div class="admin-chat-container">
   <div class="admin-sidebar">
     <!-- Search and Filters -->
     <div class="search-section">
@@ -10,7 +10,7 @@
           class="search-input"
         />
         <button *ngIf="searchQuery" class="clear-search" (click)="clearSearch()">
-          ✕
+          âœ•
         </button>
       </div>
       
@@ -118,10 +118,10 @@
         
         <div class="chat-actions">
           <button class="action-btn" (click)="assignToMe()" title="Assign to me">
-            👤
+            ðŸ‘¤
           </button>
           <button class="action-btn" (click)="resolveSession()" title="Mark as resolved">
-            ✓
+            âœ“
           </button>
         </div>
       </div>
@@ -190,7 +190,7 @@
   <ng-template #noSelection>
     <div class="no-selection">
       <div class="no-selection-content">
-        <div class="no-selection-icon">💬</div>
+        <div class="no-selection-icon">ðŸ’¬</div>
         <h3>Select a conversation</h3>
         <p>Choose a chat from the sidebar to start messaging</p>
       </div>

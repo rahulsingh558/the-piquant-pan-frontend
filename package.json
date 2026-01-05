@@ -1,5 +1,5 @@
 {
-  "name": "meal-to-heal",
+  "name": "the-piquant-pan",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:meal-to-heal": "node dist/meal-to-heal/server/server.mjs"
+    "serve:ssr:the-piquant-pan": "node dist/the-piquant-pan/server/server.mjs"
   },
   "prettier": {
     "printWidth": 100,

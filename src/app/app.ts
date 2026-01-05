@@ -23,15 +23,7 @@ export const appConfig = {
     FooterComponent,
     ChatWidgetComponent,
   ],
-  template: `
-    <app-header *ngIf="showLayout"></app-header>
-    
-    <router-outlet></router-outlet>
-    
-    <app-footer *ngIf="showLayout"></app-footer>
-    
-    <app-chat-widget></app-chat-widget>
-  `
+  templateUrl: './app.html'
 })
 export class App {
   isBrowser = false;

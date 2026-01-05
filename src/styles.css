@@ -2,6 +2,19 @@
 
 @import "tailwindcss";
 
+/* Import Google Fonts for better typography */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+
+/* Apply font to body */
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Headings use Playfair Display for elegance */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+}
+
 .animate-hidden {
   opacity: 0;
   transform: translateY(40px);
@@ -58,21 +71,21 @@
 
 /* Custom scrollbar for modal */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #FFF5E6;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: linear-gradient(180deg, #FF6B35 0%, #F7931E 100%);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: linear-gradient(180deg, #E55A2B 0%, #E08518 100%);
 }
 
 
@@ -82,11 +95,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #FFF5E6;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #10b981;
+  background: #FF6B35;
   border-radius: 4px;
 }
 
@@ -128,5 +141,5 @@
 }
 
 :host ::ng-deep .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
-  background-color: #10b981;
+  background-color: #FF6B35;
 }

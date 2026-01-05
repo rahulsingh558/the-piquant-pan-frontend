@@ -1,22 +1,16 @@
-<div class="min-h-screen bg-green-50 py-12">
+<div class="min-h-screen bg-orange-50 py-12">
   <div class="max-w-4xl mx-auto px-4">
 
     <!-- TITLE -->
-    <h1 class="text-3xl font-bold text-green-700 text-center mb-10">
+    <h1 class="text-3xl font-bold text-gray-900 text-center mb-10">
       Your Cart
     </h1>
 
     <!-- EMPTY STATE -->
-    <div
-      *ngIf="items.length === 0"
-      class="flex flex-col items-center justify-center
-             text-gray-500 py-24"
-    >
+    <div *ngIf="items.length === 0" class="flex flex-col items-center justify-center
+             text-gray-500 py-24">
       <p class="text-lg">Your cart is empty 🛒</p>
-      <a
-        routerLink="/menu"
-        class="mt-4 text-green-600 font-medium hover:underline"
-      >
+      <a routerLink="/menu" class="mt-4 text-orange-600 font-medium hover:underline">
         Browse menu
       </a>
     </div>
@@ -24,13 +18,10 @@
     <!-- CART ITEMS -->
     <div *ngIf="items.length">
 
-      <div
-        *ngFor="let item of items; let i = index"
-        class="bg-white rounded-xl shadow p-4 mb-4"
-      >
+      <div *ngFor="let item of items; let i = index" class="bg-white rounded-xl shadow p-4 mb-4">
         <div class="flex justify-between items-start">
           <div>
-            <h3 class="font-semibold text-green-700">
+            <h3 class="font-semibold text-gray-800">
               {{ item.name }}
             </h3>
 
@@ -41,30 +32,21 @@
             </p>
           </div>
 
-          <button
-            (click)="remove(i)"
-            class="text-red-500 text-sm hover:underline"
-          >
+          <button (click)="remove(i)" class="text-red-500 text-sm hover:underline">
             Remove
           </button>
         </div>
 
         <div class="flex items-center justify-between mt-4">
           <div class="flex items-center gap-3">
-            <button
-              (click)="decrease(i)"
-              class="px-3 py-1 border rounded"
-            >−</button>
+            <button (click)="decrease(i)" class="px-3 py-1 border rounded">−</button>
 
             <span>{{ item.quantity }}</span>
 
-            <button
-              (click)="increase(i)"
-              class="px-3 py-1 border rounded"
-            >+</button>
+            <button (click)="increase(i)" class="px-3 py-1 border rounded">+</button>
           </div>
 
-          <p class="font-bold text-green-700">
+          <p class="font-bold text-orange-600">
             ₹{{ item.totalPrice * item.quantity }}
           </p>
         </div>
@@ -76,15 +58,12 @@
           Total: ₹{{ getGrandTotal() }}
         </p>
 
-        <button
-          routerLink="/address-select"
-          class="w-full bg-green-600 text-white py-3 rounded-xl
-                 hover:bg-green-700 transition flex items-center justify-center gap-2"
-        >
+        <button routerLink="/address-select" class="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-xl
+                 hover:from-orange-700 hover:to-red-700 transition flex items-center justify-center gap-2">
           <span>📍</span>
           <span>Select Address & Proceed</span>
         </button>
-        
+
         <p class="text-sm text-gray-500 text-center mt-3">
           You'll select delivery address on the next page
         </p>

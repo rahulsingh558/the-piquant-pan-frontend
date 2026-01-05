@@ -20,7 +20,7 @@ import { ChatWidgetComponent } from '../../components/chat/chat.component';
     <app-chat-widget></app-chat-widget>
   `
 })
-export class YourPageComponent {}
+export class YourPageComponent { }
 
 
 
@@ -54,7 +54,7 @@ interface Testimonial {
   standalone: true,
   templateUrl: './home.html',
   imports: [
-    RouterLink, 
+    RouterLink,
     CommonModule,
     ProductsCarouselComponent  // Add this
   ],
@@ -71,7 +71,7 @@ export class Home implements AfterViewInit {
   ========================== */
   activeBowlIndex = signal(0);
   isBowlAnimating = signal(false);
-  
+
   bowls: BowlType[] = [
     {
       type: 'sprouts',
@@ -115,54 +115,54 @@ export class Home implements AfterViewInit {
      CAROUSEL STATE
   ========================== */
   activeTestimonialIndex = signal(0);
-  
+
   testimonials: Testimonial[] = [
     {
       name: 'Priya Sharma',
-      role: 'Fitness Trainer',
-      text: 'As a fitness trainer, I recommend Meal to Heal to all my clients. The protein bowls are perfectly balanced and help in muscle recovery.',
+      role: 'Food Blogger',
+      text: 'The Piquant Pan never disappoints! Every dish is bursting with flavor and the variety keeps me coming back. Best food delivery in town!',
       rating: 5,
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face'
     },
     {
       name: 'Rohan Mehta',
       role: 'IT Professional',
-      text: 'Working long hours made healthy eating tough. Now with Meal to Heal, I get nutritious meals delivered. Lost 5kg in 2 months!',
+      text: 'Working long hours made finding good food tough. The Piquant Pan delivers amazing meals right to my desk. The flavors are incredible!',
       rating: 5,
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face'
     },
     {
       name: 'Ananya Reddy',
-      role: 'Nutritionist',
-      text: 'The quality of ingredients and nutritional balance is impressive. My patients love the variety and taste while staying healthy.',
-      rating: 4,
+      role: 'Chef',
+      text: 'As a professional chef, I appreciate the attention to detail and quality ingredients. The Piquant Pan has mastered the art of delivery without compromising taste.',
+      rating: 5,
       avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face'
     }
   ];
 
   /* =========================
-     HEALTH BENEFITS
+     FOOD ORDERING BENEFITS
   ========================== */
-  healthBenefits = [
+  foodBenefits = [
     {
-      icon: '🥬',
-      title: 'Fresh Ingredients',
-      description: 'Locally sourced, chemical-free vegetables delivered daily'
+      icon: '🍴',
+      title: 'Wide Variety',
+      description: 'Diverse cuisines and dishes to satisfy every craving'
     },
     {
-      icon: '⚖️',
-      title: 'Balanced Nutrition',
-      description: '30% protein, 40% carbs, 30% healthy fats in every meal'
+      icon: '🚀',
+      title: 'Fast Delivery',
+      description: 'Hot and fresh meals delivered in 25 minutes or less'
     },
     {
-      icon: '⚡',
-      title: 'Quick Delivery',
-      description: 'Within 30 minutes in Bangalore, hot and fresh'
+      icon: '⭐',
+      title: 'Premium Quality',
+      description: 'Top-quality ingredients and expert preparation every time'
     },
     {
-      icon: '💚',
-      title: 'Customizable',
-      description: 'Choose your base, protein, and add-ons as per your diet'
+      icon: '🎯',
+      title: 'Easy Customization',
+      description: 'Personalize your meals exactly how you like them'
     }
   ];
 
@@ -188,27 +188,27 @@ export class Home implements AfterViewInit {
 
   nextBowl(): void {
     if (this.isBowlAnimating()) return;
-    
+
     this.isBowlAnimating.set(true);
     this.activeBowlIndex.update(current => (current + 1) % this.bowls.length);
-    
+
     setTimeout(() => this.isBowlAnimating.set(false), 600);
   }
 
   prevBowl(): void {
     if (this.isBowlAnimating()) return;
-    
+
     this.isBowlAnimating.set(true);
-    this.activeBowlIndex.update(current => 
+    this.activeBowlIndex.update(current =>
       current === 0 ? this.bowls.length - 1 : current - 1
     );
-    
+
     setTimeout(() => this.isBowlAnimating.set(false), 600);
   }
 
   goToBowl(index: number): void {
     if (this.isBowlAnimating() || index === this.activeBowlIndex()) return;
-    
+
     this.isBowlAnimating.set(true);
     this.activeBowlIndex.set(index);
     setTimeout(() => this.isBowlAnimating.set(false), 600);
@@ -218,7 +218,7 @@ export class Home implements AfterViewInit {
     const total = this.activeBowl.ingredients.length;
     const angle = (index * 360 / total) * (Math.PI / 180);
     const radius = 120;
-    
+
     return {
       left: `calc(50% + ${Math.cos(angle) * radius}px)`,
       top: `calc(50% + ${Math.sin(angle) * radius}px)`,
@@ -236,13 +236,13 @@ export class Home implements AfterViewInit {
      TESTIMONIAL CAROUSEL
   ========================== */
   nextTestimonial(): void {
-    this.activeTestimonialIndex.update(current => 
+    this.activeTestimonialIndex.update(current =>
       (current + 1) % this.testimonials.length
     );
   }
 
   prevTestimonial(): void {
-    this.activeTestimonialIndex.update(current => 
+    this.activeTestimonialIndex.update(current =>
       current === 0 ? this.testimonials.length - 1 : current - 1
     );
   }

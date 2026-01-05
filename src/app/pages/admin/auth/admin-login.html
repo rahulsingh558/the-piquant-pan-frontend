@@ -1,11 +1,11 @@
-<div class="min-h-screen flex flex-col lg:flex-row">
+﻿<div class="min-h-screen flex flex-col lg:flex-row">
   <!-- Left Panel (Green) -->
   <div
-    class="lg:w-1/2 bg-gradient-to-br from-green-800 to-green-600 p-8 lg:p-12 flex flex-col justify-center items-center text-white">
+    class="lg:w-1/2 bg-gradient-to-br from-orange-800 to-red-600 p-8 lg:p-12 flex flex-col justify-center items-center text-white">
     <div class="max-w-md text-center lg:text-left">
       <div class="mb-6">
         <h1 class="text-4xl lg:text-5xl font-bold leading-tight">
-          Sprouts & Health:
+          The Piquant Pan
         </h1>
         <p class="text-2xl lg:text-3xl font-light mt-2">
           Admin Portal
@@ -22,7 +22,7 @@
 
     <!-- Mobile-only brand -->
     <div class="mt-8 lg:hidden">
-      <h2 class="text-2xl font-bold">Meal to Heal Admin</h2>
+      <h2 class="text-2xl font-bold">The Piquant Pan Admin</h2>
     </div>
   </div>
 
@@ -31,7 +31,7 @@
     <div class="w-full max-w-md">
       <!-- Logo for desktop -->
       <div class="mb-8 hidden lg:block text-center">
-        <h2 class="text-3xl font-bold text-green-800">Admin Access</h2>
+        <h2 class="text-3xl font-bold text-orange-800">Admin Access</h2>
       </div>
 
       <h2 class="text-2xl font-bold text-gray-800 mb-2">Admin Login</h2>
@@ -53,7 +53,7 @@
           </label>
           <input id="email" type="email" placeholder="Enter admin email" [(ngModel)]="email" name="email"
             (keydown)="onEnter($event)"
-            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
             required autocomplete="email" />
         </div>
 
@@ -65,7 +65,7 @@
           <div class="relative">
             <input id="password" [type]="showPass ? 'text' : 'password'" placeholder="Enter admin password"
               [(ngModel)]="password" name="password" (keydown)="onEnter($event)"
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
               required autocomplete="current-password" />
 
             <!-- Eye Toggle Button -->
@@ -96,14 +96,14 @@
 
         <!-- Login Button -->
         <button type="submit"
-          class="w-full bg-green-700 hover:bg-green-800 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+          class="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
           LOGIN AS ADMIN
         </button>
       </form>
 
       <!-- Demo Credentials -->
       <div class="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <p class="text-sm text-yellow-800 mb-2 font-medium">⚠️ You need to create an admin user first!</p>
+        <p class="text-sm text-yellow-800 mb-2 font-medium">âš ï¸ You need to create an admin user first!</p>
         <p class="text-xs text-yellow-700">Run the backend seed script or create an admin user in MongoDB with role:
           "admin"</p>
       </div>
@@ -112,7 +112,7 @@
       <div class="mt-8 text-center">
         <p class="text-gray-600">
           User login?
-          <a routerLink="/login" class="text-green-700 font-medium hover:text-green-800 hover:underline ml-1">
+          <a routerLink="/login" class="text-orange-700 font-medium hover:text-orange-800 hover:underline ml-1">
             Go to User Login
           </a>
         </p>

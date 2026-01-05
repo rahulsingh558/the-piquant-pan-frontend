@@ -1,4 +1,4 @@
-<div class="space-y-6">
+﻿<div class="space-y-6">
   <!-- Page Header -->
   <div>
     <h2 class="text-2xl font-bold text-gray-900">Customers Management</h2>
@@ -26,10 +26,10 @@
         <div>
           <p class="text-sm text-gray-500">Active Customers</p>
           <p class="text-2xl font-bold text-gray-900 mt-1">{{ activeCustomers }}</p>
-          <p class="text-xs text-green-600 mt-2">Last 30 days</p>
+          <p class="text-xs text-orange-600 mt-2">Last 30 days</p>
         </div>
-        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
@@ -40,7 +40,7 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-sm text-gray-500">Total Revenue</p>
-          <p class="text-2xl font-bold text-gray-900 mt-1">₹{{ totalRevenue }}</p>
+          <p class="text-2xl font-bold text-gray-900 mt-1">â‚¹{{ totalRevenue }}</p>
           <p class="text-xs text-gray-500 mt-2">From all customers</p>
         </div>
         <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -60,13 +60,13 @@
           type="text"
           [(ngModel)]="searchQuery"
           placeholder="Search customers by name, email, or phone..."
-          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
         />
         <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
-      <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+      <button class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition">
         Export Customers
       </button>
     </div>
@@ -94,8 +94,8 @@
           <tr *ngFor="let customer of filteredCustomers" class="hover:bg-gray-50">
             <td class="px-6 py-4">
               <div class="flex items-center">
-                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <span class="font-bold text-green-700">{{ customer.name.charAt(0) }}</span>
+                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span class="font-bold text-orange-700">{{ customer.name.charAt(0) }}</span>
                 </div>
                 <div class="ml-4">
                   <div class="text-sm font-medium text-gray-900">{{ customer.name }}</div>
@@ -112,12 +112,12 @@
               <div class="text-xs text-gray-500">Last: {{ customer.lastOrder }}</div>
             </td>
             <td class="px-6 py-4">
-              <div class="text-sm font-medium text-gray-900">₹{{ customer.totalSpent }}</div>
+              <div class="text-sm font-medium text-gray-900">â‚¹{{ customer.totalSpent }}</div>
             </td>
             <td class="px-6 py-4">
               <span class="px-2 py-1 text-xs rounded-full"
-                    [class.bg-green-100]="customer.status === 'active'"
-                    [class.text-green-800]="customer.status === 'active'"
+                    [class.bg-orange-100]="customer.status === 'active'"
+                    [class.text-orange-800]="customer.status === 'active'"
                     [class.bg-gray-100]="customer.status === 'inactive'"
                     [class.text-gray-800]="customer.status === 'inactive'">
                 {{ customer.status === 'active' ? 'Active' : 'Inactive' }}
@@ -131,7 +131,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 </button>
-                <button class="p-1 text-green-600 hover:text-green-700">
+                <button class="p-1 text-orange-600 hover:text-orange-700">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                   </svg>
