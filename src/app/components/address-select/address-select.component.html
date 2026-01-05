@@ -1,0 +1,345 @@
+<div class="min-h-screen bg-green-50 py-8">
+  <div class="max-w-4xl mx-auto px-4">
+    
+    <!-- HEADER -->
+    <div class="flex items-center justify-between mb-8">
+      <button
+        (click)="backToCart()"
+        class="flex items-center gap-2 text-green-600 hover:text-green-700"
+      >
+        <span>←</span>
+        <span>Back to Cart</span>
+      </button>
+      
+      <div class="text-center">
+        <h1 class="text-2xl font-bold text-green-700">Select Delivery Address</h1>
+        <p class="text-sm text-gray-600 mt-1">Step 2 of 3: Address & Checkout</p>
+      </div>
+      
+      <div class="text-right">
+        <p class="font-bold text-green-700">Total: ₹{{ cartTotal }}</p>
+        <p class="text-xs text-gray-500">{{ cartTotal > 0 ? 'Items in cart' : 'Cart is empty' }}</p>
+      </div>
+    </div>
+
+    <!-- ADDRESS SELECTION SECTION -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- LEFT COLUMN: ADDRESS LIST -->
+      <div class="lg:col-span-2">
+        <!-- EXISTING ADDRESSES -->
+        <div *ngIf="!showAddressForm">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">Your Addresses</h2>
+          
+          <div *ngIf="addresses.length === 0" class="text-center py-8 text-gray-500">
+            <p class="mb-2">No addresses saved yet</p>
+            <p>Add your first delivery address</p>
+          </div>
+          
+          <div class="space-y-4">
+            <div
+              *ngFor="let address of addresses"
+              (click)="selectAddress(address.id)"
+              [class.border-green-500]="selectedAddressId === address.id"
+              [class.border-green-200]="selectedAddressId !== address.id"
+              class="bg-white rounded-xl shadow-sm border-2 p-5 cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-2">
+                    <h3 class="font-semibold text-gray-800">{{ address.name }}</h3>
+                    <span *ngIf="address.isDefault" 
+                          class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                      Default
+                    </span>
+                    <span *ngIf="selectedAddressId === address.id" 
+                          class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                      Selected
+                    </span>
+                  </div>
+                  
+                  <p class="text-gray-600">{{ getFormattedAddress(address) }}</p>
+                  <p class="text-gray-600 mt-1">📞 {{ address.phone }}</p>
+                </div>
+                
+                <div class="flex gap-2 ml-4">
+                  <button
+                    (click)="showEditForm(address, $event)"
+                    class="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    (click)="deleteAddress(address.id, $event)"
+                    class="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              
+              <div class="flex gap-3 mt-4">
+                <button
+                  (click)="selectAddress(address.id)"
+                  [class.bg-green-600]="selectedAddressId === address.id"
+                  [class.bg-gray-300]="selectedAddressId !== address.id"
+                  class="text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                >
+                  {{ selectedAddressId === address.id ? '✓ Selected' : 'Select This' }}
+                </button>
+                
+                <button
+                  *ngIf="!address.isDefault"
+                  (click)="setDefaultAddress(address.id, $event)"
+                  class="text-green-600 hover:text-green-800 text-sm"
+                >
+                  Set as Default
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ADD NEW ADDRESS BUTTON -->
+          <button
+            (click)="showAddForm()"
+            class="w-full mt-6 border-2 border-dashed border-green-300 
+                   rounded-xl p-6 text-green-600 hover:bg-green-50 
+                   hover:border-green-400 transition-colors flex flex-col items-center"
+          >
+            <span class="text-2xl mb-2">+</span>
+            <span class="font-medium">Add New Address</span>
+          </button>
+        </div>
+
+        <!-- ADDRESS FORM -->
+        <div *ngIf="showAddressForm" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-6">
+            {{ isEditing ? 'Edit Address' : 'Add New Address' }}
+          </h2>
+          
+          <form [formGroup]="addressForm" (ngSubmit)="submitAddress()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Name -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  formControlName="name"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Enter your full name"
+                />
+                <div *ngIf="addressForm.get('name')?.invalid && addressForm.get('name')?.touched" 
+                     class="text-red-500 text-xs mt-1">
+                  Name is required (min 3 characters)
+                </div>
+              </div>
+              
+              <!-- Phone -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number *
+                </label>
+                <input
+                  type="tel"
+                  formControlName="phone"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="10-digit mobile number"
+                />
+                <div *ngIf="addressForm.get('phone')?.invalid && addressForm.get('phone')?.touched" 
+                     class="text-red-500 text-xs mt-1">
+                  Valid 10-digit phone number required
+                </div>
+              </div>
+              
+              <!-- Address Line 1 -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Address Line 1 *
+                </label>
+                <input
+                  type="text"
+                  formControlName="addressLine1"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="House no., Building, Street, Area"
+                />
+                <div *ngIf="addressForm.get('addressLine1')?.invalid && addressForm.get('addressLine1')?.touched" 
+                     class="text-red-500 text-xs mt-1">
+                  Address line 1 is required
+                </div>
+              </div>
+              
+              <!-- Address Line 2 -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Address Line 2 (Optional)
+                </label>
+                <input
+                  type="text"
+                  formControlName="addressLine2"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Apartment, Suite, Unit, etc."
+                />
+              </div>
+              
+              <!-- City -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  City *
+                </label>
+                <input
+                  type="text"
+                  formControlName="city"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Enter city"
+                />
+                <div *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched" 
+                     class="text-red-500 text-xs mt-1">
+                  City is required
+                </div>
+              </div>
+              
+              <!-- State -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  State *
+                </label>
+                <input
+                  type="text"
+                  formControlName="state"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Enter state"
+                />
+                <div *ngIf="addressForm.get('state')?.invalid && addressForm.get('state')?.touched" 
+                     class="text-red-500 text-xs mt-1">
+                  State is required
+                </div>
+              </div>
+              
+              <!-- Pincode -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Pincode *
+                </label>
+                <input
+                  type="text"
+                  formControlName="pincode"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="6-digit pincode"
+                />
+                <div *ngIf="addressForm.get('pincode')?.invalid && addressForm.get('pincode')?.touched" 
+                     class="text-red-500 text-xs mt-1">
+                  Valid 6-digit pincode required
+                </div>
+              </div>
+              
+              <!-- Landmark -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Landmark (Optional)
+                </label>
+                <input
+                  type="text"
+                  formControlName="landmark"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Nearby famous place"
+                />
+              </div>
+              
+              <!-- Default Checkbox -->
+              <div class="md:col-span-2 flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  formControlName="isDefault"
+                  id="isDefault"
+                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label for="isDefault" class="ml-2 text-sm text-gray-700">
+                  Set as default delivery address
+                </label>
+              </div>
+            </div>
+            
+            <!-- FORM BUTTONS -->
+            <div class="flex gap-3 mt-8">
+              <button
+                type="submit"
+                [disabled]="addressForm.invalid"
+                [class.opacity-50]="addressForm.invalid"
+                [class.cursor-not-allowed]="addressForm.invalid"
+                class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                {{ isEditing ? 'Update Address' : 'Save Address' }}
+              </button>
+              
+              <button
+                type="button"
+                (click)="cancelForm()"
+                class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- RIGHT COLUMN: SUMMARY & PROCEED -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Summary</h3>
+          
+          <div class="space-y-4">
+            <div class="flex justify-between text-gray-600">
+              <span>Items Total</span>
+              <span>₹{{ cartTotal }}</span>
+            </div>
+            
+            <div class="flex justify-between text-gray-600">
+              <span>Delivery Charge</span>
+              <span class="text-green-600">FREE</span>
+            </div>
+            
+            <div class="border-t pt-4">
+              <div class="flex justify-between font-bold text-lg">
+                <span>Total Amount</span>
+                <span>₹{{ cartTotal }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- SELECTED ADDRESS PREVIEW -->
+          <div *ngIf="selectedAddressId" class="mt-6 pt-6 border-t">
+            <h4 class="font-medium text-gray-700 mb-2">Delivery to:</h4>
+            <div *ngIf="selectedAddress" class="bg-green-50 p-4 rounded-lg">
+              <p class="font-medium text-green-800">{{ selectedAddress.name }}</p>
+              <p class="text-sm text-green-700 mt-1">{{ getFormattedAddress(selectedAddress) }}</p>
+              <p class="text-sm text-green-700">📞 {{ selectedAddress.phone }}</p>
+            </div>
+          </div>
+          
+          <!-- PROCEED BUTTON -->
+          <button
+            (click)="proceedToCheckout()"
+            [disabled]="!selectedAddressId"
+            [class.opacity-50]="!selectedAddressId"
+            [class.cursor-not-allowed]="!selectedAddressId"
+            class="w-full mt-6 bg-green-600 text-white py-3 rounded-lg 
+                   hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+          >
+            <span>✅</span>
+            <span>Proceed to Checkout</span>
+          </button>
+          
+          <p *ngIf="!selectedAddressId" class="text-red-500 text-sm text-center mt-2">
+            Please select a delivery address
+          </p>
+          
+          <p class="text-xs text-gray-500 text-center mt-4">
+            By continuing, you agree to our Terms & Conditions
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

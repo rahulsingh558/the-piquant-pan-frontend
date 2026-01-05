@@ -1,0 +1,125 @@
+<div class="chat-widget-container">
+  <!-- Chat Toggle Button -->
+  <button 
+    class="chat-toggle-btn"
+    [class.active]="isChatOpen"
+    (click)="toggleChat()"
+    [attr.aria-label]="isChatOpen ? 'Close chat' : 'Open chat'"
+  >
+    <span class="chat-icon">💬</span>
+    <div *ngIf="unreadCount > 0" class="unread-badge">
+      {{ unreadCount }}
+    </div>
+  </button>
+
+  <!-- Chat Window -->
+  <div class="chat-window" [class.active]="isChatOpen">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-content">
+        <div class="chat-avatar">👨‍💼</div>
+        <div class="chat-info">
+          <h3>{{ selectedContact }}</h3>
+          <div class="online-status">
+            <div class="status-dot"></div>
+            <span>{{ isAgentOnline() ? 'Online now' : 'Usually replies in 5 mins' }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <button class="new-chat-btn" (click)="startNewConversation()" title="Start new conversation">
+        <span>🔄</span>
+        <span>New</span>
+      </button>
+      
+      <button class="close-btn" (click)="toggleChat()" aria-label="Close chat">
+        <span>✕</span>
+      </button>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="messages-container" #messageContainer>
+      <!-- Date Separator -->
+      <div class="date-separator">
+        <span>{{ getTodayDate() }}</span>
+      </div>
+
+      <!-- Messages -->
+      <div *ngFor="let message of messages" 
+           class="message" 
+           [class.user]="message.sender === 'user'"
+           [class.admin]="message.sender === 'admin'">
+        
+        <div class="message-content">
+          <!-- Sender Label -->
+          <div class="message-sender">
+            {{ getSenderLabel(message) }}
+          </div>
+          
+          <!-- Message Content -->
+          {{ message.content }}
+          
+          <!-- Message Time -->
+          <div class="message-time">
+            {{ formatTime(message.timestamp) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div *ngIf="isTyping" class="message admin">
+        <div class="typing-indicator">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="typing-text">Agent is typing...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Replies -->
+    <div *ngIf="showQuickReplies && quickReplies.length > 0" class="quick-replies-container">
+      <div class="quick-replies-title">Quick replies</div>
+      <div class="quick-replies-grid">
+        <button *ngFor="let reply of quickReplies" 
+                class="quick-reply-btn"
+                (click)="sendQuickReply(reply.text)">
+          <span *ngIf="reply.icon" class="quick-reply-icon">{{ reply.icon }}</span>
+          <span>{{ reply.text }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Common Questions -->
+    <div *ngIf="showQuickReplies && commonQuestions.length > 0" class="common-questions">
+      <div class="common-questions-title">Common questions</div>
+      <button *ngFor="let question of commonQuestions" 
+              class="common-question-btn"
+              (click)="sendCommonQuestion(question)">
+        {{ question }}
+      </button>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <input 
+        type="text" 
+        class="message-input"
+        [(ngModel)]="newMessage"
+        (keyup.enter)="sendMessage()"
+        placeholder="Type your message here..."
+        #chatInput
+      />
+      <button 
+        class="send-btn"
+        (click)="sendMessage()"
+        [disabled]="!newMessage.trim()"
+        aria-label="Send message"
+      >
+        <span class="send-icon">➤</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,431 @@
+<div class="min-h-screen bg-green-50 py-10">
+  <div class="max-w-6xl mx-auto px-4">
+
+    <!-- TITLE -->
+    <h2 class="text-3xl font-bold text-green-700 mb-6 text-center">
+      Our Healthy Menu
+    </h2>
+    <p class="text-gray-600 text-center mb-8">
+      Choose from our selection of fresh, protein-rich sprout bowls
+    </p>
+
+    <!-- FILTER SWITCHES -->
+    <div class="flex flex-wrap justify-center gap-4 md:gap-6 mb-10">
+
+      <!-- ALL -->
+      <label class="flex items-center gap-2 cursor-pointer px-4 py-2 bg-white rounded-full shadow-sm hover:shadow transition-shadow">
+        <input type="radio" name="foodType" class="hidden"
+               [checked]="selectedType === 'all'"
+               (change)="selectedType = 'all'">
+        <span class="w-10 h-5 rounded-full bg-gray-300 relative transition"
+              [class.bg-green-700]="selectedType === 'all'">
+          <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition"
+                [class.translate-x-5]="selectedType === 'all'"></span>
+        </span>
+        <span class="text-sm font-medium text-gray-700">All</span>
+      </label>
+
+      <!-- VEG -->
+      <label class="flex items-center gap-2 cursor-pointer px-4 py-2 bg-white rounded-full shadow-sm hover:shadow transition-shadow">
+        <input type="radio" name="foodType" class="hidden"
+               [checked]="selectedType === 'veg'"
+               (change)="selectedType = 'veg'">
+        <span class="w-10 h-5 rounded-full bg-gray-300 relative transition"
+              [class.bg-green-600]="selectedType === 'veg'">
+          <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition"
+                [class.translate-x-5]="selectedType === 'veg'"></span>
+        </span>
+        <span class="text-sm font-medium text-gray-700">Veg</span>
+      </label>
+
+      <!-- EGG -->
+      <label class="flex items-center gap-2 cursor-pointer px-4 py-2 bg-white rounded-full shadow-sm hover:shadow transition-shadow">
+        <input type="radio" name="foodType" class="hidden"
+               [checked]="selectedType === 'egg'"
+               (change)="selectedType = 'egg'">
+        <span class="w-10 h-5 rounded-full bg-gray-300 relative transition"
+              [class.bg-yellow-500]="selectedType === 'egg'">
+          <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition"
+                [class.translate-x-5]="selectedType === 'egg'"></span>
+        </span>
+        <span class="text-sm font-medium text-gray-700">Egg</span>
+      </label>
+
+      <!-- NON-VEG -->
+      <label class="flex items-center gap-2 cursor-pointer px-4 py-2 bg-white rounded-full shadow-sm hover:shadow transition-shadow">
+        <input type="radio" name="foodType" class="hidden"
+               [checked]="selectedType === 'nonveg'"
+               (change)="selectedType = 'nonveg'">
+        <span class="w-10 h-5 rounded-full bg-gray-300 relative transition"
+              [class.bg-red-600]="selectedType === 'nonveg'">
+          <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition"
+                [class.translate-x-5]="selectedType === 'nonveg'"></span>
+        </span>
+        <span class="text-sm font-medium text-gray-700">Non-Veg</span>
+      </label>
+
+    </div>
+
+    <!-- MENU GRID -->
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+      <div *ngFor="let food of filteredFoods"
+           class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col overflow-hidden border border-gray-100">
+
+        <!-- FOOD TYPE INDICATOR -->
+        <div class="absolute top-3 left-3 z-10">
+          <span class="text-xs font-semibold px-2 py-1 rounded-full text-white"
+                [ngClass]="{
+                  'bg-green-600': food.type === 'veg',
+                  'bg-yellow-500': food.type === 'egg',
+                  'bg-red-600': food.type === 'nonveg'
+                }">
+            {{ food.type === 'veg' ? 'VEG' : food.type === 'egg' ? 'EGG' : 'NON-VEG' }}
+          </span>
+        </div>
+
+        <!-- IMAGE -->
+        <div class="relative overflow-hidden h-56">
+          <img
+            [src]="food.image"
+            [alt]="food.name"
+            class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-5 flex flex-col flex-1">
+
+          <!-- NAME + WISHLIST -->
+          <div class="mb-3 flex justify-between items-start gap-2">
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-800 mb-1">
+                {{ food.name }}
+              </h3>
+              <p class="text-sm text-gray-500 mb-2">
+                {{ food.subtitle }}
+              </p>
+              
+              <!-- QUICK ADDONS INFO -->
+              <div class="flex flex-wrap gap-1 mb-3">
+                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                  Onion
+                </span>
+                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                  Tomato
+                </span>
+                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                  Cucumber
+                </span>
+                <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                  +{{ food.addons.length - 3 }} more
+                </span>
+              </div>
+            </div>
+
+            <!-- WISHLIST -->
+            <button
+              (click)="toggleWishlist(food)"
+              class="cursor-pointer mt-1 hover:scale-110 transition-transform"
+              aria-label="Add to wishlist"
+              [attr.aria-pressed]="isWishlisted(food.id)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-7 h-7 transition-all duration-300"
+                [class.text-red-500]="isWishlisted(food.id)"
+                [class.text-gray-300]="!isWishlisted(food.id)"
+                [class.drop-shadow-md]="isWishlisted(food.id)">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                     2 5.42 4.42 3 7.5 3
+                     9.24 3 10.91 3.81 12 5.08
+                     13.09 3.81 14.76 3 16.5 3
+                     19.58 3 22 5.42 22 8.5
+                     22 12.28 18.6 15.36 13.45 20.04
+                     L12 21.35z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- PRICE -->
+          <div class="mb-4">
+            <p class="text-green-700 font-bold text-2xl">
+              ₹{{ food.basePrice }}
+            </p>
+            <p class="text-xs text-gray-500">Base price</p>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+            <div class="text-sm text-gray-600">
+              <span class="font-medium">{{ food.type === 'veg' ? '🥬' : food.type === 'egg' ? '🥚' : '🍗' }}</span>
+              <span class="ml-2">Customizable</span>
+            </div>
+            <button
+              (click)="openAddonPopup(food)"
+              class="bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 rounded-xl
+                     hover:from-green-700 hover:to-green-800 transition-all duration-300 
+                     cursor-pointer font-semibold shadow-md hover:shadow-lg flex items-center gap-2">
+              <fa-icon [icon]="faCartPlus" class="text-white" /> 
+              Add to Cart
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div *ngIf="filteredFoods.length === 0" 
+         class="text-center py-16 bg-white rounded-2xl shadow-sm">
+      <div class="text-5xl mb-4">🥗</div>
+      <h3 class="text-xl font-bold text-gray-700 mb-2">No items found</h3>
+      <p class="text-gray-500 mb-6">Try selecting a different filter</p>
+      <button
+        (click)="selectedType = 'all'"
+        class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+        Show All Items
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADDON POPUP MODAL -->
+<div *ngIf="showAddonModal"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4"
+     aria-modal="true"
+     role="dialog">
+
+  <!-- BACKDROP -->
+  <div
+    class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+    (click)="closeAddonPopup()">
+  </div>
+
+  <!-- MODAL -->
+  <div
+    class="relative bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden
+           animate-[modalFadeIn_0.3s_ease-out] shadow-2xl">
+
+    <!-- HEADER -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 p-6 z-10">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xl font-bold text-gray-800">
+          {{ selectedFood.name }}
+        </h3>
+        <button
+          (click)="closeAddonPopup()"
+          class="text-gray-400 hover:text-gray-600 text-2xl transition-colors"
+          aria-label="Close modal">
+          &times;
+        </button>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <span class="text-green-700 font-semibold text-lg">
+          ₹{{ selectedFood.basePrice }}
+        </span>
+        <span class="text-xs text-gray-500">Base Price</span>
+        <span class="ml-4 text-sm text-gray-600">
+          <span class="font-medium">{{ modalSelectedFreeAddons.length + modalSelectedPremiumAddons.length }}</span> addons selected
+        </span>
+      </div>
+    </div>
+
+    <!-- CONTENT (Scrollable) -->
+    <div class="p-6 overflow-y-auto max-h-[60vh]">
+
+      <!-- FREE ADDONS SECTION -->
+      <div *ngIf="getFreeAddons(selectedFood).length" class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800">
+            Free Addons
+          </h4>
+          <span class="text-sm text-green-600 font-medium bg-green-50 px-3 py-1 rounded-full">
+            All checked by default
+          </span>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">
+          These addons are included for free. You can uncheck any you don't want.
+        </p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <label *ngFor="let addon of getFreeAddons(selectedFood)" 
+                 class="flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer group
+                        [&:has(input:checked)]:border-green-500 [&:has(input:checked)]:bg-green-50
+                        hover:border-green-300 hover:bg-green-50/50"
+                 [class]="isFreeAddonSelected(addon.id) ? 'border-green-500 bg-green-50' : 'border-gray-200'">
+            
+            <!-- ADDON IMAGE -->
+            <div class="relative mb-3">
+              <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-100 group-hover:border-green-200 transition-colors">
+                <img [src]="getAddonImage(addon.name)" 
+                     [alt]="addon.name"
+                     class="w-full h-full object-cover">
+              </div>
+              <!-- CHECKBOX -->
+              <div class="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full border border-gray-300 flex items-center justify-center">
+                <input type="checkbox"
+                       [checked]="isFreeAddonSelected(addon.id)"
+                       (change)="toggleFreeAddon(addon)"
+                       class="sr-only">
+                <svg *ngIf="isFreeAddonSelected(addon.id)" 
+                     xmlns="http://www.w3.org/2000/svg" 
+                     class="h-4 w-4 text-green-600" 
+                     viewBox="0 0 20 20" 
+                     fill="currentColor">
+                  <path fill-rule="evenodd" 
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                        clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+            
+            <!-- ADDON NAME -->
+            <div class="text-center">
+              <span class="font-medium text-gray-800 text-sm">{{ addon.name }}</span>
+              <div class="mt-1">
+                <span class="text-green-600 text-xs font-medium px-2 py-0.5 bg-green-100 rounded-full">
+                  FREE
+                </span>
+              </div>
+            </div>
+            
+          </label>
+        </div>
+      </div>
+
+      <!-- PREMIUM ADDONS SECTION -->
+      <div *ngIf="getPremiumAddons(selectedFood).length" class="mb-4">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800">
+            Premium Addons
+          </h4>
+          <span class="text-sm text-purple-600 font-medium bg-purple-50 px-3 py-1 rounded-full">
+            Extra charge
+          </span>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">
+          Add these premium ingredients for extra nutrition and flavor.
+        </p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <label *ngFor="let addon of getPremiumAddons(selectedFood)"
+                 class="flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer group
+                        [&:has(input:checked)]:border-green-500 [&:has(input:checked)]:bg-green-50
+                        hover:border-green-300 hover:bg-green-50/50"
+                 [class]="isPremiumAddonSelected(addon.id) ? 'border-green-500 bg-green-50' : 'border-gray-200'">
+            
+            <!-- ADDON IMAGE -->
+            <div class="relative mb-3">
+              <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-100 group-hover:border-green-200 transition-colors">
+                <img [src]="getAddonImage(addon.name)" 
+                     [alt]="addon.name"
+                     class="w-full h-full object-cover">
+              </div>
+              <!-- CHECKBOX -->
+              <div class="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full border border-gray-300 flex items-center justify-center">
+                <input type="checkbox"
+                       [checked]="isPremiumAddonSelected(addon.id)"
+                       (change)="togglePremiumAddon(addon)"
+                       class="sr-only">
+                <svg *ngIf="isPremiumAddonSelected(addon.id)" 
+                     xmlns="http://www.w3.org/2000/svg" 
+                     class="h-4 w-4 text-green-600" 
+                     viewBox="0 0 20 20" 
+                     fill="currentColor">
+                  <path fill-rule="evenodd" 
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                        clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+            
+            <!-- ADDON NAME AND PRICE -->
+            <div class="text-center w-full">
+              <span class="font-medium text-gray-800">{{ addon.name }}</span>
+              <div class="mt-2">
+                <span class="text-green-700 font-bold text-lg">+₹{{ addon.price }}</span>
+              </div>
+            </div>
+            
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER (Sticky) -->
+    <div class="sticky bottom-0 bg-white border-t border-gray-200 p-6">
+      
+      <!-- TOTAL SUMMARY -->
+      <div class="mb-6">
+        <!-- BASE PRICE -->
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-gray-600">Base Price</span>
+          <span class="font-medium">₹{{ selectedFood.basePrice }}</span>
+        </div>
+        
+        <!-- PREMIUM ADDONS -->
+        <div *ngIf="modalSelectedPremiumAddons.length > 0" class="mb-2">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-gray-600">Premium Addons</span>
+           <span class="font-medium">+₹{{ getPremiumAddonsTotal() }}</span>
+          </div>
+          <div class="text-xs text-gray-500 pl-4">
+            <span *ngFor="let addon of modalSelectedPremiumAddons; let last = last">
+              {{ addon.name }}(+₹{{ addon.price }}){{ !last ? ', ' : '' }}
+            </span>
+          </div>
+        </div>
+        
+        <!-- FREE ADDONS -->
+        <div *ngIf="modalSelectedFreeAddons.length > 0" class="mb-2">
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Free Addons ({{ modalSelectedFreeAddons.length }})</span>
+            <span class="text-green-600 font-medium">FREE</span>
+          </div>
+        </div>
+        
+        <!-- TOTAL -->
+        <div class="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
+          <div>
+            <p class="font-bold text-gray-800">Total Amount</p>
+            <p class="text-xs text-gray-500">
+              {{ modalSelectedFreeAddons.length + modalSelectedPremiumAddons.length }} addons selected
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-2xl font-bold text-green-700">₹{{ modalTotal }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex gap-3">
+        <button
+          (click)="closeAddonPopup()"
+          class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl
+                 hover:bg-gray-50 transition-colors font-medium">
+          Cancel
+        </button>
+
+        <button
+          (click)="confirmAddToCart()"
+          class="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl
+                 hover:from-green-700 hover:to-green-800 transition-all duration-300
+                 font-semibold shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <fa-icon [icon]="faCartPlus" class="text-white" /> 
+          Add to Cart • ₹{{ modalTotal }}
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>

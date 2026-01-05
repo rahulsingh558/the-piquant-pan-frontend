@@ -1,0 +1,140 @@
+<section class="py-16 bg-gradient-to-br from-green-50 to-emerald-50">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-4">
+        Build Your Perfect Bowl
+      </h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Rotate through our healthy bowl options. Each bowl is packed with fresh ingredients 
+        and balanced nutrition.
+      </p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row items-center gap-12">
+      <!-- Bowl Display Area -->
+      <div class="lg:w-1/2 relative">
+        <!-- Main Bowl Container -->
+        <div class="relative w-80 h-80 mx-auto"
+             [class.animate-bowl-rotate]="isAnimating()">
+          
+          <!-- Bowl Image -->
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-64 h-64 rounded-full bg-gradient-to-br 
+                        from-green-100 to-emerald-100 shadow-2xl 
+                        border-8 border-white flex items-center justify-center
+                        transition-all duration-500">
+              <img [src]="activeBowl.image + '?w=400&h=400&fit=crop&crop=center'"
+                   [alt]="activeBowl.title"
+                   class="w-56 h-56 object-cover rounded-full shadow-inner
+                          transition-all duration-500"
+                   [class.scale-105]="isAnimating()">
+            </div>
+          </div>
+
+          <!-- Navigation Arrows -->
+          <button (click)="prevBowl()"
+                  class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4
+                         w-12 h-12 bg-white rounded-full shadow-lg flex items-center 
+                         justify-center hover:bg-green-50 transition-colors
+                         border border-gray-200 z-10">
+            <svg class="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+
+          <button (click)="nextBowl()"
+                  class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4
+                         w-12 h-12 bg-white rounded-full shadow-lg flex items-center 
+                         justify-center hover:bg-green-50 transition-colors
+                         border border-gray-200 z-10">
+            <svg class="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <!-- Ingredients Floating Animation -->
+          <div class="absolute inset-0 pointer-events-none">
+            <div *ngFor="let ingredient of activeBowl.ingredients; let i = index"
+                 class="absolute text-xs font-medium px-3 py-1.5 bg-white/90 backdrop-blur-sm 
+                        rounded-full shadow-sm border border-green-100 whitespace-nowrap
+                        transition-all duration-500 animate-float"
+                 [style]="getIngredientPosition(i)">
+              {{ ingredient }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Bowl Indicators -->
+        <div class="flex justify-center gap-3 mt-8">
+          <button *ngFor="let bowl of bowls; let i = index"
+                  (click)="goToBowl(i)"
+                  class="w-3 h-3 rounded-full transition-all duration-300"
+                  [class]="activeIndex() === i 
+                    ? 'bg-green-600 scale-125' 
+                    : 'bg-gray-300 hover:bg-gray-400'"
+                  [attr.aria-label]="'Go to ' + bowl.type + ' bowl'">
+          </button>
+        </div>
+      </div>
+
+      <!-- Bowl Details -->
+      <div class="lg:w-1/2">
+        <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+          <!-- Bowl Type Badge -->
+          <div class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4"
+               [ngClass]="{
+                 'bg-green-100 text-green-800': activeBowl.type === 'sprouts',
+                 'bg-yellow-100 text-yellow-800': activeBowl.type === 'egg',
+                 'bg-blue-100 text-blue-800': activeBowl.type === 'paneer',
+                 'bg-red-100 text-red-800': activeBowl.type === 'chicken'
+               }">
+            {{ activeBowl.type | titlecase }} Bowl
+          </div>
+
+          <h3 class="text-2xl font-bold text-gray-800 mb-3">
+            {{ activeBowl.title }}
+          </h3>
+
+          <p class="text-gray-600 mb-6">
+            {{ activeBowl.description }}
+          </p>
+
+          <!-- Nutrition Info -->
+          <div class="flex items-center gap-6 mb-6">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/>
+              </svg>
+              <span class="font-medium">{{ activeBowl.calories }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+              </svg>
+              <span class="font-medium">{{ activeBowl.ingredients.length }} Ingredients</span>
+            </div>
+          </div>
+
+          <!-- Price & CTA -->
+          <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+            <div>
+              <p class="text-sm text-gray-500">Starting from</p>
+              <p class="text-3xl font-bold text-green-700">₹{{ activeBowl.basePrice }}</p>
+            </div>
+            <button 
+              class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 
+                     text-white font-semibold rounded-xl hover:from-green-700 
+                     hover:to-green-800 transition-all duration-300 shadow-md 
+                     hover:shadow-lg flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              Customize Bowl
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

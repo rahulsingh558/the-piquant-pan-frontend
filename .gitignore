@@ -1,0 +1,7 @@
+# Angular
+.angular/
+dist/
+node_modules/
+
+# Environment
+.env

@@ -1,0 +1,10 @@
+<!-- HEADER -->
+<app-header *ngIf="showLayout"></app-header>
+
+<!-- PAGE CONTENT -->
+<main class="min-h-screen">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- FOOTER -->
+<app-footer *ngIf="showLayout"></app-footer>

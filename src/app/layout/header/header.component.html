@@ -1,0 +1,448 @@
+<!-- HEADER -->
+<header class="border-b bg-white sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+
+    <!-- LOGO -->
+    <a
+      routerLink="/"
+      (click)="scrollToTop(); closeMobileMenu()"
+      class="text-green-600 font-bold text-lg">
+      Meal to Heal
+    </a>
+
+    <!-- DESKTOP NAV -->
+    <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+      <a routerLink="/menu" class="hover:text-green-600 transition-colors">Menu</a>
+
+      <!-- CART WITH ICON -->
+      <a routerLink="/cart" class="relative hover:text-green-600 transition-colors flex items-center gap-2">
+        <div class="relative">
+          <span class="text-lg">🛒</span>
+          <span
+            *ngIf="cartCount > 0"
+            class="absolute -top-2 -right-3 bg-red-500 text-white text-xs
+                   w-5 h-5 flex items-center justify-center rounded-full">
+            {{ cartCount }}
+          </span>
+        </div>
+        <span>Cart</span>
+      </a>
+
+      <!-- PROFILE BUTTON CONTAINER -->
+      <div class="relative" appClickOutside (appClickOutside)="closeProfileMenu()">
+        <button
+          (click)="toggleProfileMenu()"
+          class="w-10 h-10 rounded-full overflow-hidden border-2 border-green-100 hover:border-green-300 transition-all">
+          <!-- You can replace this with actual user image -->
+          <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center text-green-700">
+            <span class="text-lg">👤</span>
+          </div>
+        </button>
+
+        <!-- DESKTOP PROFILE DROPDOWN -->
+        <div 
+          *ngIf="showProfileMenu"
+          class="absolute right-0 top-full mt-3 w-72 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 animate-scaleIn">
+          
+          <!-- User Info Section -->
+          <div class="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow">
+                <div class="w-full h-full bg-gradient-to-br from-green-200 to-emerald-300 flex items-center justify-center">
+                  <span class="text-xl">👤</span>
+                </div>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-800">
+                  {{ getUserName() || 'Welcome!' }}
+                </h3>
+                <p class="text-sm text-gray-600">
+                  {{ isLoggedIn() ? 'Manage your account' : 'Sign in to continue' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Menu Items -->
+          <div class="py-2">
+            <ng-container *ngIf="isLoggedIn(); else loggedOut">
+              <a 
+                routerLink="/orders" 
+                (click)="closeProfileMenu()"
+                class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+                <span class="text-green-600 group-hover:scale-110 transition-transform">📦</span>
+                <span>My Orders</span>
+              </a>
+              
+              <a 
+                routerLink="/wishlist" 
+                (click)="closeProfileMenu()"
+                class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+                <span class="text-red-400 group-hover:scale-110 transition-transform">❤️</span>
+                <span>Wishlist</span>
+              </a>
+              
+              <a 
+                routerLink="/account" 
+                (click)="closeProfileMenu()"
+                class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+                <span class="text-blue-500 group-hover:scale-110 transition-transform">⚙️</span>
+                <span>Account Settings</span>
+              </a>
+              
+              <a 
+                routerLink="/contact" 
+                (click)="closeProfileMenu()"
+                class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+                <span class="text-purple-500 group-hover:scale-110 transition-transform">📞</span>
+                <span>Contact Us</span>
+              </a>
+              
+              <div class="border-t my-2"></div>
+              
+              <button
+                (click)="logout()"
+                class="flex items-center gap-3 w-full text-left px-6 py-4 hover:bg-red-50 transition-colors group text-red-600">
+                <span class="group-hover:scale-110 transition-transform">🚪</span>
+                <span>Sign Out</span>
+              </button>
+            </ng-container>
+
+            <ng-template #loggedOut>
+              <a 
+                routerLink="/wishlist" 
+                (click)="closeProfileMenu()"
+                class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+                <span class="text-red-400 group-hover:scale-110 transition-transform">❤️</span>
+                <span>Wishlist</span>
+              </a>
+              
+              <a 
+                routerLink="/login" 
+                (click)="closeProfileMenu()"
+                class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+                <span class="text-green-600 group-hover:scale-110 transition-transform">🔑</span>
+                <span>Login</span>
+              </a>
+              
+              <a 
+                routerLink="/signup" 
+                (click)="closeProfileMenu()"
+                class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+                <span class="text-blue-500 group-hover:scale-110 transition-transform">📝</span>
+                <span>Sign Up</span>
+              </a>
+              
+              <div class="border-t my-2"></div>
+              
+              <a 
+                routerLink="/contact" 
+                (click)="closeProfileMenu()"
+                class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+                <span class="text-purple-500 group-hover:scale-110 transition-transform">📞</span>
+                <span>Contact Us</span>
+              </a>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MOBILE MENU BUTTON WITH CART ICON -->
+    <div class="md:hidden flex items-center gap-4">
+      <!-- CART ICON FOR MOBILE -->
+      <a routerLink="/cart" class="relative">
+        <span class="text-xl text-green-700">🛒</span>
+        <span
+          *ngIf="cartCount > 0"
+          class="absolute -top-2 -right-3 bg-red-500 text-white text-xs
+                 w-5 h-5 flex items-center justify-center rounded-full">
+          {{ cartCount }}
+        </span>
+      </a>
+      
+      <button class="text-green-700" (click)="toggleMobileMenu()">☰</button>
+    </div>
+  </div>
+
+  <!-- PROFILE OVERLAY MODAL (ONLY FOR MOBILE VIEW) -->
+  <div 
+    *ngIf="showProfileMenu && isMobileView()"
+    class="fixed inset-0 z-[60] md:hidden"
+    (click)="closeProfileMenu()">
+    
+    <!-- Backdrop with blur effect -->
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+    
+    <!-- Profile Menu Content for Mobile -->
+    <div 
+      class="absolute right-4 top-20 bg-white rounded-2xl shadow-2xl overflow-hidden w-72 animate-scaleIn"
+      (click)="$event.stopPropagation()">
+      
+      <!-- Same content as desktop dropdown -->
+      <div class="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow">
+            <div class="w-full h-full bg-gradient-to-br from-green-200 to-emerald-300 flex items-center justify-center">
+              <span class="text-xl">👤</span>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800">
+              {{ getUserName() || 'Welcome!' }}
+            </h3>
+            <p class="text-sm text-gray-600">
+              {{ isLoggedIn() ? 'Manage your account' : 'Sign in to continue' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Items -->
+      <div class="py-2">
+        <ng-container *ngIf="isLoggedIn(); else loggedOutMobile">
+          <a 
+            routerLink="/orders" 
+            (click)="closeProfileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+            <span class="text-green-600 group-hover:scale-110 transition-transform">📦</span>
+            <span>My Orders</span>
+          </a>
+          
+          <a 
+            routerLink="/wishlist" 
+            (click)="closeProfileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+            <span class="text-red-400 group-hover:scale-110 transition-transform">❤️</span>
+            <span>Wishlist</span>
+          </a>
+          
+          <a 
+            routerLink="/account" 
+            (click)="closeProfileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+            <span class="text-blue-500 group-hover:scale-110 transition-transform">⚙️</span>
+            <span>Account Settings</span>
+          </a>
+          
+          <a 
+            routerLink="/contact" 
+            (click)="closeProfileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+            <span class="text-purple-500 group-hover:scale-110 transition-transform">📞</span>
+            <span>Contact Us</span>
+          </a>
+          
+          <div class="border-t my-2"></div>
+          
+          <button
+            (click)="logout()"
+            class="flex items-center gap-3 w-full text-left px-6 py-4 hover:bg-red-50 transition-colors group text-red-600">
+            <span class="group-hover:scale-110 transition-transform">🚪</span>
+            <span>Sign Out</span>
+          </button>
+        </ng-container>
+
+        <ng-template #loggedOutMobile>
+          <a 
+            routerLink="/wishlist" 
+            (click)="closeProfileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+            <span class="text-red-400 group-hover:scale-110 transition-transform">❤️</span>
+            <span>Wishlist</span>
+          </a>
+          
+          <a 
+            routerLink="/login" 
+            (click)="closeProfileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+            <span class="text-green-600 group-hover:scale-110 transition-transform">🔑</span>
+            <span>Login</span>
+          </a>
+          
+          <a 
+            routerLink="/signup" 
+            (click)="closeProfileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+            <span class="text-blue-500 group-hover:scale-110 transition-transform">📝</span>
+            <span>Sign Up</span>
+          </a>
+          
+          <div class="border-t my-2"></div>
+          
+          <a 
+            routerLink="/contact" 
+            (click)="closeProfileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
+            <span class="text-purple-500 group-hover:scale-110 transition-transform">📞</span>
+            <span>Contact Us</span>
+          </a>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE MENU OVERLAY (SEPARATE FROM PROFILE DROPDOWN) -->
+  <div 
+    *ngIf="mobileMenuOpen"
+    class="fixed inset-0 z-[60] md:hidden"
+    (click)="closeMobileMenu()">
+    
+    <!-- Backdrop with blur effect -->
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+    
+    <!-- Mobile Menu Content -->
+    <div 
+      class="absolute right-0 top-0 h-full w-72 bg-white shadow-2xl animate-slideIn"
+      (click)="$event.stopPropagation()">
+      
+      <!-- Mobile Menu Header -->
+      <div class="p-6 border-b bg-gradient-to-r from-green-50 to-emerald-50">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-lg text-gray-800">Menu</h2>
+          <button 
+            (click)="closeMobileMenu()"
+            class="text-gray-500 hover:text-gray-700">
+            ✕
+          </button>
+        </div>
+        
+        <!-- User Info in Mobile -->
+        <div class="mt-6 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
+            <div class="w-full h-full bg-gradient-to-br from-green-200 to-emerald-300 flex items-center justify-center">
+              <span>👤</span>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium text-gray-800">
+              {{ isLoggedIn() ? (getUserName() || 'User') : 'Welcome!' }}
+            </p>
+            <p class="text-xs text-gray-600">
+              {{ isLoggedIn() ? 'Account' : 'Guest User' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Links -->
+      <div class="py-4">
+        <a 
+          routerLink="/menu" 
+          (click)="closeMobileMenu()"
+          class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+          <span class="text-green-600">🍽️</span>
+          <span>Menu</span>
+        </a>
+        
+        <a 
+          routerLink="/cart" 
+          (click)="closeMobileMenu()"
+          class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+          <span class="text-green-600">🛒</span>
+          <span>Cart</span>
+          <span *ngIf="cartCount > 0" class="ml-auto bg-red-500 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full">
+            {{ cartCount }}
+          </span>
+        </a>
+        
+        <ng-container *ngIf="isLoggedIn(); else mobileLoggedOut">
+          <!-- Mobile-specific profile options -->
+          <a 
+            routerLink="/orders" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-green-600">📦</span>
+            <span>My Orders</span>
+          </a>
+          
+          <a 
+            routerLink="/wishlist" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-red-400">❤️</span>
+            <span>Wishlist</span>
+          </a>
+          
+          <div class="border-t my-2 mx-6"></div>
+          
+          <a 
+            routerLink="/account" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-blue-500">⚙️</span>
+            <span>Settings</span>
+          </a>
+          
+          <a 
+            routerLink="/contact" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-purple-500">📞</span>
+            <span>Help & Support</span>
+          </a>
+          
+          <div class="border-t my-2 mx-6"></div>
+          
+          <button
+            (click)="logout()"
+            class="flex items-center gap-3 w-full text-left px-6 py-4 hover:bg-red-50 transition-colors text-red-600">
+            <span>🚪</span>
+            <span>Sign Out</span>
+          </button>
+        </ng-container>
+
+        <ng-template #mobileLoggedOut>
+          <!-- Mobile-specific guest options -->
+          <div class="border-t my-2 mx-6"></div>
+          
+          <a 
+            routerLink="/wishlist" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-red-400">❤️</span>
+            <span>Wishlist</span>
+          </a>
+          
+          <div class="border-t my-2 mx-6"></div>
+          
+          <a 
+            routerLink="/login" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-green-600">🔑</span>
+            <span>Login</span>
+          </a>
+          
+          <a 
+            routerLink="/signup" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-blue-500">📝</span>
+            <span>Create Account</span>
+          </a>
+          
+          <div class="border-t my-2 mx-6"></div>
+          
+          <a 
+            routerLink="/contact" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-purple-500">📞</span>
+            <span>Contact Us</span>
+          </a>
+        </ng-template>
+      </div>
+
+      <!-- Mobile Footer -->
+      <div class="absolute bottom-0 left-0 right-0 p-6 border-t bg-gray-50">
+        <p class="text-xs text-gray-600 text-center">
+          Meal to Heal © {{ currentYear }}
+        </p>
+        <p class="text-xs text-gray-500 text-center mt-1">
+          Nourishing your wellness journey
+        </p>
+      </div>
+    </div>
+  </div>
+</header>
