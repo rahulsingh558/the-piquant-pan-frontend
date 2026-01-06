@@ -1,40 +1,55 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CartService } from '../../services/cart';
-import { CartItem } from '../../models/cart-item';
+import { CartService, Cart, CartItem } from '../../services/cart.service';
 
 @Component({
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './cart.html',
 })
-export class CartPage {
+export class CartPage implements OnInit {
 
-  items: CartItem[] = [];
+  cart: Cart = { items: [], total: 0, itemCount: 0 };
 
   constructor(private cartService: CartService) {
-    this.cartService.cart$.subscribe(items => {
-      this.items = items;
+  }
+
+  ngOnInit() {
+    // Subscribe to cart updates
+    this.cartService.cart$.subscribe(cart => {
+      this.cart = cart;
     });
   }
 
-  increase(i: number) {
-    this.cartService.increaseQty(i);
+  increase(itemId: string) {
+    const item = this.cart.items.find(i => i._id === itemId);
+    if (item) {
+      const result = this.cartService.updateQuantity(itemId, item.quantity + 1);
+      if (result && typeof result.subscribe === 'function') {
+        result.subscribe();
+      }
+    }
   }
 
-  decrease(i: number) {
-    this.cartService.decreaseQty(i);
+  decrease(itemId: string) {
+    const item = this.cart.items.find(i => i._id === itemId);
+    if (item && item.quantity > 1) {
+      const result = this.cartService.updateQuantity(itemId, item.quantity - 1);
+      if (result && typeof result.subscribe === 'function') {
+        result.subscribe();
+      }
+    }
   }
 
-  remove(i: number) {
-    this.cartService.removeItem(i);
+  remove(itemId: string) {
+    const result = this.cartService.removeItem(itemId);
+    if (result && typeof result.subscribe === 'function') {
+      result.subscribe();
+    }
   }
 
   getGrandTotal(): number {
-    return this.items.reduce(
-      (sum, item) => sum + item.totalPrice * item.quantity,
-      0
-    );
+    return this.cart.total;
   }
 }

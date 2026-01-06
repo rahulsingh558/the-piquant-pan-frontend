@@ -1,6 +1,6 @@
 import { Component, Inject, PLATFORM_ID, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { CartService } from '../../services/cart';
+import { CartService } from '../../services/cart.service';
 import { FoodApiService, ApiFood } from '../../services/food-api.service';
 import { Food } from '../../models/food';
 import { Addon } from '../../models/addon';
@@ -239,14 +239,25 @@ export class Menu implements OnInit {
   }
 
   confirmAddToCart() {
-    this.cartService.addToCart({
-      foodId: this.selectedFood.id,
+    const result = this.cartService.addToCart({
+      menuItemId: String(this.selectedFood.id),
       name: this.selectedFood.name,
-      basePrice: this.selectedFood.basePrice,
-      addons: [...this.modalSelectedFreeAddons, ...this.modalSelectedPremiumAddons],
+      price: this.modalTotal,
       quantity: 1,
-      totalPrice: this.modalTotal,
+      customizations: {
+        freeAddons: this.modalSelectedFreeAddons,
+        premiumAddons: this.modalSelectedPremiumAddons
+      }
     });
+
+    // Subscribe if it's an observable (logged-in user)
+    if (result && typeof result.subscribe === 'function') {
+      result.subscribe({
+        next: () => console.log('Item added to cart'),
+        error: (err: any) => console.error('Error adding to cart:', err)
+      });
+    }
+
     this.closeAddonPopup();
   }
 }

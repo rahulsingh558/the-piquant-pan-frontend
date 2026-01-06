@@ -2,6 +2,8 @@ import { Component, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   standalone: true,
@@ -11,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Login {
   @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
-  
+
   // Main login form
   email = '';
   password = '';
@@ -28,32 +30,50 @@ export class Login {
   generatedOTP = '';
   otpInterval: any;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private cartService: CartService,
+    private authService: AuthService
+  ) { }
 
   // Main login method
   login() {
     this.error = '';
-    
+
     if (!this.email || !this.password) {
       this.error = 'Please enter both email and password';
       return;
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.email)) {
       this.error = 'Please enter a valid email address';
       return;
     }
-    
+
     console.log('Logging in with:', { email: this.email });
-    
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userEmail', this.email);
-    
-    const redirect = localStorage.getItem('redirectAfterLogin') || '/dashboard';
-    localStorage.removeItem('redirectAfterLogin');
-    
-    this.router.navigate([redirect]);
+
+    // Call auth API
+    this.authService.login(this.email, this.password).subscribe({
+      next: (response) => {
+        console.log('Login successful', response);
+
+        // Migrate guest cart after successful login
+        this.cartService.migrateGuestCart().subscribe({
+          next: () => console.log('Cart migrated'),
+          error: (err) => console.error('Error migrating cart:', err),
+          complete: () => {
+            const redirect = localStorage.getItem('redirectAfterLogin') || '/dashboard';
+            localStorage.removeItem('redirectAfterLogin');
+            this.router.navigate([redirect]);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Login error:', error);
+        this.error = error.error?.message || 'Login failed. Please try again.';
+      }
+    });
   }
 
   // Google login
@@ -61,7 +81,13 @@ export class Login {
     console.log('Google login clicked');
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('authProvider', 'google');
-    this.router.navigate(['/dashboard']);
+
+    // Migrate guest cart
+    this.cartService.migrateGuestCart().subscribe({
+      next: () => console.log('Cart migrated'),
+      error: (err) => console.error('Error migrating cart:', err),
+      complete: () => this.router.navigate(['/dashboard'])
+    });
   }
 
   // WhatsApp modal methods
@@ -97,12 +123,12 @@ export class Login {
 
     // Generate random 6-digit OTP
     this.generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // console.log(`OTP ${this.generatedOTP} sent to ${this.countryCode}${this.whatsappNumber}`);                        Console log for OTP
-    
+
     // In production, you would send this OTP via WhatsApp API
     console.log(`DEMO: OTP is ${this.generatedOTP} - In production, this would be sent via WhatsApp`);
-    
+
     // Start resend timer (60 seconds)
     this.resendTimer = 60;
     this.otpInterval = setInterval(() => {
@@ -120,7 +146,7 @@ export class Login {
   resendOTP() {
     // Generate new OTP
     this.generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Reset timer
     this.resendTimer = 60;
     if (this.otpInterval) {
@@ -133,10 +159,10 @@ export class Login {
         clearInterval(this.otpInterval);
       }
     }, 1000);
-    
+
     // Clear OTP input
     this.otp = ['', '', '', '', '', ''];
-    
+
     // Focus first input
     setTimeout(() => {
       this.focusOtpInput(0);
@@ -147,23 +173,23 @@ export class Login {
   onOtpInput(event: any, index: number) {
     const input = event.target;
     const value = input.value;
-    
+
     // Only allow numbers
     if (!/^\d*$/.test(value)) {
       this.otp[index] = '';
       return;
     }
-    
+
     // Update the model
     this.otp[index] = value;
-    
+
     // Auto-focus next input if value is entered
     if (value && index < 5) {
       setTimeout(() => {
         this.focusOtpInput(index + 1);
       }, 10);
     }
-    
+
     // Auto-submit if all digits are entered
     if (index === 5 && value && this.isOtpComplete()) {
       setTimeout(() => {
@@ -174,7 +200,7 @@ export class Login {
 
   onOtpKeyDown(event: KeyboardEvent, index: number) {
     const currentValue = this.otp[index];
-    
+
     // Handle backspace
     if (event.key === 'Backspace') {
       if (!currentValue && index > 0) {
@@ -189,18 +215,18 @@ export class Login {
         this.otp[index] = '';
       }
     }
-    
+
     // Handle arrow keys
     if (event.key === 'ArrowLeft' && index > 0) {
       event.preventDefault();
       this.focusOtpInput(index - 1);
     }
-    
+
     if (event.key === 'ArrowRight' && index < 5) {
       event.preventDefault();
       this.focusOtpInput(index + 1);
     }
-    
+
     // Handle delete key
     if (event.key === 'Delete') {
       this.otp[index] = '';
@@ -210,19 +236,19 @@ export class Login {
   onOtpPaste(event: ClipboardEvent) {
     event.preventDefault();
     const pastedData = event.clipboardData?.getData('text/plain').trim();
-    
+
     if (pastedData && /^\d{6}$/.test(pastedData)) {
       // Split the pasted data into individual digits
       const digits = pastedData.split('');
       for (let i = 0; i < 6; i++) {
         this.otp[i] = digits[i] || '';
       }
-      
+
       // Focus last input
       setTimeout(() => {
         this.focusOtpInput(5);
       }, 10);
-      
+
       // Auto-verify if complete
       if (this.isOtpComplete()) {
         setTimeout(() => {
@@ -249,20 +275,24 @@ export class Login {
   // Verify OTP
   verifyOTP() {
     const enteredOTP = this.otp.join('');
-    
+
     if (enteredOTP === this.generatedOTP) {
       console.log('WhatsApp OTP verified successfully');
-      
+
       // Store login state
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('authProvider', 'whatsapp');
       localStorage.setItem('userPhone', this.countryCode + this.whatsappNumber);
-      
+
       // Close modal
       this.closeWhatsAppModal();
-      
-      // Redirect to dashboard
-      this.router.navigate(['/dashboard']);
+
+      // Migrate cart and redirect
+      this.cartService.migrateGuestCart().subscribe({
+        next: () => console.log('Cart migrated'),
+        error: (err) => console.error('Error migrating cart:', err),
+        complete: () => this.router.navigate(['/dashboard'])
+      });
     } else {
       this.error = 'Invalid OTP. Please try again.';
       // Clear OTP for retry

@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
-import { CartService } from '../../services/cart';
+import { CartService } from '../../services/cart.service';
 import { ProductsCarouselComponent } from '../../components/products-carousel/products-carousel.component';
 import { ChatWidgetComponent } from '../../components/chat/chat.component';
 
@@ -267,14 +267,21 @@ export class Home implements AfterViewInit {
     name: string;
     basePrice: number;
   }) {
-    this.cartService.addToCart({
-      foodId: food.foodId,
+    const result = this.cartService.addToCart({
+      menuItemId: String(food.foodId),
       name: food.name,
-      basePrice: food.basePrice,
-      addons: [],
+      price: food.basePrice,
       quantity: 1,
-      totalPrice: food.basePrice,
+      customizations: {}
     });
+
+    // Subscribe if it's an observable (logged-in user)
+    if (result && typeof result.subscribe === 'function') {
+      result.subscribe({
+        next: () => console.log('Item added to cart'),
+        error: (err: any) => console.error('Error adding to cart:', err)
+      });
+    }
   }
 
   /* =========================

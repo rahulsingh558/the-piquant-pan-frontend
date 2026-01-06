@@ -7,7 +7,7 @@
     </h1>
 
     <!-- EMPTY STATE -->
-    <div *ngIf="items.length === 0" class="flex flex-col items-center justify-center
+    <div *ngIf="cart.items.length === 0" class="flex flex-col items-center justify-center
              text-gray-500 py-24">
       <p class="text-lg">Your cart is empty 🛒</p>
       <a routerLink="/menu" class="mt-4 text-orange-600 font-medium hover:underline">
@@ -16,38 +16,36 @@
     </div>
 
     <!-- CART ITEMS -->
-    <div *ngIf="items.length">
+    <div *ngIf="cart.items.length">
 
-      <div *ngFor="let item of items; let i = index" class="bg-white rounded-xl shadow p-4 mb-4">
+      <div *ngFor="let item of cart.items" class="bg-white rounded-xl shadow p-4 mb-4">
         <div class="flex justify-between items-start">
           <div>
             <h3 class="font-semibold text-gray-800">
               {{ item.name }}
             </h3>
 
-            <p class="text-xs text-gray-500" *ngIf="item.addons.length">
-              <span *ngFor="let addon of item.addons; let last = last">
-                {{ addon.name }}<span *ngIf="!last">, </span>
-              </span>
+            <p class="text-xs text-gray-500" *ngIf="item.customizations">
+              Customizations applied
             </p>
           </div>
 
-          <button (click)="remove(i)" class="text-red-500 text-sm hover:underline">
+          <button (click)="remove(item._id!)" class="text-red-500 text-sm hover:underline">
             Remove
           </button>
         </div>
 
         <div class="flex items-center justify-between mt-4">
           <div class="flex items-center gap-3">
-            <button (click)="decrease(i)" class="px-3 py-1 border rounded">−</button>
+            <button (click)="decrease(item._id!)" class="px-3 py-1 border rounded">−</button>
 
             <span>{{ item.quantity }}</span>
 
-            <button (click)="increase(i)" class="px-3 py-1 border rounded">+</button>
+            <button (click)="increase(item._id!)" class="px-3 py-1 border rounded">+</button>
           </div>
 
           <p class="font-bold text-orange-600">
-            ₹{{ item.totalPrice * item.quantity }}
+            ₹{{ item.price * item.quantity }}
           </p>
         </div>
       </div>

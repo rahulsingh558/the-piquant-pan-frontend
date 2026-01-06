@@ -2,6 +2,8 @@ import { Component, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   standalone: true,
@@ -11,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Signup {
   @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
-  
+
   // Signup form fields
   name = '';
   email = '';
@@ -33,64 +35,70 @@ export class Signup {
   generatedOTP = '';
   otpInterval: any;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private cartService: CartService,
+    private authService: AuthService
+  ) { }
 
   // Main signup method
   signup() {
     this.error = '';
-    
+
     // Validation
     if (!this.name || !this.email || !this.password || !this.confirmPassword) {
       this.error = 'Please fill in all required fields';
       return;
     }
-    
+
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.email)) {
       this.error = 'Please enter a valid email address';
       return;
     }
-    
+
     // Password validation
     if (this.password.length < 6) {
       this.error = 'Password must be at least 6 characters long';
       return;
     }
-    
+
     // Password match validation
     if (this.password !== this.confirmPassword) {
       this.error = 'Passwords do not match';
       return;
     }
-    
+
     // Terms acceptance
     if (!this.acceptTerms) {
       this.error = 'Please accept the terms and conditions';
       return;
     }
-    
-    console.log('Signing up with:', { 
-      name: this.name, 
-      email: this.email, 
-      phone: this.phone 
-    });
-    
-    // Store user data (in a real app, you'd send to backend)
-    const userData = {
+
+    console.log('Signing up with:', {
       name: this.name,
       email: this.email,
-      phone: this.phone,
-      createdAt: new Date().toISOString()
-    };
-    
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userEmail', this.email);
-    localStorage.setItem('userName', this.name);
-    localStorage.setItem('userData', JSON.stringify(userData));
-    
-    // Redirect to home or dashboard
-    this.router.navigate(['/']);
+      phone: this.phone
+    });
+
+    // Call register API
+    this.authService.register(this.name, this.email, this.password).subscribe({
+      next: (response) => {
+        console.log('Registration successful', response);
+
+        // Migrate guest cart after successful signup
+        this.cartService.migrateGuestCart().subscribe({
+          next: () => console.log('Cart migrated'),
+          error: (err) => console.error('Error migrating cart:', err),
+          complete: () => this.router.navigate(['/'])
+        });
+      },
+      error: (error) => {
+        console.error('Registration error:', error);
+        this.error = error.error?.message || 'Registration failed. Please try again.';
+      }
+    });
   }
 
   // Google signup
@@ -100,7 +108,13 @@ export class Signup {
     localStorage.setItem('authProvider', 'google');
     localStorage.setItem('userEmail', 'user@example.com');
     localStorage.setItem('userName', 'Google User');
-    this.router.navigate(['/']);
+
+    // Migrate guest cart
+    this.cartService.migrateGuestCart().subscribe({
+      next: () => console.log('Cart migrated'),
+      error: (err) => console.error('Error migrating cart:', err),
+      complete: () => this.router.navigate(['/'])
+    });
   }
 
   // WhatsApp modal methods
@@ -136,10 +150,10 @@ export class Signup {
 
     // Generate random 6-digit OTP
     this.generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // In production, you would send this OTP via WhatsApp API
     console.log(`DEMO: OTP is ${this.generatedOTP} - In production, this would be sent via WhatsApp`);
-    
+
     // Start resend timer (60 seconds)
     this.resendTimer = 60;
     this.otpInterval = setInterval(() => {
@@ -157,7 +171,7 @@ export class Signup {
   resendOTP() {
     // Generate new OTP
     this.generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Reset timer
     this.resendTimer = 60;
     if (this.otpInterval) {
@@ -170,10 +184,10 @@ export class Signup {
         clearInterval(this.otpInterval);
       }
     }, 1000);
-    
+
     // Clear OTP input
     this.otp = ['', '', '', '', '', ''];
-    
+
     // Focus first input
     setTimeout(() => {
       this.focusOtpInput(0);
@@ -184,23 +198,23 @@ export class Signup {
   onOtpInput(event: any, index: number) {
     const input = event.target;
     const value = input.value;
-    
+
     // Only allow numbers
     if (!/^\d*$/.test(value)) {
       this.otp[index] = '';
       return;
     }
-    
+
     // Update the model
     this.otp[index] = value;
-    
+
     // Auto-focus next input if value is entered
     if (value && index < 5) {
       setTimeout(() => {
         this.focusOtpInput(index + 1);
       }, 10);
     }
-    
+
     // Auto-submit if all digits are entered
     if (index === 5 && value && this.isOtpComplete()) {
       setTimeout(() => {
@@ -211,7 +225,7 @@ export class Signup {
 
   onOtpKeyDown(event: KeyboardEvent, index: number) {
     const currentValue = this.otp[index];
-    
+
     // Handle backspace
     if (event.key === 'Backspace') {
       if (!currentValue && index > 0) {
@@ -226,18 +240,18 @@ export class Signup {
         this.otp[index] = '';
       }
     }
-    
+
     // Handle arrow keys
     if (event.key === 'ArrowLeft' && index > 0) {
       event.preventDefault();
       this.focusOtpInput(index - 1);
     }
-    
+
     if (event.key === 'ArrowRight' && index < 5) {
       event.preventDefault();
       this.focusOtpInput(index + 1);
     }
-    
+
     // Handle delete key
     if (event.key === 'Delete') {
       this.otp[index] = '';
@@ -247,19 +261,19 @@ export class Signup {
   onOtpPaste(event: ClipboardEvent) {
     event.preventDefault();
     const pastedData = event.clipboardData?.getData('text/plain').trim();
-    
+
     if (pastedData && /^\d{6}$/.test(pastedData)) {
       // Split the pasted data into individual digits
       const digits = pastedData.split('');
       for (let i = 0; i < 6; i++) {
         this.otp[i] = digits[i] || '';
       }
-      
+
       // Focus last input
       setTimeout(() => {
         this.focusOtpInput(5);
       }, 10);
-      
+
       // Auto-verify if complete
       if (this.isOtpComplete()) {
         setTimeout(() => {
@@ -286,25 +300,25 @@ export class Signup {
   // Verify OTP for WhatsApp signup
   verifyOTP() {
     const enteredOTP = this.otp.join('');
-    
+
     if (enteredOTP === this.generatedOTP) {
       console.log('WhatsApp OTP verified successfully');
-      
+
       // Store signup state
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('authProvider', 'whatsapp');
       localStorage.setItem('userPhone', this.countryCode + this.whatsappNumber);
       localStorage.setItem('userName', 'WhatsApp User');
-      
+
       // Auto-fill phone number in signup form
       this.phone = this.countryCode + this.whatsappNumber;
-      
+
       // Close modal
       this.closeWhatsAppModal();
-      
+
       // Show success message
       this.error = 'WhatsApp verified! Please complete the form above.';
-      
+
     } else {
       this.error = 'Invalid OTP. Please try again.';
       // Clear OTP for retry
