@@ -37,9 +37,10 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./admin-settings/admin-settings').then(m => m.AdminSettingsComponent),
         title: 'Settings'
       },
-      { 
-        path: 'admin/chat', 
+      {
+        path: 'chat',
         component: AdminChatComponent,
+        title: 'Chat Support'
       },
       {
         path: '',

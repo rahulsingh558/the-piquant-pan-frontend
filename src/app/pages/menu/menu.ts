@@ -6,7 +6,6 @@ import { Food } from '../../models/food';
 import { Addon } from '../../models/addon';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
-import { ChatWidgetComponent } from '../../components/chat/chat.component';
 
 /* =========================
    TYPES
@@ -26,7 +25,7 @@ interface MenuFood extends Food {
 @Component({
   standalone: true,
   selector: 'app-menu',
-  imports: [CommonModule, FontAwesomeModule, ChatWidgetComponent],
+  imports: [CommonModule, FontAwesomeModule],
   templateUrl: './menu.html',
 })
 export class Menu {

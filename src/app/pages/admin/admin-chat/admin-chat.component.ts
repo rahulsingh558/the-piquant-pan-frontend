@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ChatService } from '../../../services/chat.service';
-import { ChatSession, AdminUser, ChatMessage } from '../../../models/chat';
+import { ChatSession, ChatMessage } from '../../../models/chat';
 
 @Component({
   standalone: true,
@@ -15,35 +15,37 @@ import { ChatSession, AdminUser, ChatMessage } from '../../../models/chat';
 export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('messageContainer') private messageContainer!: ElementRef;
   @ViewChild('chatInput') private chatInput!: ElementRef;
-  
+
   sessions: ChatSession[] = [];
   activeSessions: ChatSession[] = [];
   pendingSessions: ChatSession[] = [];
   resolvedSessions: ChatSession[] = [];
-  adminUsers: AdminUser[] = [];
+  filteredSessions: ChatSession[] = [];
   cannedResponses: string[] = [];
-  
+
   selectedSession: ChatSession | null = null;
   newMessage = '';
   selectedCannedResponse = '';
   searchQuery = '';
   filterStatus: 'all' | 'active' | 'pending' | 'resolved' = 'all';
   adminName = 'Admin User';
-  
-  // Add filter options array with explicit types
-  filterOptions: Array<'all' | 'active' | 'pending' | 'resolved'> = ['all', 'active', 'pending', 'resolved'];
-  
-  private sessionsSubscription!: Subscription;
-  private adminSubscription!: Subscription;
 
-  constructor(private chatService: ChatService) {}
+  filterOptions: Array<'all' | 'active' | 'pending' | 'resolved'> = ['all', 'active', 'pending', 'resolved'];
+
+  private sessionsSubscription!: Subscription;
+  private refreshInterval: any;
+
+  constructor(private chatService: ChatService) { }
 
   ngOnInit(): void {
+    // Load sessions from backend
+    this.chatService.loadAdminSessions();
+
     // Subscribe to sessions
     this.sessionsSubscription = this.chatService.sessions$.subscribe(sessions => {
       this.sessions = sessions;
       this.updateFilteredSessions();
-      
+
       // If a session is selected, update it
       if (this.selectedSession) {
         const updatedSession = sessions.find(s => s.id === this.selectedSession!.id);
@@ -54,13 +56,18 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Subscribe to admin users
-    this.adminSubscription = this.chatService.adminUsers$.subscribe(admins => {
-      this.adminUsers = admins;
-    });
-
     // Get canned responses
     this.cannedResponses = this.chatService.getCannedResponses();
+
+    // Refresh sessions every 10 seconds
+    this.refreshInterval = setInterval(() => {
+      this.chatService.loadAdminSessions();
+
+      // Also refresh selected session messages if any
+      if (this.selectedSession) {
+        this.chatService.getSessionMessages(this.selectedSession.id).subscribe();
+      }
+    }, 10000);
   }
 
   ngAfterViewInit(): void {
@@ -71,13 +78,16 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.sessionsSubscription) {
       this.sessionsSubscription.unsubscribe();
     }
-    if (this.adminSubscription) {
-      this.adminSubscription.unsubscribe();
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
     }
   }
 
   // Get sender label for message
   getSenderLabel(message: ChatMessage): string {
+    //Debug: logmessage sender
+    console.log('Message sender:', message.sender, 'Content:', message.content.substring(0, 30));
+
     if (message.sender === 'user') {
       return this.selectedSession?.userName || 'User';
     } else {
@@ -88,63 +98,100 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
   // Select a chat session
   selectSession(session: ChatSession): void {
     this.selectedSession = session;
-    
+
+    // Load messages for this session
+    this.chatService.getSessionMessages(session.id).subscribe({
+      next: (messages) => {
+        // Messages are already updated in the session via the subscription
+        setTimeout(() => {
+          this.scrollToBottom();
+          this.chatInput?.nativeElement?.focus();
+        }, 100);
+      },
+      error: (error) => {
+        console.error('Error loading session messages:', error);
+      }
+    });
+
     // Mark session as active if it was pending
     if (session.status === 'pending') {
       this.markSessionAsActive(session.id);
     }
-    
-    setTimeout(() => {
-      this.scrollToBottom();
-      this.chatInput?.nativeElement?.focus();
-    }, 100);
   }
 
   // Send message to selected session
   sendMessage(): void {
     if (!this.selectedSession || !this.newMessage.trim()) return;
 
-    this.chatService.sendAdminMessage(this.newMessage, this.selectedSession.id);
-    this.newMessage = '';
-    
-    setTimeout(() => this.scrollToBottom(), 100);
+    this.chatService.sendAdminMessage(this.newMessage, this.selectedSession.id).subscribe({
+      next: () => {
+        this.newMessage = '';
+        // Reload messages for this session
+        this.chatService.getSessionMessages(this.selectedSession!.id).subscribe();
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
+      error: (error) => {
+        console.error('Error sending message:', error);
+      }
+    });
   }
 
   // Send canned response
   sendCannedResponse(): void {
     if (!this.selectedSession || !this.selectedCannedResponse.trim()) return;
 
-    this.chatService.sendAdminMessage(this.selectedCannedResponse, this.selectedSession.id);
-    this.selectedCannedResponse = '';
-    
-    setTimeout(() => this.scrollToBottom(), 100);
+    this.chatService.sendAdminMessage(this.selectedCannedResponse, this.selectedSession.id).subscribe({
+      next: () => {
+        this.selectedCannedResponse = '';
+        // Reload messages for this session
+        this.chatService.getSessionMessages(this.selectedSession!.id).subscribe();
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
+      error: (error) => {
+        console.error('Error sending canned response:', error);
+      }
+    });
   }
 
   // Mark session as resolved
   resolveSession(): void {
     if (!this.selectedSession) return;
-    
-    this.chatService.markSessionResolved(this.selectedSession.id);
-    this.selectedSession = null;
+
+    this.chatService.markSessionResolved(this.selectedSession.id).subscribe({
+      next: () => {
+        this.selectedSession = null;
+      },
+      error: (error) => {
+        console.error('Error resolving session:', error);
+      }
+    });
   }
 
   // Assign session to admin
   assignToMe(): void {
     if (!this.selectedSession) return;
-    
-    this.chatService.assignSessionToAdmin(this.selectedSession.id, this.adminName);
+
+    this.chatService.assignSessionToAdmin(this.selectedSession.id, this.adminName).subscribe({
+      error: (error) => {
+        console.error('Error assigning session:', error);
+      }
+    });
   }
 
   // Mark session as active
   markSessionAsActive(sessionId: string): void {
-    this.chatService.assignSessionToAdmin(sessionId, this.adminName);
+    this.chatService.assignSessionToAdmin(sessionId, this.adminName).subscribe({
+      error: (error) => {
+        console.error('Error marking session as active:', error);
+      }
+    });
   }
 
   // Format time
   formatTime(date: Date): string {
-    return new Date(date).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
@@ -182,10 +229,13 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
     this.activeSessions = this.sessions.filter(s => s.status === 'active');
     this.pendingSessions = this.sessions.filter(s => s.status === 'pending');
     this.resolvedSessions = this.sessions.filter(s => s.status === 'resolved');
+
+    // Update filtered sessions cache
+    this.applyFilters();
   }
 
-  // Get filtered sessions based on search and filter
-  getFilteredSessions(): ChatSession[] {
+  // Apply current filters and update the filtered sessions cache
+  applyFilters(): void {
     let filtered = this.sessions;
 
     // Apply status filter
@@ -205,9 +255,43 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Sort by last activity (most recent first)
-    return filtered.sort((a, b) => 
+    this.filteredSessions = filtered.sort((a, b) =>
       new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
     );
+
+    console.log('[AdminChat] filteredSessions updated:', this.filteredSessions.length, 'sessions');
+  }
+
+  // Get filtered sessions based on search and filter
+  getFilteredSessions(): ChatSession[] {
+    console.log('[AdminChat] getFilteredSessions called - filterStatus:', this.filterStatus, 'total sessions:', this.sessions.length);
+    let filtered = this.sessions;
+
+    // Apply status filter
+    if (this.filterStatus !== 'all') {
+      filtered = filtered.filter(s => s.status === this.filterStatus);
+      console.log('[AdminChat] After status filter:', filtered.length, 'sessions');
+    }
+
+    // Apply search filter
+    if (this.searchQuery.trim()) {
+      const query = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(session =>
+        session.userName.toLowerCase().includes(query) ||
+        session.userEmail?.toLowerCase().includes(query) ||
+        session.userPhone?.includes(query) ||
+        session.messages.some(msg => msg.content.toLowerCase().includes(query))
+      );
+      console.log('[AdminChat] After search filter:', filtered.length, 'sessions');
+    }
+
+    // Sort by last activity (most recent first)
+    const sorted = filtered.sort((a, b) =>
+      new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
+    );
+
+    console.log('[AdminChat] Returning', sorted.length, 'filtered sessions');
+    return sorted;
   }
 
   // Get session stats
@@ -223,6 +307,7 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
   // Clear search
   clearSearch(): void {
     this.searchQuery = '';
+    this.applyFilters();
   }
 
   // Scroll to bottom
@@ -230,10 +315,10 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       setTimeout(() => {
         if (this.messageContainer) {
-          this.messageContainer.nativeElement.scrollTop = 
+          this.messageContainer.nativeElement.scrollTop =
             this.messageContainer.nativeElement.scrollHeight;
         }
       }, 100);
-    } catch(err) { }
+    } catch (err) { }
   }
 }

@@ -1,8 +1,16 @@
+/* Force chat to escape admin layout and sit above overlays */
+:host {
+  display: block;
+}
+
 .admin-chat-container {
   display: flex;
   height: 100vh;
   background: #f5f7fa;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  position: relative;
+  z-index: 40;
+  /* Above admin layout backdrop (z-30) */
 }
 
 .admin-sidebar {
@@ -339,10 +347,12 @@
 
 .user-msg {
   justify-content: flex-start;
+  /* Customer messages on LEFT */
 }
 
 .admin-msg {
   justify-content: flex-end;
+  /* Admin's own messages on RIGHT */
 }
 
 .message-bubble {
@@ -539,89 +549,13 @@
   .admin-chat-container {
     flex-direction: column;
   }
-  
+
   .admin-sidebar {
     width: 100%;
     height: 40vh;
   }
-  
+
   .admin-chat-area {
     height: 60vh;
   }
-}
-
-/* Add to the existing admin-chat.component.css */
-
-/* Message sender labels */
-.message-sender-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.user-msg .message-sender-label {
-  color: #dc2626; /* Red for user */
-  text-align: left;
-}
-
-.admin-msg .message-sender-label {
-  color: #059669; /* Green for admin */
-  text-align: right;
-}
-
-/* Message bubble updates for clarity */
-.user-msg .message-bubble {
-  background: #fef2f2; /* Light red background for user */
-  border: 1px solid #fecaca;
-  border-bottom-left-radius: 4px;
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
-}
-
-.admin-msg .message-bubble {
-  background: #f0fdf4; /* Light green background for admin */
-  border: 1px solid #bbf7d0;
-  color: #064e3b;
-  border-bottom-right-radius: 4px;
-  box-shadow: 0 2px 8px rgba(6, 150, 105, 0.1);
-}
-
-/* Stronger visual distinction */
-.message-bubble::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  width: 4px;
-  height: 100%;
-  border-radius: 2px;
-}
-
-.user-msg .message-bubble::before {
-  left: 0;
-  background: #dc2626; /* Red left border for user */
-}
-
-.admin-msg .message-bubble::before {
-  right: 0;
-  background: #059669; /* Green right border for admin */
-}
-
-/* Update time styling */
-.message-time {
-  font-size: 10px;
-  opacity: 0.7;
-  margin-top: 4px;
-  font-weight: 500;
-}
-
-.user-msg .message-time {
-  color: #dc2626;
-  text-align: left;
-}
-
-.admin-msg .message-time {
-  color: #059669;
-  text-align: right;
 }

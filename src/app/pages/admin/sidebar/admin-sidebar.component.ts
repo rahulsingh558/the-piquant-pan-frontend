@@ -22,41 +22,47 @@ export class AdminSidebarComponent {
 
   // Navigation items with SVG paths
   navItems: NavItem[] = [
-    { 
-      name: 'Dashboard', 
-      icon: 'dashboard', 
-      route: '/admin/dashboard', 
-      isActive: false 
+    {
+      name: 'Dashboard',
+      icon: 'dashboard',
+      route: '/admin/dashboard',
+      isActive: false
     },
-    { 
-      name: 'Orders', 
-      icon: 'orders', 
-      route: '/admin/orders', 
-      isActive: false 
+    {
+      name: 'Orders',
+      icon: 'orders',
+      route: '/admin/orders',
+      isActive: false
     },
-    { 
-      name: 'Customers', 
-      icon: 'customers', 
-      route: '/admin/customers', 
-      isActive: false 
+    {
+      name: 'Customers',
+      icon: 'customers',
+      route: '/admin/customers',
+      isActive: false
     },
-    { 
-      name: 'Menu Items', 
-      icon: 'menu', 
-      route: '/admin/menu', 
-      isActive: false 
+    {
+      name: 'Menu Items',
+      icon: 'menu',
+      route: '/admin/menu',
+      isActive: false
     },
-    { 
-      name: 'Analytics', 
-      icon: 'analytics', 
-      route: '/admin/analytics', 
-      isActive: false 
+    {
+      name: 'Chat Support',
+      icon: 'chat',
+      route: '/admin/chat',
+      isActive: false
     },
-    { 
-      name: 'Settings', 
-      icon: 'settings', 
-      route: '/admin/settings', 
-      isActive: false 
+    {
+      name: 'Analytics',
+      icon: 'analytics',
+      route: '/admin/analytics',
+      isActive: false
+    },
+    {
+      name: 'Settings',
+      icon: 'settings',
+      route: '/admin/settings',
+      isActive: false
     },
   ];
 

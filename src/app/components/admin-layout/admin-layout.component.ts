@@ -9,9 +9,9 @@ import { AdminSidebarComponent } from '../../pages/admin/sidebar/admin-sidebar.c
   selector: 'app-admin-layout',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
-    RouterOutlet, 
+    CommonModule,
+    RouterModule,
+    RouterOutlet,
     AdminSidebarComponent
   ],
   templateUrl: './admin-layout.component.html',
@@ -30,6 +30,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     { path: '/admin/orders', title: 'Orders Management' },
     { path: '/admin/customers', title: 'Customers' },
     { path: '/admin/menu', title: 'Menu Items' },
+    { path: '/admin/chat', title: 'Chat Support' },
     { path: '/admin/analytics', title: 'Analytics' },
     { path: '/admin/settings', title: 'Settings' }
   ];
@@ -38,7 +39,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AdminAuthService,
     @Inject(PLATFORM_ID) private platformId: any
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Initialize sidebar state based on screen size - only in browser
@@ -93,7 +94,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   private getTitleFromRoute(): string {
     const segments = this.currentRoute.split('/').filter(segment => segment);
-    
+
     if (segments.length >= 2) {
       const lastSegment = segments[segments.length - 1];
       // Capitalize first letter and replace hyphens with spaces
@@ -101,14 +102,14 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         .replace(/-/g, ' ')
         .replace(/\b\w/g, l => l.toUpperCase());
     }
-    
+
     return 'Admin Panel';
   }
 
   // Get breadcrumb items
   getBreadcrumbs(): string[] {
     const segments = this.currentRoute.split('/').filter(segment => segment);
-    return segments.map(segment => 
+    return segments.map(segment =>
       segment.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
     );
   }

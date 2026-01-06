@@ -19,8 +19,5 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([authInterceptor])
     ),
-
-    /** ✅ Stable hydration (no DOM replay mismatch) */
-    provideClientHydration(),
   ],
 };

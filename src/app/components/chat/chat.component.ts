@@ -15,7 +15,7 @@ import { ChatMessage, QuickReply } from '../../models/chat';
 export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('messageContainer') private messageContainer!: ElementRef;
   @ViewChild('chatInput') private chatInput!: ElementRef;
-  
+
   messages: ChatMessage[] = [];
   quickReplies: QuickReply[] = [];
   commonQuestions: string[] = [];
@@ -27,19 +27,24 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
   showQuickReplies = true;
   userId = '';
   userName = 'User';
-  
-  private chatOpenSubscription!: Subscription;
 
-  constructor(private chatService: ChatService) {}
+  private chatOpenSubscription!: Subscription;
+  private messagesSubscription!: Subscription;
+
+  constructor(private chatService: ChatService) { }
 
   ngOnInit(): void {
-    // Generate or get user ID
+    // Get user info
     this.userId = this.getUserId();
     this.userName = this.getUserName();
-    
-    // Load user messages
-    this.loadUserMessages();
-    
+
+    // Subscribe to messages
+    this.messagesSubscription = this.chatService.messages$.subscribe(messages => {
+      this.messages = messages;
+      this.unreadCount = this.calculateUnreadCount();
+      setTimeout(() => this.scrollToBottom(), 100);
+    });
+
     // Subscribe to chat open state
     this.chatOpenSubscription = this.chatService.isChatOpen$.subscribe(isOpen => {
       this.isChatOpen = isOpen;
@@ -48,8 +53,6 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.markMessagesAsRead();
         setTimeout(() => {
           this.chatInput?.nativeElement?.focus();
-          // Reload messages to get any new ones
-          this.loadUserMessages();
         }, 300);
       }
     });
@@ -57,12 +60,6 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     // Get quick replies and common questions
     this.quickReplies = this.chatService.getQuickReplies();
     this.commonQuestions = this.chatService.getCommonQuestions();
-    
-    // Calculate initial unread count
-    this.unreadCount = this.calculateUnreadCount();
-    
-    // Load initial messages
-    this.loadUserMessages();
   }
 
   ngAfterViewInit(): void {
@@ -73,40 +70,42 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.chatOpenSubscription) {
       this.chatOpenSubscription.unsubscribe();
     }
+    if (this.messagesSubscription) {
+      this.messagesSubscription.unsubscribe();
+    }
+    this.chatService.stopPolling();
   }
 
   // Get sender label for message
   getSenderLabel(message: ChatMessage): string {
-    // Check if it's the current user's message
-    if (message.userId === this.userId && message.sender === 'user') {
+    if (message.sender === 'user') {
       return 'You';
-    } else if (message.sender === 'admin') {
-      return 'Support Agent';
     } else {
-      return message.userName || 'User';
+      return 'Support Agent';
     }
   }
 
   // Load user messages from local storage
-  loadUserMessages(): void {
-    const storedMessages = this.chatService.getUserMessages(this.userId);
-    
-    // Filter to only show messages for this user
-    this.messages = storedMessages.filter(msg => 
-      // Show messages where:
-      // 1. The message is from this user (userId matches and sender is 'user')
-      // 2. OR the message is from admin (sender is 'admin')
-      (msg.userId === this.userId && msg.sender === 'user') || 
-      msg.sender === 'admin'
-    );
-    
-    // Sort by timestamp
-    this.messages.sort((a, b) => 
-      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
-    
-    setTimeout(() => this.scrollToBottom(), 100);
-  }
+  // This method is no longer needed as messages are handled by the subscription
+  // loadUserMessages(): void {
+  //   const storedMessages = this.chatService.getUserMessages(this.userId);
+
+  //   // Filter to only show messages for this user
+  //   this.messages = storedMessages.filter(msg => 
+  //     // Show messages where:
+  //     // 1. The message is from this user (userId matches and sender is 'user')
+  //     // 2. OR the message is from admin (sender is 'admin')
+  //     (msg.userId === this.userId && msg.sender === 'user') || 
+  //     msg.sender === 'admin'
+  //   );
+
+  //   // Sort by timestamp
+  //   this.messages.sort((a, b) => 
+  //     new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  //   );
+
+  //   setTimeout(() => this.scrollToBottom(), 100);
+  // }
 
   // Get or create user ID
   getUserId(): string {
@@ -136,28 +135,12 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Mark all messages as read
   markMessagesAsRead(): void {
-    const updatedMessages = this.messages.map(msg => ({
-      ...msg,
-      isRead: true
-    }));
-    
-    // Save updated messages
-    if (typeof window !== 'undefined' && localStorage) {
-      const key = 'userMessages_' + this.userId;
-      localStorage.setItem(key, JSON.stringify(updatedMessages));
-    }
-    
-    this.messages = updatedMessages;
     this.unreadCount = 0;
   }
 
   // Toggle chat window
   toggleChat(): void {
     this.chatService.toggleChat();
-    if (!this.isChatOpen) {
-      // When opening chat, load latest messages
-      this.loadUserMessages();
-    }
   }
 
   // Send message
@@ -165,50 +148,40 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     const message = this.newMessage.trim();
     if (!message) return;
 
-    this.chatService.sendUserMessage(message, this.userName);
-    this.newMessage = '';
-    this.showQuickReplies = false;
-    
     // Show typing indicator
     this.isTyping = true;
-    setTimeout(() => {
-      this.isTyping = false;
-      // Reload messages after sending
-      this.loadUserMessages();
-    }, 1000);
-    
-    setTimeout(() => this.scrollToBottom(), 100);
+
+    this.chatService.sendUserMessage(message, this.userName).subscribe({
+      next: () => {
+        this.newMessage = '';
+        this.showQuickReplies = false;
+        this.isTyping = false;
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
+      error: (error) => {
+        console.error('Error sending message:', error);
+        this.isTyping = false;
+      }
+    });
   }
 
   // Send quick reply
   sendQuickReply(text: string): void {
-    this.chatService.sendQuickReply(text);
-    this.showQuickReplies = false;
-    
-    this.isTyping = true;
-    setTimeout(() => {
-      this.isTyping = false;
-      this.loadUserMessages();
-    }, 1000);
+    this.newMessage = text;
+    this.sendMessage();
   }
 
   // Send common question
   sendCommonQuestion(question: string): void {
-    this.chatService.sendUserMessage(question, this.userName);
-    this.showQuickReplies = false;
-    
-    this.isTyping = true;
-    setTimeout(() => {
-      this.isTyping = false;
-      this.loadUserMessages();
-    }, 1000);
+    this.newMessage = question;
+    this.sendMessage();
   }
 
   // Format time
   formatTime(date: Date): string {
-    return new Date(date).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
@@ -217,11 +190,11 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       setTimeout(() => {
         if (this.messageContainer) {
-          this.messageContainer.nativeElement.scrollTop = 
+          this.messageContainer.nativeElement.scrollTop =
             this.messageContainer.nativeElement.scrollHeight;
         }
       }, 100);
-    } catch(err) { }
+    } catch (err) { }
   }
 
   // Handle Enter key

@@ -3,31 +3,22 @@
     <!-- Search and Filters -->
     <div class="search-section">
       <div class="search-box">
-        <input 
-          type="text" 
-          [(ngModel)]="searchQuery" 
-          placeholder="Search conversations..."
-          class="search-input"
-        />
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search conversations..." class="search-input" />
         <button *ngIf="searchQuery" class="clear-search" (click)="clearSearch()">
           âœ•
         </button>
       </div>
-      
+
       <div class="filter-tabs">
-        <button 
-          *ngFor="let filter of filterOptions"
-          [class.active]="filterStatus === filter"
-          (click)="filterStatus = filter"
-          class="filter-tab"
-        >
+        <button *ngFor="let filter of filterOptions" [class.active]="filterStatus === filter"
+          (click)="filterStatus = filter" class="filter-tab">
           {{ filter | titlecase }}
           <span class="filter-count">
-            {{ 
-              filter === 'all' ? sessions.length :
-              filter === 'active' ? activeSessions.length :
-              filter === 'pending' ? pendingSessions.length :
-              resolvedSessions.length
+            {{
+            filter === 'all' ? sessions.length :
+            filter === 'active' ? activeSessions.length :
+            filter === 'pending' ? pendingSessions.length :
+            resolvedSessions.length
             }}
           </span>
         </button>
@@ -36,25 +27,23 @@
 
     <!-- Sessions List -->
     <div class="sessions-list">
-      <div *ngFor="let session of getFilteredSessions()" 
-           class="session-item"
-           [class.active]="selectedSession?.id === session.id"
-           (click)="selectSession(session)">
-        
+      <div *ngFor="let session of filteredSessions" class="session-item"
+        [class.active]="selectedSession?.id === session.id" (click)="selectSession(session)">
+
         <div class="session-avatar">
           {{ session.userName.charAt(0).toUpperCase() }}
         </div>
-        
+
         <div class="session-info">
           <div class="session-header">
             <h4 class="session-name">{{ session.userName }}</h4>
             <span class="session-time">{{ getTimeAgo(session.lastActive) }}</span>
           </div>
-          
+
           <p class="session-preview">
             {{ session.messages[session.messages.length - 1]?.content || 'No messages yet' }}
           </p>
-          
+
           <div class="session-footer">
             <span class="session-status" [class]="session.status">
               {{ session.status }}
@@ -115,7 +104,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="chat-actions">
           <button class="action-btn" (click)="assignToMe()" title="Assign to me">
             ðŸ‘¤
@@ -128,20 +117,18 @@
 
       <!-- Messages -->
       <div class="messages-area" #messageContainer>
-        <div *ngFor="let message of selectedSession.messages" 
-             class="admin-message"
-             [class.user-msg]="message.sender === 'user'"
-             [class.admin-msg]="message.sender === 'admin'">
-          
+        <div *ngFor="let message of selectedSession.messages" class="admin-message"
+          [class.user-msg]="message.sender === 'user'" [class.admin-msg]="message.sender === 'admin'">
+
           <div class="message-bubble">
             <!-- Sender Label -->
             <span class="message-sender-label">
               {{ getSenderLabel(message) }}
             </span>
-            
+
             <!-- Message Text -->
             <div class="message-text">{{ message.content }}</div>
-            
+
             <!-- Message Time -->
             <div class="message-time">{{ formatTime(message.timestamp) }}</div>
           </div>
@@ -157,29 +144,15 @@
               {{ response.length > 50 ? response.substring(0, 50) + '...' : response }}
             </option>
           </select>
-          <button 
-            class="send-canned-btn"
-            (click)="sendCannedResponse()"
-            [disabled]="!selectedCannedResponse"
-          >
+          <button class="send-canned-btn" (click)="sendCannedResponse()" [disabled]="!selectedCannedResponse">
             Send
           </button>
         </div>
-        
+
         <div class="message-input-section">
-          <input 
-            type="text" 
-            [(ngModel)]="newMessage"
-            (keyup.enter)="sendMessage()"
-            placeholder="Type your reply..."
-            class="admin-message-input"
-            #chatInput
-          />
-          <button 
-            class="send-admin-btn"
-            (click)="sendMessage()"
-            [disabled]="!newMessage.trim()"
-          >
+          <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Type your reply..."
+            class="admin-message-input" #chatInput />
+          <button class="send-admin-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
             Send
           </button>
         </div>
