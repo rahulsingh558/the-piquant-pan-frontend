@@ -1,28 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   MenuAdminService,
   AdminMenuItem,
 } from '../../../services/menu-admin.service';
+import { OrderService, Order } from '../../../services/order.service';
 
 @Component({
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-dashboard.html',
 })
-export class AdminDashboard {
+export class AdminDashboard implements OnInit {
   /* =========================
      MENU ITEMS
   ========================== */
   items: AdminMenuItem[] = [];
   showMenuForm = false;
-  
+
   newItem: Omit<AdminMenuItem, 'id'> = {
     name: '',
     subtitle: 'Healthy • Fresh • Protein-rich',
     basePrice: 0,
-    type: 'veg', // Default type
+    type: 'veg',
     image: '',
     defaultAddons: [],
     extraAddons: [],
@@ -31,12 +32,13 @@ export class AdminDashboard {
   /* =========================
      DASHBOARD METRICS
   ========================== */
-  totalOrders = 124;
-  totalCustomers = 68;
+  totalOrders = 0;
+  totalCustomers = 0;
   notifications = 3;
+  loading = true;
 
-  revenueThisWeek = 11980;
-  revenueLastWeek = 9800;
+  revenueThisWeek = 0;
+  revenueLastWeek = 0;
 
   get totalRevenue(): number {
     return this.revenueThisWeek;
@@ -47,11 +49,10 @@ export class AdminDashboard {
     return Math.round(
       ((this.revenueThisWeek - this.revenueLastWeek) /
         this.revenueLastWeek) *
-        100
+      100
     );
   }
 
-  /* ✅ ALIAS USED BY TEMPLATE */
   get revenueGrowthPercent(): number {
     return this.revenueChangePercent;
   }
@@ -59,15 +60,8 @@ export class AdminDashboard {
   /* =========================
      ORDERS BAR CHART
   ========================== */
-  ordersChart: { day: string; value: number }[] = [
-    { day: 'Mon', value: 12 },
-    { day: 'Tue', value: 18 },
-    { day: 'Wed', value: 9 },
-    { day: 'Thu', value: 15 },
-    { day: 'Fri', value: 21 },
-  ];
-
-  maxOrders = Math.max(...this.ordersChart.map(o => o.value));
+  ordersChart: { day: string; value: number }[] = [];
+  maxOrders = 0;
 
   get ordersLast5Days(): number {
     return this.ordersChart.reduce((sum, o) => sum + o.value, 0);
@@ -76,37 +70,20 @@ export class AdminDashboard {
   /* =========================
      REVENUE LINE CHART
   ========================== */
-  revenueChart: { day: string; value: number }[] = [
-    { day: 'Mon', value: 8200 },
-    { day: 'Tue', value: 9100 },
-    { day: 'Wed', value: 7600 },
-    { day: 'Thu', value: 10400 },
-    { day: 'Fri', value: 11980 },
-  ];
-
-  maxRevenue = Math.max(...this.revenueChart.map(r => r.value));
+  revenueChart: { day: string; value: number }[] = [];
+  maxRevenue = 0;
   revenuePolylinePoints = '';
 
   /* =========================
      TABLE DATA
   ========================== */
-  recentOrders = [
-    { id: '#ORD-101', customer: 'Rahul', amount: 280, status: 'Paid' },
-    { id: '#ORD-102', customer: 'Amit', amount: 160, status: 'Paid' },
-    { id: '#ORD-103', customer: 'Neha', amount: 340, status: 'Pending' },
-    { id: '#ORD-104', customer: 'Sneha', amount: 220, status: 'Paid' },
-    { id: '#ORD-105', customer: 'Vikas', amount: 180, status: 'Cancelled' },
-  ];
-
-  bestSelling = [
-    { name: 'Moong Sprouts Bowl', sold: 52 },
-    { name: 'Egg Meal Bowl', sold: 41 },
-    { name: 'Paneer Sprouts Bowl', sold: 34 },
-    { name: 'Chicken Bowl', sold: 28 },
-  ];
+  recentOrders: any[] = [];
+  bestSelling: any[] = [];
 
   constructor(
-    private menuService: MenuAdminService
+    private menuService: MenuAdminService,
+    private orderService: OrderService,
+    private cdr: ChangeDetectorRef
   ) {
     /* Seed menu once */
     this.menuService.seedIfEmpty([
@@ -162,6 +139,123 @@ export class AdminDashboard {
     ]);
 
     this.loadItems();
+  }
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  /* =========================
+     LOAD DASHBOARD DATA
+  ========================== */
+  loadDashboardData() {
+    this.loading = true;
+
+    // Load order statistics
+    this.orderService.getOrderStats('7d').subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.totalOrders = response.stats.totalOrders;
+          this.revenueThisWeek = response.stats.periodRevenue;
+          this.totalCustomers = response.stats.totalOrders; // Approximate
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading order stats:', error);
+      }
+    });
+
+    // Load revenue data for chart
+    this.orderService.getRevenueData('7d', 'day').subscribe({
+      next: (response) => {
+        if (response.success && response.revenueData) {
+          this.processRevenueData(response.revenueData);
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading revenue data:', error);
+      }
+    });
+
+    // Load recent orders
+    this.orderService.getAllOrders({ limit: 5, sortBy: '-createdAt' }).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.recentOrders = response.orders.map(order => ({
+            id: `#${order.orderNumber}`,
+            customer: order.customerName,
+            amount: order.totalAmount,
+            status: this.capitalizeFirst(order.paymentStatus)
+          }));
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading recent orders:', error);
+      }
+    });
+
+    // Load best-selling items
+    this.orderService.getBestSellingItems(5).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.bestSelling = response.bestSelling.map(item => ({
+            name: item.name,
+            sold: item.totalSold
+          }));
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading best-selling items:', error);
+      },
+      complete: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /* =========================
+     PROCESS REVENUE DATA
+  ========================== */
+  processRevenueData(data: any[]) {
+    // Get last 7 days
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = new Date();
+
+    // Initialize arrays with last 5 days
+    this.revenueChart = [];
+    this.ordersChart = [];
+
+    for (let i = 4; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dayName = days[date.getDay()];
+
+      // Find matching data
+      const matchingData = data.find(d =>
+        d._id.year === date.getFullYear() &&
+        d._id.month === date.getMonth() + 1 &&
+        d._id.day === date.getDate()
+      );
+
+      this.revenueChart.push({
+        day: dayName,
+        value: matchingData ? matchingData.revenue : 0
+      });
+
+      this.ordersChart.push({
+        day: dayName,
+        value: matchingData ? matchingData.orders : 0
+      });
+    }
+
+    this.maxRevenue = Math.max(...this.revenueChart.map(r => r.value), 1);
+    this.maxOrders = Math.max(...this.ordersChart.map(o => o.value), 1);
+
     this.buildRevenuePolyline();
   }
 
@@ -175,6 +269,10 @@ export class AdminDashboard {
           `${i * 80 + 40},${160 - (p.value / this.maxRevenue) * 120}`
       )
       .join(' ');
+  }
+
+  capitalizeFirst(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   /* =========================
@@ -200,7 +298,7 @@ export class AdminDashboard {
       defaultAddons: [],
       extraAddons: [],
     };
-    
+
     this.showMenuForm = false;
   }
 

@@ -5,52 +5,51 @@
       My Orders
     </h1>
 
+    <!-- LOADING STATE -->
+    <div *ngIf="loading" class="bg-white p-8 rounded-xl shadow text-center">
+      <p class="text-gray-600">Loading orders...</p>
+    </div>
+
     <!-- EMPTY STATE -->
-    <div
-      *ngIf="orders.length === 0"
-      class="bg-white p-8 rounded-xl shadow text-center"
-    >
+    <div *ngIf="!loading && orders.length === 0" class="bg-white p-8 rounded-xl shadow text-center">
       <p class="text-gray-600 mb-4">
-        You havenâ€™t placed any orders yet.
+        You haven't placed any orders yet.
       </p>
-      <a
-        routerLink="/menu"
-        class="inline-block bg-orange-600 text-white px-6 py-3 rounded"
-      >
+      <a routerLink="/menu" class="inline-block bg-orange-600 text-white px-6 py-3 rounded">
         Browse Menu
       </a>
     </div>
 
     <!-- ORDERS LIST -->
-    <div
-      *ngFor="let order of orders"
-      class="bg-white rounded-xl shadow mb-6 p-6"
-    >
+    <div *ngFor="let order of orders" class="bg-white rounded-xl shadow mb-6 p-6">
       <div class="flex justify-between mb-4">
         <div>
           <p class="font-semibold">
-            Order ID: {{ order.id }}
+            Order #{{ order.orderNumber }}
           </p>
           <p class="text-sm text-gray-500">
-            {{ order.date | date:'medium' }}
+            {{ formatDate(order.createdAt) }} {{ formatTime(order.createdAt) }}
+          </p>
+          <p class="text-sm font-medium mt-1" [class.text-green-600]="order.orderStatus === 'delivered'"
+            [class.text-blue-600]="order.orderStatus === 'confirmed' || order.orderStatus === 'preparing'"
+            [class.text-orange-600]="order.orderStatus === 'out_for_delivery'"
+            [class.text-red-600]="order.orderStatus === 'cancelled'">
+            {{ getStatusText(order.orderStatus) }}
           </p>
         </div>
 
         <p class="font-bold text-orange-700">
-          â‚¹{{ order.total }}
+          ₹{{ order.totalAmount }}
         </p>
       </div>
 
       <div class="border-t pt-4">
-        <div
-          *ngFor="let item of order.items"
-          class="flex justify-between text-sm mb-2"
-        >
+        <div *ngFor="let item of order.items" class="flex justify-between text-sm mb-2">
           <span>
-            {{ item.name }} Ã— {{ item.quantity }}
+            {{ item.name }} × {{ item.quantity }}
           </span>
           <span>
-            â‚¹{{ item.totalPrice * item.quantity }}
+            ₹{{ item.totalPrice }}
           </span>
         </div>
       </div>

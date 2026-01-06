@@ -60,6 +60,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     // Get quick replies and common questions
     this.quickReplies = this.chatService.getQuickReplies();
     this.commonQuestions = this.chatService.getCommonQuestions();
+
+    // Initialize chat data (load messages and start polling)
+    this.chatService.initializeUserChat();
   }
 
   ngAfterViewInit(): void {

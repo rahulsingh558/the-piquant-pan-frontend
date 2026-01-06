@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartService } from '../../services/cart';
 import { AddressService } from '../../services/address.service';
+import { OrderService, Order, OrderItem } from '../../services/order.service';
 import { Address } from '../../pages/address/address';
 import { CartItem } from '../../models/cart-item';
 
@@ -34,7 +35,13 @@ export class Checkout implements OnInit {
   isBrowser = false;
   deliveryInstructions = '';
   paymentMethod = 'cod'; // 'cod' or 'online'
-  
+
+  // User info
+  userId: string | null = null;
+  userName: string | null = null;
+  userEmail: string | null = null;
+  userPhone: string | null = null;
+
   // Online payment fields
   showOnlinePaymentForm = false;
   onlinePaymentMethod = 'upi'; // 'upi', 'card', 'netbanking', 'wallet'
@@ -78,6 +85,7 @@ export class Checkout implements OnInit {
   constructor(
     private cartService: CartService,
     private addressService: AddressService,
+    private orderService: OrderService,
     public router: Router,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
@@ -85,6 +93,24 @@ export class Checkout implements OnInit {
   }
 
   ngOnInit(): void {
+    // Check if user is logged in
+    if (this.isBrowser) {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+      if (!isLoggedIn) {
+        // Redirect to login with return URL
+        alert('Please login to place an order');
+        this.router.navigate(['/login'], { queryParams: { returnUrl: '/checkout' } });
+        return;
+      }
+
+      // Get user details
+      this.userId = localStorage.getItem('userId');
+      this.userName = localStorage.getItem('userName');
+      this.userEmail = localStorage.getItem('userEmail') || '';
+      this.userPhone = localStorage.getItem('userPhone') || '';
+    }
+
     // Get cart items
     this.cartService.cart$.subscribe(items => {
       this.items = items;
@@ -96,7 +122,7 @@ export class Checkout implements OnInit {
     // Get selected address
     if (this.isBrowser) {
       this.selectedAddress = this.addressService.getSelectedAddress();
-      
+
       // If no address selected, redirect to address select page
       if (!this.selectedAddress) {
         this.router.navigate(['/address-select']);
@@ -142,9 +168,9 @@ export class Checkout implements OnInit {
         return this.upiId.trim().length > 0 && this.upiId.includes('@');
       case 'card':
         return this.cardNumber.replace(/\s/g, '').length === 16 &&
-               this.cardExpiry.trim().length === 5 &&
-               this.cardCvv.trim().length >= 3 &&
-               this.cardName.trim().length > 0;
+          this.cardExpiry.trim().length === 5 &&
+          this.cardCvv.trim().length >= 3 &&
+          this.cardName.trim().length > 0;
       case 'netbanking':
         return true; // Bank is pre-selected
       case 'wallet':
@@ -162,11 +188,11 @@ export class Checkout implements OnInit {
   }
 
   getDeliveryCharge(): number {
-    return 0; // Free delivery
+    return 40; // Flat delivery charge
   }
 
   getGst(): number {
-    return this.paymentMethod === 'online' ? this.getGrandTotal() * 0.05 : 0;
+    return Math.round(this.getGrandTotal() * 0.05); // 5% GST
   }
 
   getTotalAmount(): number {
@@ -229,50 +255,75 @@ export class Checkout implements OnInit {
 
     this.isPlacingOrder = true;
 
-    const order = {
-      id: 'ORD-' + Date.now(),
-      date: new Date().toISOString(),
-      customer: {
-        name: this.selectedAddress?.name || '',
-        phone: this.selectedAddress?.phone || '',
-        address: this.getFormattedAddress(),
+    // Build order object for API
+    const orderData: Partial<Order> = {
+      userId: this.userId || undefined,
+      customerName: this.userName || this.selectedAddress?.name || '',
+      customerEmail: this.userEmail || '',
+      customerPhone: this.userPhone || this.selectedAddress?.phone || '',
+      items: this.items.map(item => {
+        const orderItem: OrderItem = {
+          foodId: item.foodId.toString(),
+          name: item.name,
+          basePrice: item.basePrice,
+          quantity: item.quantity,
+          addons: item.addons.map(addon => ({
+            name: addon.name,
+            price: addon.price
+          })),
+          totalPrice: item.totalPrice * item.quantity
+        };
+        return orderItem;
+      }),
+      deliveryAddress: {
+        street: this.selectedAddress?.addressLine1 || '',
+        city: this.selectedAddress?.city || '',
+        state: this.selectedAddress?.state || '',
+        zipCode: this.selectedAddress?.pincode || '',
+        landmark: this.selectedAddress?.landmark
       },
-      deliveryInstructions: this.deliveryInstructions,
-      paymentMethod: this.paymentMethod,
-      onlinePaymentMethod: this.paymentMethod === 'online' ? this.onlinePaymentMethod : null,
-      items: this.items.map(item => ({
-        ...item,
-        total: item.totalPrice * item.quantity
-      })),
       subtotal: this.getGrandTotal(),
       deliveryCharge: this.getDeliveryCharge(),
-      gst: this.getGst(),
-      total: this.getTotalAmount(),
-      status: this.paymentMethod === 'online' ? 'confirmed' : 'confirmed',
-      paymentStatus: this.paymentMethod === 'online' ? 'paid' : 'cod',
-      transactionId: this.paymentMethod === 'online' ? 'TXN' + Date.now() : 'COD' + Date.now()
+      tax: this.getGst(),
+      discount: 0,
+      totalAmount: this.getTotalAmount(),
+      paymentMethod: this.paymentMethod,
+      paymentStatus: this.paymentMethod === 'online' ? 'paid' : 'pending',
+      specialInstructions: this.deliveryInstructions || undefined
     };
 
-    // Save order to localStorage
-    const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    localStorage.setItem('orders', JSON.stringify([order, ...existingOrders]));
+    // Call backend API to create order
+    this.orderService.createOrder(orderData as Order).subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Clear cart
+          this.cartService.clearCart();
 
-    setTimeout(() => {
-      this.isPlacingOrder = false;
-      this.cartService.clearCart();
-      
-      const message = this.paymentMethod === 'online' 
-        ? 'Payment successful! Order placed.' 
-        : 'Order placed successfully! You will receive a confirmation call shortly.';
-      
-      alert(message);
-      this.router.navigate(['/orders']);
-    }, 800);
+          // Navigate to success page with order details
+          this.router.navigate(['/order-success'], {
+            state: {
+              orderId: response.order._id,
+              orderNumber: response.order.orderNumber,
+              totalAmount: response.order.totalAmount,
+              paymentMethod: response.order.paymentMethod
+            }
+          });
+        } else {
+          alert('Failed to place order. Please try again.');
+          this.isPlacingOrder = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error placing order:', error);
+        alert('Error placing order. Please try again.');
+        this.isPlacingOrder = false;
+      }
+    });
   }
 
   private getFormattedAddress(): string {
     if (!this.selectedAddress) return '';
-    
+
     const parts = [
       this.selectedAddress.addressLine1,
       this.selectedAddress.addressLine2,
@@ -281,7 +332,7 @@ export class Checkout implements OnInit {
       this.selectedAddress.pincode,
       this.selectedAddress.landmark
     ].filter(part => part && part.trim() !== '');
-    
+
     return parts.join(', ');
   }
 }

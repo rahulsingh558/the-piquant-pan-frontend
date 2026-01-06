@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { OrderService } from '../../../services/order.service';
 
 @Component({
   selector: 'app-admin-analytics',
@@ -7,18 +8,14 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './admin-analytics.html',
 })
-export class AdminAnalyticsComponent {
+export class AdminAnalyticsComponent implements OnInit {
+  loading = true;
+
   // Analytics data
-  monthlyRevenue = [8200, 9100, 7600, 10400, 11980, 9800, 11200, 13200, 14800, 12500, 14100, 15800];
-  monthlyOrders = [42, 48, 35, 52, 61, 49, 56, 68, 74, 62, 71, 79];
-  
-  topProducts = [
-    { name: 'Moong Sprouts Bowl', sales: 245, revenue: 19600 },
-    { name: 'Egg Meal Bowl', sales: 189, revenue: 22680 },
-    { name: 'Chicken Bowl', sales: 156, revenue: 21840 },
-    { name: 'Paneer Sprouts Bowl', sales: 132, revenue: 14520 },
-    { name: 'Sprouts Salad', sales: 98, revenue: 6860 },
-  ];
+  monthlyRevenue: number[] = [];
+  monthlyOrders: number[] = [];
+
+  topProducts: any[] = [];
 
   customerDemographics = [
     { age: '18-24', percentage: 25 },
@@ -27,12 +24,79 @@ export class AdminAnalyticsComponent {
     { age: '45+', percentage: 10 },
   ];
 
+  constructor(
+    private orderService: OrderService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit() {
+    this.loadAnalytics();
+  }
+
+  loadAnalytics() {
+    this.loading = true;
+
+    // Load revenue data for last 12 months
+    this.orderService.getRevenueData('1y', 'month').subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.processMonthlyData(response.revenueData);
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading revenue data:', error);
+      }
+    });
+
+    // Load best-selling items
+    this.orderService.getBestSellingItems(5).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.topProducts = response.bestSelling.map(item => ({
+            name: item.name,
+            sales: item.totalSold,
+            revenue: item.totalRevenue
+          }));
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading top products:', error);
+      },
+      complete: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  processMonthlyData(data: any[]) {
+    // Get last 12 months
+    const now = new Date();
+    this.monthlyRevenue = [];
+    this.monthlyOrders = [];
+
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(now);
+      date.setMonth(now.getMonth() - i);
+
+      const matchingData = data.find(d =>
+        d._id.year === date.getFullYear() &&
+        d._id.month === date.getMonth() + 1
+      );
+
+      this.monthlyRevenue.push(matchingData ? matchingData.revenue : 0);
+      this.monthlyOrders.push(matchingData ? matchingData.orders : 0);
+    }
+  }
+
   get maxRevenue() {
-    return Math.max(...this.monthlyRevenue);
+    return Math.max(...this.monthlyRevenue, 1);
   }
 
   get maxOrders() {
-    return Math.max(...this.monthlyOrders);
+    return Math.max(...this.monthlyOrders, 1);
   }
 
   get totalRevenue() {
@@ -44,20 +108,21 @@ export class AdminAnalyticsComponent {
   }
 
   get averageOrderValue() {
-    return Math.round(this.totalRevenue / this.totalOrders);
+    return this.totalOrders > 0 ? Math.round(this.totalRevenue / this.totalOrders) : 0;
   }
 
   get revenueGrowth() {
+    if (this.monthlyRevenue.length < 2) return 0;
     const lastMonth = this.monthlyRevenue[this.monthlyRevenue.length - 1];
     const prevMonth = this.monthlyRevenue[this.monthlyRevenue.length - 2];
-    return Math.round(((lastMonth - prevMonth) / prevMonth) * 100);
+    return prevMonth > 0 ? Math.round(((lastMonth - prevMonth) / prevMonth) * 100) : 0;
   }
 
   getOrderLinePoints(): string {
-  return this.monthlyOrders.map((value, i) => {
-    const x = i * 30 + 20;
-    const y = 160 - (value / this.maxOrders) * 120;
-    return `${x},${y}`;
-  }).join(' ');
-}
+    return this.monthlyOrders.map((value, i) => {
+      const x = i * 30 + 20;
+      const y = 160 - (value / this.maxOrders) * 120;
+      return `${x},${y}`;
+    }).join(' ');
+  }
 }

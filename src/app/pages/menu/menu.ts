@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart';
 import { FoodApiService, ApiFood } from '../../services/food-api.service';
@@ -28,7 +28,7 @@ interface MenuFood extends Food {
   imports: [CommonModule, FontAwesomeModule],
   templateUrl: './menu.html',
 })
-export class Menu {
+export class Menu implements OnInit {
   isBrowser = false;
   faCartPlus = faCartPlus;
 
@@ -72,12 +72,18 @@ export class Menu {
   constructor(
     private cartService: CartService,
     private foodApi: FoodApiService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
     if (this.isBrowser) {
       this.wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    }
+  }
+
+  ngOnInit(): void {
+    if (this.isBrowser) {
       this.loadMenu();
     }
   }
@@ -89,9 +95,12 @@ export class Menu {
     this.foodApi.getAllFoods().subscribe({
       next: foods => {
         this.foods = foods.map(f => this.mapApiFoodToMenu(f));
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('[Menu] Error loading menu:', err);
         this.foods = [];
+        this.cdr.detectChanges();
       }
     });
   }

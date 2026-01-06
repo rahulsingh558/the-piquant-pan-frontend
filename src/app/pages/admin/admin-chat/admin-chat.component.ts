@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -35,7 +35,10 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
   private sessionsSubscription!: Subscription;
   private refreshInterval: any;
 
-  constructor(private chatService: ChatService) { }
+  constructor(
+    private chatService: ChatService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     // Load sessions from backend
@@ -54,6 +57,9 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewInit {
           setTimeout(() => this.scrollToBottom(), 100);
         }
       }
+
+      // Trigger change detection to update the view
+      this.cdr.detectChanges();
     });
 
     // Get canned responses

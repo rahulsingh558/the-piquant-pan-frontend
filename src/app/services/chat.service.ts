@@ -233,17 +233,11 @@ export class ChatService {
   toggleChat(): void {
     const currentState = this.isChatOpenSubject.getValue();
     this.isChatOpenSubject.next(!currentState);
-
-    if (!currentState) {
-      // Opening chat - initialize if needed
-      this.initializeUserChat();
-    }
   }
 
   // Open chat
   openChat(): void {
     this.isChatOpenSubject.next(true);
-    this.initializeUserChat();
   }
 
   // Close chat

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -8,30 +8,38 @@ import { Router } from '@angular/router';
   templateUrl: './order-success.component.html',
 })
 export class OrderSuccessComponent implements OnInit {
-  transactionId = '';
+  orderId = '';
+  orderNumber = 0;
+  totalAmount = 0;
   orderAmount = 0;
+  transactionId = '';
+  paymentMethod = '';
   estimatedDelivery = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
-    // Get data from navigation state or localStorage
+    // Get order data from navigation state
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state) {
-      this.transactionId = navigation.extras.state['transactionId'] || '';
-      this.orderAmount = navigation.extras.state['amount'] || 0;
+      this.orderId = navigation.extras.state['orderId'] || '';
+      this.orderNumber = navigation.extras.state['orderNumber'] || 0;
+      this.totalAmount = navigation.extras.state['totalAmount'] || 0;
+      this.orderAmount = this.totalAmount;
+      this.transactionId = this.orderId;
+      this.paymentMethod = navigation.extras.state['paymentMethod'] || '';
     } else {
-      const payment = JSON.parse(localStorage.getItem('lastPayment') || '{}');
-      this.transactionId = payment.transactionId || '';
-      this.orderAmount = payment.amount || 0;
+      // If no state, redirect to home
+      this.router.navigate(['/menu']);
+      return;
     }
 
-    // Set estimated delivery time
+    // Set estimated delivery time (45 minutes from now)
     const now = new Date();
     now.setMinutes(now.getMinutes() + 45);
-    this.estimatedDelivery = now.toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    this.estimatedDelivery = now.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
@@ -44,6 +52,10 @@ export class OrderSuccessComponent implements OnInit {
   }
 
   getOrderId(): string {
-    return 'ORD-' + Date.now().toString().slice(-8);
+    return `#${this.orderNumber}`;
+  }
+
+  getPaymentMethodText(): string {
+    return this.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment';
   }
 }

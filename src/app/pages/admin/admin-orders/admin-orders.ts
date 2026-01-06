@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AdminAuthService } from '../../../services/admin-auth.service';
 import { AdminSidebarComponent } from '../sidebar/admin-sidebar.component';
+import { OrderService, Order as ApiOrder } from '../../../services/order.service';
 
 interface OrderItem {
   name: string;
@@ -77,20 +78,23 @@ export class AdminOrdersComponent implements OnInit {
   pendingOrders = 0;
   todaysOrders = 0;
   totalRevenue = 0;
+  loading = true;
 
-  constructor(private auth: AdminAuthService) {}
+  constructor(
+    private auth: AdminAuthService,
+    private orderService: OrderService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit() {
-    // Initialize with sample data
-    this.generateSampleOrders();
-    this.calculateStats();
-    this.applyFilters();
-    
+    // Load orders from backend
+    this.loadOrders();
+
     // Auto-refresh every 30 seconds
     setInterval(() => {
       this.refreshOrders();
     }, 30000);
-    
+
     // On desktop, sidebar is open by default
     this.isSidebarOpen = window.innerWidth >= 1024;
   }
@@ -180,7 +184,7 @@ export class AdminOrdersComponent implements OnInit {
     this.filteredOrders = filtered;
     this.displayedOrders = filtered.slice(0, this.pageSize);
     this.loadMoreCount = Math.max(0, filtered.length - this.displayedOrders.length);
-    
+
     // Update active filters count
     this.activeFilters = [this.searchQuery, this.statusFilter, this.dateFilter]
       .filter(Boolean).length;
@@ -208,9 +212,56 @@ export class AdminOrdersComponent implements OnInit {
      ORDER METHODS
   ========================== */
   refreshOrders() {
-    // In a real app, this would fetch from API
-    this.calculateStats();
-    this.applyFilters();
+    this.loadOrders();
+  }
+
+  loadOrders() {
+    this.loading = true;
+    this.orderService.getAllOrders({ limit: 100, sortBy: '-createdAt' }).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.allOrders = response.orders.map(order => this.mapApiOrderToLocal(order));
+          this.calculateStats();
+          this.applyFilters();
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading orders:', error);
+      },
+      complete: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  mapApiOrderToLocal(apiOrder: ApiOrder): Order {
+    return {
+      id: `#${apiOrder.orderNumber}`,
+      orderNumber: apiOrder.orderNumber || 0,
+      customerName: apiOrder.customerName,
+      customerPhone: apiOrder.customerPhone,
+      customerEmail: apiOrder.customerEmail,
+      deliveryAddress: `${apiOrder.deliveryAddress.street}, ${apiOrder.deliveryAddress.city}`,
+      items: apiOrder.items.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.basePrice,
+        addons: item.addons.map(a => a.name),
+        specialInstructions: undefined
+      })),
+      subtotal: apiOrder.subtotal,
+      deliveryCharge: apiOrder.deliveryCharge,
+      tax: apiOrder.tax,
+      totalAmount: apiOrder.totalAmount,
+      status: apiOrder.orderStatus,
+      paymentMethod: apiOrder.paymentMethod,
+      paymentStatus: apiOrder.paymentStatus,
+      date: apiOrder.createdAt ? new Date(apiOrder.createdAt) : new Date(),
+      time: apiOrder.createdAt ? new Date(apiOrder.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '',
+      notes: apiOrder.specialInstructions
+    };
   }
 
   viewOrderDetails(order: Order) {
@@ -218,26 +269,60 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   updateOrderStatus(order: Order) {
-    const statusOptions = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
+    const statusOptions = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];
     const currentIndex = statusOptions.indexOf(order.status);
     const nextIndex = (currentIndex + 1) % (statusOptions.length - 1); // Skip cancelled
-    
-    order.status = statusOptions[nextIndex];
-    
-    // Update stats and filters
-    this.calculateStats();
-    this.applyFilters();
-    
-    // Show confirmation
-    alert(`Order ${order.id} status updated to ${this.getStatusText(order.status)}`);
+
+    const newStatus = statusOptions[nextIndex];
+    const orderIdNum = order.id.replace('#', '');
+
+    // Find the API order
+    this.orderService.getAllOrders({ search: orderIdNum, limit: 1 }).subscribe({
+      next: (response) => {
+        if (response.success && response.orders.length > 0) {
+          const apiOrder = response.orders[0];
+          this.orderService.updateOrderStatus(apiOrder._id!, newStatus).subscribe({
+            next: () => {
+              order.status = newStatus;
+              this.calculateStats();
+              this.applyFilters();
+              this.cdr.detectChanges();
+              alert(`Order ${order.id} status updated to ${this.getStatusText(newStatus)}`);
+            },
+            error: (error) => {
+              console.error('Error updating order status:', error);
+              alert('Failed to update order status');
+            }
+          });
+        }
+      }
+    });
   }
 
   cancelOrder(order: Order) {
     if (confirm(`Are you sure you want to cancel order ${order.id}?`)) {
-      order.status = 'cancelled';
-      this.calculateStats();
-      this.applyFilters();
-      alert(`Order ${order.id} has been cancelled.`);
+      const orderIdNum = order.id.replace('#', '');
+
+      this.orderService.getAllOrders({ search: orderIdNum, limit: 1 }).subscribe({
+        next: (response) => {
+          if (response.success && response.orders.length > 0) {
+            const apiOrder = response.orders[0];
+            this.orderService.updateOrderStatus(apiOrder._id!, 'cancelled', 'Cancelled by admin').subscribe({
+              next: () => {
+                order.status = 'cancelled';
+                this.calculateStats();
+                this.applyFilters();
+                this.cdr.detectChanges();
+                alert(`Order ${order.id} has been cancelled.`);
+              },
+              error: (error) => {
+                console.error('Error cancelling order:', error);
+                alert('Failed to cancel order');
+              }
+            });
+          }
+        }
+      });
     }
   }
 
@@ -258,7 +343,7 @@ export class AdminOrdersComponent implements OnInit {
       'pending': 'Pending',
       'confirmed': 'Confirmed',
       'preparing': 'Preparing',
-      'ready': 'Ready for Pickup',
+      'out_for_delivery': 'Out for Delivery',
       'delivered': 'Delivered',
       'cancelled': 'Cancelled'
     };
@@ -287,7 +372,7 @@ export class AdminOrdersComponent implements OnInit {
     today.setHours(0, 0, 0, 0);
 
     this.totalOrders = this.allOrders.length;
-    this.pendingOrders = this.allOrders.filter(o => 
+    this.pendingOrders = this.allOrders.filter(o =>
       ['pending', 'confirmed', 'preparing'].includes(o.status)
     ).length;
     this.todaysOrders = this.allOrders.filter(o => {
@@ -309,82 +394,6 @@ export class AdminOrdersComponent implements OnInit {
       .filter(o => ['delivered', 'cancelled'].includes(o.status))
       .sort((a, b) => new Date(b.date + 'T' + b.time).getTime() - new Date(a.date + 'T' + a.time).getTime())
       .slice(0, 5);
-  }
-
-  /* =========================
-     SAMPLE DATA GENERATION
-  ========================== */
-  generateSampleOrders() {
-    const menuItems = [
-      { name: 'Moong Sprouts Bowl', price: 80 },
-      { name: 'Egg Meal Bowl', price: 120 },
-      { name: 'Paneer Sprouts Bowl', price: 110 },
-      { name: 'Chicken Bowl', price: 140 },
-      { name: 'Sprouts Salad', price: 70 },
-      { name: 'Protein Shake', price: 90 }
-    ];
-
-    const addons = ['Extra Cheese', 'Avocado', 'Olives', 'Nuts', 'Extra Dressing'];
-    const customers = ['Rahul Sharma', 'Priya Patel', 'Amit Kumar', 'Sneha Singh', 'Vikas Gupta', 'Neha Reddy'];
-    const addresses = ['123 MG Road, Bangalore', '456 Koramangala, Bangalore', '789 Indiranagar, Bangalore'];
-
-    for (let i = 1; i <= 50; i++) {
-      const itemCount = Math.floor(Math.random() * 3) + 1;
-      const items: OrderItem[] = [];
-      let subtotal = 0;
-
-      for (let j = 0; j < itemCount; j++) {
-        const menuItem = menuItems[Math.floor(Math.random() * menuItems.length)];
-        const quantity = Math.floor(Math.random() * 2) + 1;
-        const itemAddons = Math.random() > 0.5 
-          ? [addons[Math.floor(Math.random() * addons.length)]]
-          : [];
-
-        items.push({
-          name: menuItem.name,
-          quantity,
-          price: menuItem.price,
-          addons: itemAddons,
-          specialInstructions: Math.random() > 0.7 ? 'No onions please' : undefined
-        });
-
-        subtotal += menuItem.price * quantity;
-      }
-
-      const deliveryCharge = 30;
-      const tax = Math.round(subtotal * 0.05);
-      const totalAmount = subtotal + deliveryCharge + tax;
-
-      const statuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
-      const status = statuses[Math.floor(Math.random() * statuses.length)];
-
-      const date = new Date();
-      date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-
-      const hours = Math.floor(Math.random() * 12) + 8;
-      const minutes = Math.floor(Math.random() * 60);
-      const time = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-
-      this.allOrders.push({
-        id: `ORD-${1000 + i}`,
-        orderNumber: 1000 + i,
-        customerName: customers[Math.floor(Math.random() * customers.length)],
-        customerPhone: `+91 ${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-        customerEmail: `customer${i}@email.com`,
-        deliveryAddress: addresses[Math.floor(Math.random() * addresses.length)],
-        items,
-        subtotal,
-        deliveryCharge,
-        tax,
-        totalAmount,
-        status,
-        paymentMethod: Math.random() > 0.5 ? 'Online Payment' : 'Cash on Delivery',
-        paymentStatus: status === 'cancelled' ? 'Refunded' : 'Paid',
-        date,
-        time,
-        notes: Math.random() > 0.8 ? 'Call before delivery' : undefined
-      });
-    }
   }
 
   logout() {
