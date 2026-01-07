@@ -140,13 +140,23 @@ export class Signup {
       return;
     }
 
-    // Generate random 6-digit OTP
-    this.generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    const fullPhone = this.countryCode + this.whatsappNumber;
+    console.log(`Sending OTP to ${fullPhone}`);
 
-    // In production, you would send this OTP via WhatsApp API
-    console.log(`DEMO: OTP is ${this.generatedOTP} - In production, this would be sent via WhatsApp`);
+    this.authService.sendWhatsAppOtp(fullPhone).subscribe({
+      next: (res) => {
+        console.log('OTP Sent:', res);
+        this.startResendTimer();
+        this.otpSent = true;
+      },
+      error: (err) => {
+        console.error('Error sending OTP:', err);
+        this.error = 'Failed to send OTP. Please try again.';
+      }
+    });
+  }
 
-    // Start resend timer (60 seconds)
+  startResendTimer() {
     this.resendTimer = 60;
     this.otpInterval = setInterval(() => {
       if (this.resendTimer > 0) {
@@ -155,32 +165,15 @@ export class Signup {
         clearInterval(this.otpInterval);
       }
     }, 1000);
-
-    this.otpSent = true;
   }
 
   // Resend OTP
   resendOTP() {
-    // Generate new OTP
-    this.generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Reset timer
-    this.resendTimer = 60;
-    if (this.otpInterval) {
-      clearInterval(this.otpInterval);
-    }
-    this.otpInterval = setInterval(() => {
-      if (this.resendTimer > 0) {
-        this.resendTimer--;
-      } else {
-        clearInterval(this.otpInterval);
-      }
-    }, 1000);
+    if (this.otpInterval) clearInterval(this.otpInterval);
+    this.requestOTP();
 
     // Clear OTP input
     this.otp = ['', '', '', '', '', ''];
-
-    // Focus first input
     setTimeout(() => {
       this.focusOtpInput(0);
     }, 100);
@@ -221,14 +214,12 @@ export class Signup {
     // Handle backspace
     if (event.key === 'Backspace') {
       if (!currentValue && index > 0) {
-        // If current input is empty and backspace pressed, focus previous input
         event.preventDefault();
         this.otp[index] = '';
         setTimeout(() => {
           this.focusOtpInput(index - 1);
         }, 10);
       } else if (currentValue) {
-        // If current input has value, clear it
         this.otp[index] = '';
       }
     }
@@ -255,18 +246,15 @@ export class Signup {
     const pastedData = event.clipboardData?.getData('text/plain').trim();
 
     if (pastedData && /^\d{6}$/.test(pastedData)) {
-      // Split the pasted data into individual digits
       const digits = pastedData.split('');
       for (let i = 0; i < 6; i++) {
         this.otp[i] = digits[i] || '';
       }
 
-      // Focus last input
       setTimeout(() => {
         this.focusOtpInput(5);
       }, 10);
 
-      // Auto-verify if complete
       if (this.isOtpComplete()) {
         setTimeout(() => {
           this.verifyOTP();
@@ -275,16 +263,13 @@ export class Signup {
     }
   }
 
-  // Helper method to focus OTP input
   focusOtpInput(index: number) {
     if (this.otpInputs && this.otpInputs.toArray()[index]) {
       this.otpInputs.toArray()[index].nativeElement.focus();
-      // Select the text in the input for easy replacement
       this.otpInputs.toArray()[index].nativeElement.select();
     }
   }
 
-  // Check if OTP is complete
   isOtpComplete(): boolean {
     return this.otp.every(digit => digit !== '');
   }
@@ -292,34 +277,36 @@ export class Signup {
   // Verify OTP for WhatsApp signup
   verifyOTP() {
     const enteredOTP = this.otp.join('');
+    const fullPhone = this.countryCode + this.whatsappNumber;
 
-    if (enteredOTP === this.generatedOTP) {
-      console.log('WhatsApp OTP verified successfully');
+    this.authService.verifyWhatsAppOtp(fullPhone, enteredOTP).subscribe({
+      next: (response) => {
+        console.log('WhatsApp verified successfully', response);
 
-      // Store signup state
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('authProvider', 'whatsapp');
-      localStorage.setItem('userPhone', this.countryCode + this.whatsappNumber);
-      localStorage.setItem('userName', 'WhatsApp User');
+        // Check if user is new or existing
+        // If this was signup flow, we should populate the form
+        // But backend creates/logs in immediately correctly.
 
-      // Auto-fill phone number in signup form
-      this.phone = this.countryCode + this.whatsappNumber;
+        // For Signup Component workflow:
+        // We might want to auto-login if account created, or fill form.
+        // Current backend implementation logs them in definitively.
 
-      // Close modal
-      this.closeWhatsAppModal();
+        this.closeWhatsAppModal();
 
-      // Show success message
-      this.error = 'WhatsApp verified! Please complete the form above.';
-
-    } else {
-      this.error = 'Invalid OTP. Please try again.';
-      // Clear OTP for retry
-      this.otp = ['', '', '', '', '', ''];
-      // Focus first input
-      setTimeout(() => {
-        this.focusOtpInput(0);
-      }, 100);
-    }
+        // Migrate cart and redirect (since they are now logged in)
+        this.cartService.migrateGuestCart().subscribe({
+          next: () => console.log('Cart migrated'),
+          error: (err) => console.error('Error migrating cart:', err),
+          complete: () => this.router.navigate(['/dashboard'])
+        });
+      },
+      error: (err) => {
+        console.error('OTP Verification failed:', err);
+        this.error = 'Invalid OTP. Please try again.';
+        this.otp = ['', '', '', '', '', ''];
+        setTimeout(() => this.focusOtpInput(0), 100);
+      }
+    });
   }
 
   // Additional method to handle when OTP modal opens (focus first input)

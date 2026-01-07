@@ -88,6 +88,27 @@ export class AuthService {
     }
 
     /**
+     * Send WhatsApp OTP
+     */
+    sendWhatsAppOtp(phone: string): Observable<any> {
+        return this.http.post(`${this.API_URL}/whatsapp/send-otp`, { phone });
+    }
+
+    /**
+     * Verify WhatsApp OTP
+     */
+    verifyWhatsAppOtp(phone: string, otp: string): Observable<AuthResponse> {
+        return this.http.post<AuthResponse>(`${this.API_URL}/whatsapp/verify-otp`, { phone, otp })
+            .pipe(
+                tap(response => {
+                    if (response.token && response.user) {
+                        this.handleAuthSuccess(response);
+                    }
+                })
+            );
+    }
+
+    /**
      * Handle successful authentication
      */
     private handleAuthSuccess(response: AuthResponse): void {
