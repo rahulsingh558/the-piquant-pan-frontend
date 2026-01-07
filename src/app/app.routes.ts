@@ -10,7 +10,7 @@ import { Signup } from './pages/signup/signup';
 
 export const routes: Routes = [
   /* ================= PUBLIC PAGES ================= */
-  
+
   {
     path: '',
     loadComponent: () =>
@@ -31,11 +31,15 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/login/login').then(m => m.Login),
   },
-  { 
-    path: 'signup', component: Signup 
+  {
+    path: 'signup', component: Signup
   },
-  { 
-    path: 'register', redirectTo: 'signup' 
+  {
+    path: 'auth/callback',
+    loadComponent: () => import('./pages/auth-callback/auth-callback.component').then(m => m.AuthCallbackComponent)
+  },
+  {
+    path: 'register', redirectTo: 'signup'
   },
   {
     path: 'contact',
@@ -50,14 +54,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/checkout/checkout').then(m => m.Checkout),
   },
-  { 
-    path: 'address-select', component: AddressSelectComponent 
+  {
+    path: 'address-select', component: AddressSelectComponent
   },
-  { 
-    path: 'payment', component: PaymentComponent 
+  {
+    path: 'payment', component: PaymentComponent
   },
-  { 
-    path: 'order-success', component: OrderSuccessComponent 
+  {
+    path: 'order-success', component: OrderSuccessComponent
   },
   {
     path: 'orders',
@@ -86,7 +90,7 @@ export const routes: Routes = [
   },
 
   // 🔐 ADMIN AREA (WITH LAYOUT) - IMPORTANT: Admin routes come BEFORE wildcard
-  
+
   {
     path: 'admin',
     canActivate: [adminGuard],

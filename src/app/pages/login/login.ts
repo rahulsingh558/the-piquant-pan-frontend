@@ -79,15 +79,8 @@ export class Login {
   // Google login
   loginWithGoogle() {
     console.log('Google login clicked');
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('authProvider', 'google');
-
-    // Migrate guest cart
-    this.cartService.migrateGuestCart().subscribe({
-      next: () => console.log('Cart migrated'),
-      error: (err) => console.error('Error migrating cart:', err),
-      complete: () => this.router.navigate(['/dashboard'])
-    });
+    // Redirect to backend Google Auth endpoint
+    window.location.href = 'http://localhost:5001/api/auth/google';
   }
 
   // WhatsApp modal methods

@@ -104,17 +104,9 @@ export class Signup {
   // Google signup
   signupWithGoogle() {
     console.log('Google signup clicked');
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('authProvider', 'google');
-    localStorage.setItem('userEmail', 'user@example.com');
-    localStorage.setItem('userName', 'Google User');
-
-    // Migrate guest cart
-    this.cartService.migrateGuestCart().subscribe({
-      next: () => console.log('Cart migrated'),
-      error: (err) => console.error('Error migrating cart:', err),
-      complete: () => this.router.navigate(['/'])
-    });
+    // Redirect to backend Google Auth endpoint
+    // This handles both login and signup (creates account if not exists)
+    window.location.href = 'http://localhost:5001/api/auth/google';
   }
 
   // WhatsApp modal methods
