@@ -1,4 +1,4 @@
-import { Component, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { Component, ViewChildren, QueryList, ElementRef, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './signup.html',
 })
-export class Signup {
+export class Signup implements OnInit {
   @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
 
   // Signup form fields
@@ -40,6 +40,12 @@ export class Signup {
     private cartService: CartService,
     private authService: AuthService
   ) { }
+
+  ngOnInit() {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/menu']);
+    }
+  }
 
   // Main signup method
   signup() {

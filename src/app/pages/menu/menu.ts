@@ -1,6 +1,7 @@
 import { Component, Inject, PLATFORM_ID, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { FoodApiService, ApiFood } from '../../services/food-api.service';
 import { Food } from '../../models/food';
 import { Addon } from '../../models/addon';
@@ -71,6 +72,7 @@ export class Menu implements OnInit {
 
   constructor(
     private cartService: CartService,
+    private wishlistService: WishlistService,
     private foodApi: FoodApiService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: Object
@@ -78,7 +80,10 @@ export class Menu implements OnInit {
     this.isBrowser = isPlatformBrowser(platformId);
 
     if (this.isBrowser) {
-      this.wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      // Subscribe to wishlist service
+      this.wishlistService.wishlist$.subscribe(items => {
+        this.wishlist = items;
+      });
     }
   }
 
@@ -187,21 +192,53 @@ export class Menu implements OnInit {
   }
 
   /* =========================
-     WISHLIST
-  ========================== */
+   WISHLIST
+========================== */
   toggleWishlist(food: Food) {
-    const i = this.wishlist.findIndex(w => w.id === food.id);
-    i > -1 ? this.wishlist.splice(i, 1) : this.wishlist.push(food as any);
-    localStorage.setItem('wishlist', JSON.stringify(this.wishlist));
+    if (this.isWishlisted(food.id)) {
+      this.wishlistService.removeFromWishlist(food.id);
+    } else {
+      this.wishlistService.addToWishlist({
+        id: food.id,
+        name: food.name,
+        basePrice: food.basePrice
+      });
+    }
   }
 
   isWishlisted(id: any) {
-    return this.wishlist.some(w => w.id === id);
+    return this.wishlistService.isInWishlist(id);
   }
 
   /* =========================
      ADD TO CART
   ========================== */
+  addToCart(food: MenuFood) {
+    const result = this.cartService.addToCart({
+      menuItemId: String(food.id),
+      name: food.name,
+      price: food.basePrice,
+      quantity: 1,
+      customizations: {}
+    });
+
+    // Subscribe if it's an observable (logged-in user)
+    if (result && typeof result.subscribe === 'function') {
+      result.subscribe({
+        next: () => {
+          console.log('Item added to cart');
+          this.cdr.detectChanges(); // Trigger change detection
+          // Optional: Show a toast notification here
+        },
+        error: (err: any) => console.error('Error adding to cart:', err)
+      });
+    } else {
+      // For guest users (non-observable)
+      this.cdr.detectChanges(); // Trigger change detection
+    }
+  }
+
+  // Legacy methods - can be removed if addon feature is no longer needed
   openAddonPopup(food: MenuFood) {
     this.selectedFood = food;
     this.modalSelectedFreeAddons = [...this.getFreeAddons(food)];

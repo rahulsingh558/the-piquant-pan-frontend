@@ -4,6 +4,9 @@ import { RouterModule, RouterOutlet, Router, NavigationEnd } from '@angular/rout
 import { AdminAuthService } from '../../services/admin-auth.service';
 import { filter, Subscription } from 'rxjs';
 import { AdminSidebarComponent } from '../../pages/admin/sidebar/admin-sidebar.component';
+import { ToastComponent } from '../toast/toast.component';
+import { WebSocketService } from '../../services/websocket.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -12,7 +15,8 @@ import { AdminSidebarComponent } from '../../pages/admin/sidebar/admin-sidebar.c
     CommonModule,
     RouterModule,
     RouterOutlet,
-    AdminSidebarComponent
+    AdminSidebarComponent,
+    ToastComponent
   ],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.css']
@@ -23,6 +27,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   pageTitle = '';
   showUserMenu = false;
   routerSubscription!: Subscription;
+  socketSubscription!: Subscription;
 
   // Navigation items for breadcrumb or header
   navItems = [
@@ -38,6 +43,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private authService: AdminAuthService,
+    private webSocketService: WebSocketService,
+    private toastService: ToastService,
     @Inject(PLATFORM_ID) private platformId: any
   ) { }
 
@@ -45,6 +52,16 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     // Initialize sidebar state based on screen size - only in browser
     if (isPlatformBrowser(this.platformId)) {
       this.isSidebarOpen = window.innerWidth >= 1024;
+
+      // Listen for new orders
+      this.socketSubscription = this.webSocketService.listen('new-order').subscribe((order: any) => {
+        this.toastService.success(
+          'New Order Received!',
+          `Order #${order.orderNumber} for ₹${order.totalAmount} has been placed.`
+        );
+        // Play notification sound if desired
+        this.playNotificationSound();
+      });
     }
 
     // Subscribe to route changes to update page title
@@ -58,6 +75,15 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     // Initial update
     this.updateCurrentRoute();
     this.updatePageTitle();
+  }
+
+  playNotificationSound() {
+    try {
+      const audio = new Audio('assets/sounds/notification.mp3'); // Ensure this file exists or use a default
+      audio.play().catch(e => console.log('Audio play failed', e));
+    } catch (e) {
+      console.error('Error playing sound', e);
+    }
   }
 
   ngOnDestroy() {

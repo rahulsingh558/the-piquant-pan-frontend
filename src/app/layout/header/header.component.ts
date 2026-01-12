@@ -1,8 +1,10 @@
-import { Component, Inject, PLATFORM_ID, HostListener } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, HostListener, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
-import { CartService } from '../../services/cart';
+import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   standalone: true,
@@ -43,19 +45,33 @@ export class HeaderComponent {
   showProfileMenu = false;
   mobileMenuOpen = false;
   cartCount = 0;
+  wishlistCount = 0;
   isBrowser = false;
   currentYear = new Date().getFullYear();
 
   constructor(
     private cartService: CartService,
+    private wishlistService: WishlistService,
+    private authService: AuthService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
     if (this.isBrowser) {
-      this.cartService.cartCount$.subscribe((count: number) => {
-        this.cartCount = count;
+      // Subscribe to cart changes
+      this.cartService.cart$.subscribe((cart) => {
+        this.cartCount = cart.itemCount;
+        // Mark for check to trigger change detection
+        this.cdr.markForCheck();
+      });
+
+      // Subscribe to wishlist changes
+      this.wishlistService.wishlistCount$.subscribe((count: number) => {
+        this.wishlistCount = count;
+        // Mark for check to trigger change detection
+        this.cdr.markForCheck();
       });
     }
   }
@@ -106,7 +122,7 @@ export class HeaderComponent {
 
   isLoggedIn(): boolean {
     if (!this.isBrowser) return false;
-    return localStorage.getItem('isLoggedIn') === 'true';
+    return this.authService.isAuthenticated();
   }
 
   getUserName(): string | null {
@@ -121,8 +137,7 @@ export class HeaderComponent {
 
   logout() {
     if (!this.isBrowser) return;
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userName');
+    this.authService.logout();
     this.closeProfileMenu();
     this.closeMobileMenu();
     this.router.navigate(['/login']);

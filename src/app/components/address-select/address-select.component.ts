@@ -1,10 +1,10 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AddressService } from '../../services/address.service';
 import { Address, AddressFormData } from '../../pages/address/address';
-import { CartService } from '../../services/cart';
+import { CartService, Cart } from '../../services/cart.service';
 
 @Component({
   standalone: true,
@@ -14,13 +14,13 @@ import { CartService } from '../../services/cart';
 })
 export class AddressSelectComponent implements OnInit {
   addresses: Address[] = [];
-  selectedAddressId: number | null = null;
+  selectedAddressIndex: number | null = null;
   showAddressForm = false;
   isEditing = false;
-  editingAddressId: number | null = null;
+  editingAddressIndex: number | null = null;
   cartTotal = 0;
   isBrowser = false;
-  
+
   addressForm: FormGroup;
 
   constructor(
@@ -28,10 +28,11 @@ export class AddressSelectComponent implements OnInit {
     private cartService: CartService,
     private router: Router,
     private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
-    
+
     // Initialize form
     this.addressForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -47,60 +48,76 @@ export class AddressSelectComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Explicitly load addresses from API
+    this.addressService.loadAddresses();
+
     // Subscribe to addresses
     this.addressService.addresses$.subscribe(addresses => {
       this.addresses = addresses;
-      
+
       // Auto-select default address if none selected
-      if (this.isBrowser && !this.selectedAddressId) {
-        const defaultAddress = addresses.find(addr => addr.isDefault);
-        if (defaultAddress) {
-          this.selectedAddressId = defaultAddress.id;
-          this.addressService.setSelectedAddress(defaultAddress.id);
+      if (this.isBrowser && this.selectedAddressIndex === null) {
+        const defaultIndex = addresses.findIndex(addr => addr.isDefault);
+        if (defaultIndex !== -1) {
+          this.selectedAddressIndex = defaultIndex;
+          this.addressService.setSelectedAddress(defaultIndex);
         }
       }
+
+      // Mark for check to trigger change detection
+      this.cdr.markForCheck();
     });
 
     // Get cart total
-    this.cartService.cart$.subscribe(items => {
-      this.cartTotal = items.reduce((sum, item) => 
-        sum + (item.totalPrice * item.quantity), 0);
+    this.cartService.cart$.subscribe(cart => {
+      this.cartTotal = cart.total;
     });
 
     // Load initially selected address
     if (this.isBrowser) {
       const selectedAddress = this.addressService.getSelectedAddress();
       if (selectedAddress) {
-        this.selectedAddressId = selectedAddress.id;
+        const index = this.addresses.indexOf(selectedAddress);
+        if (index !== -1) {
+          this.selectedAddressIndex = index;
+        }
       }
     }
   }
 
   // Get selected address object
   get selectedAddress(): Address | null {
-    return this.addresses.find(addr => addr.id === this.selectedAddressId) || null;
+    if (this.selectedAddressIndex === null) return null;
+    return this.addresses[this.selectedAddressIndex] || null;
   }
 
   // Select an address
-  selectAddress(addressId: number) {
-    this.selectedAddressId = addressId;
-    this.addressService.setSelectedAddress(addressId);
+  selectAddress(addressIndex: number) {
+    this.selectedAddressIndex = addressIndex;
+    this.addressService.setSelectedAddress(addressIndex);
   }
 
   // Set as default address
-  setDefaultAddress(addressId: number, event: Event) {
+  setDefaultAddress(addressIndex: number, event: Event) {
     event.stopPropagation();
-    this.addressService.setDefaultAddress(addressId);
+    this.addressService.setDefaultAddress(addressIndex).subscribe({
+      next: () => console.log('Address set as default'),
+      error: (err) => console.error('Error setting default:', err)
+    });
   }
 
   // Delete address
-  deleteAddress(addressId: number, event: Event) {
+  deleteAddress(addressIndex: number, event: Event) {
     event.stopPropagation();
     if (confirm('Are you sure you want to delete this address?')) {
-      this.addressService.deleteAddress(addressId);
-      if (this.selectedAddressId === addressId) {
-        this.selectedAddressId = null;
-      }
+      this.addressService.deleteAddress(addressIndex).subscribe({
+        next: () => {
+          if (this.selectedAddressIndex === addressIndex) {
+            this.selectedAddressIndex = null;
+          }
+        },
+        error: (err) => console.error('Error deleting address:', err)
+      });
     }
   }
 
@@ -108,19 +125,22 @@ export class AddressSelectComponent implements OnInit {
   showAddForm() {
     this.showAddressForm = true;
     this.isEditing = false;
-    this.editingAddressId = null;
+    this.editingAddressIndex = null;
     this.addressForm.reset({
       isDefault: false
     });
   }
 
   // Show edit address form
-  showEditForm(address: Address, event: Event) {
+  showEditForm(addressIndex: number, event: Event) {
     event.stopPropagation();
+    const address = this.addresses[addressIndex];
+    if (!address) return;
+
     this.showAddressForm = true;
     this.isEditing = true;
-    this.editingAddressId = address.id;
-    
+    this.editingAddressIndex = addressIndex;
+
     this.addressForm.patchValue({
       name: address.name,
       phone: address.phone,
@@ -143,20 +163,24 @@ export class AddressSelectComponent implements OnInit {
 
     const formData: AddressFormData = this.addressForm.value;
 
-    if (this.isEditing && this.editingAddressId) {
-      this.addressService.updateAddress(this.editingAddressId, formData);
+    if (this.isEditing && this.editingAddressIndex !== null) {
+      this.addressService.updateAddress(this.editingAddressIndex, formData).subscribe({
+        next: () => this.cancelForm(),
+        error: (err) => console.error('Error updating address:', err)
+      });
     } else {
-      this.addressService.addAddress(formData);
+      this.addressService.addAddress(formData).subscribe({
+        next: () => this.cancelForm(),
+        error: (err) => console.error('Error adding address:', err)
+      });
     }
-
-    this.cancelForm();
   }
 
   // Cancel form
   cancelForm() {
     this.showAddressForm = false;
     this.isEditing = false;
-    this.editingAddressId = null;
+    this.editingAddressIndex = null;
     this.addressForm.reset({
       isDefault: false
     });
@@ -164,7 +188,7 @@ export class AddressSelectComponent implements OnInit {
 
   // Proceed to checkout
   proceedToCheckout() {
-    if (!this.selectedAddressId) {
+    if (this.selectedAddressIndex === null) {
       alert('Please select a delivery address');
       return;
     }
@@ -197,7 +221,7 @@ export class AddressSelectComponent implements OnInit {
       address.pincode,
       address.landmark
     ].filter(part => part && part.trim() !== '');
-    
+
     return parts.join(', ');
   }
 }

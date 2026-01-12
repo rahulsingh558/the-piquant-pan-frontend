@@ -2,11 +2,11 @@ import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CartService } from '../../services/cart';
+import { Observable } from 'rxjs';
+import { CartService, Cart, CartItem } from '../../services/cart.service';
 import { AddressService } from '../../services/address.service';
 import { OrderService, Order, OrderItem } from '../../services/order.service';
 import { Address } from '../../pages/address/address';
-import { CartItem } from '../../models/cart-item';
 
 
 interface PaymentMethod {
@@ -112,9 +112,9 @@ export class Checkout implements OnInit {
     }
 
     // Get cart items
-    this.cartService.cart$.subscribe(items => {
-      this.items = items;
-      if (items.length === 0) {
+    this.cartService.cart$.subscribe(cart => {
+      this.items = cart.items;
+      if (cart.items.length === 0 && !this.isPlacingOrder) {
         this.router.navigate(['/cart']);
       }
     });
@@ -182,13 +182,13 @@ export class Checkout implements OnInit {
 
   getGrandTotal(): number {
     return this.items.reduce(
-      (sum, item) => sum + item.totalPrice * item.quantity,
+      (sum, item) => sum + item.price * item.quantity,
       0
     );
   }
 
   getDeliveryCharge(): number {
-    return 40; // Flat delivery charge
+    return 30; // Flat delivery charge
   }
 
   getGst(): number {
@@ -263,15 +263,12 @@ export class Checkout implements OnInit {
       customerPhone: this.userPhone || this.selectedAddress?.phone || '',
       items: this.items.map(item => {
         const orderItem: OrderItem = {
-          foodId: item.foodId.toString(),
+          foodId: item.menuItemId,
           name: item.name,
-          basePrice: item.basePrice,
+          basePrice: item.price,
           quantity: item.quantity,
-          addons: item.addons.map(addon => ({
-            name: addon.name,
-            price: addon.price
-          })),
-          totalPrice: item.totalPrice * item.quantity
+          addons: item.customizations?.addons || [],
+          totalPrice: item.price * item.quantity
         };
         return orderItem;
       }),
@@ -296,8 +293,11 @@ export class Checkout implements OnInit {
     this.orderService.createOrder(orderData as Order).subscribe({
       next: (response) => {
         if (response.success) {
-          // Clear cart
-          this.cartService.clearCart();
+          // Clear cart - handle potential Observable
+          const clearResult = this.cartService.clearCart();
+          if (clearResult instanceof Observable) {
+            clearResult.subscribe();
+          }
 
           // Navigate to success page with order details
           this.router.navigate(['/order-success'], {
@@ -305,7 +305,12 @@ export class Checkout implements OnInit {
               orderId: response.order._id,
               orderNumber: response.order.orderNumber,
               totalAmount: response.order.totalAmount,
-              paymentMethod: response.order.paymentMethod
+              paymentMethod: response.order.paymentMethod,
+              orderStatus: response.order.orderStatus
+            }
+          }).then(success => {
+            if (!success) {
+              console.error('Navigation to order-success failed');
             }
           });
         } else {

@@ -1,11 +1,13 @@
 import { Component, Inject, PLATFORM_ID, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OrderService, Order } from '../../services/order.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './orders.html',
 })
 export class OrdersPage implements OnInit {
@@ -17,6 +19,7 @@ export class OrdersPage implements OnInit {
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
     private orderService: OrderService,
+    private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
@@ -26,15 +29,21 @@ export class OrdersPage implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser) {
       // Check if user is logged in
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-
-      if (!isLoggedIn) {
+      if (!this.authService.isAuthenticated()) {
         // Redirect to login
         this.router.navigate(['/login'], { queryParams: { returnUrl: '/orders' } });
         return;
       }
 
-      this.userId = localStorage.getItem('userId');
+      // Get user ID from AuthService
+      const currentUser = this.authService.getCurrentUser();
+      if (currentUser) {
+        this.userId = currentUser.id;
+      } else {
+        // Fallback to localStorage if not in subject yet (page reload)
+        this.userId = localStorage.getItem('userId');
+      }
+
       this.loadOrders();
     }
   }
@@ -43,13 +52,15 @@ export class OrdersPage implements OnInit {
     this.loading = true;
 
     // Load all orders (backend should filter by user eventually)
-    this.orderService.getAllOrders({ limit: 50, sortBy: '-createdAt' }).subscribe({
+    const filters: any = { limit: 50, sortBy: '-createdAt' };
+    if (this.userId) {
+      filters.userId = this.userId;
+    }
+
+    this.orderService.getAllOrders(filters).subscribe({
       next: (response) => {
         if (response.success) {
-          // Filter orders for current user (in case backend doesn't do it)
-          this.orders = response.orders.filter(order =>
-            !this.userId || order.userId === this.userId || order.customerEmail === localStorage.getItem('userEmail')
-          );
+          this.orders = response.orders;
           this.cdr.detectChanges();
         }
       },
@@ -103,5 +114,94 @@ export class OrdersPage implements OnInit {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+  // Modal states
+  showTrackModal = false;
+  showAddressModal = false;
+  showHelpModal = false;
+  selectedOrder: Order | null = null;
+  editedAddress = {
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    landmark: ''
+  };
+
+  // Track Order
+  openTrackModal(order: Order) {
+    this.selectedOrder = order;
+    this.showTrackModal = true;
+  }
+
+  closeTrackModal() {
+    this.showTrackModal = false;
+    this.selectedOrder = null;
+  }
+
+  // Update Address
+  openAddressModal(order: Order) {
+    if (this.canUpdateAddress(order.orderStatus)) {
+      this.selectedOrder = order;
+      this.editedAddress = {
+        street: order.deliveryAddress.street,
+        city: order.deliveryAddress.city,
+        state: order.deliveryAddress.state,
+        zipCode: order.deliveryAddress.zipCode,
+        landmark: order.deliveryAddress.landmark || ''
+      };
+      this.showAddressModal = true;
+    }
+  }
+
+  closeAddressModal() {
+    this.showAddressModal = false;
+    this.selectedOrder = null;
+  }
+
+  canUpdateAddress(status: string): boolean {
+    return status === 'pending' || status === 'confirmed';
+  }
+
+  updateAddress() {
+    if (!this.selectedOrder || !this.selectedOrder._id) return;
+
+    this.loading = true;
+    this.orderService.updateOrder(this.selectedOrder._id, { deliveryAddress: this.editedAddress }).subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Update local state
+          if (this.selectedOrder) {
+            this.selectedOrder.deliveryAddress = { ...this.editedAddress };
+            // Update the order in the main list as well
+            const index = this.orders.findIndex(o => o._id === this.selectedOrder?._id);
+            if (index !== -1) {
+              this.orders[index].deliveryAddress = { ...this.editedAddress };
+            }
+          }
+          this.closeAddressModal();
+          // Optional: Show success message/toast
+        }
+      },
+      error: (error) => {
+        console.error('Error updating address:', error);
+        // Optional: Show error message
+      },
+      complete: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // Help
+  openHelpModal(order: Order) {
+    this.selectedOrder = order;
+    this.showHelpModal = true;
+  }
+
+  closeHelpModal() {
+    this.showHelpModal = false;
+    this.selectedOrder = null;
   }
 }

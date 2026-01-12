@@ -80,6 +80,7 @@ export class OrderService {
         search?: string;
         startDate?: string;
         endDate?: string;
+        userId?: string;
         limit?: number;
         skip?: number;
         sortBy?: string;

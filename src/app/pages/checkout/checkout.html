@@ -1,18 +1,16 @@
 ﻿<div class="min-h-screen bg-orange-50 py-8">
   <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-8">
-    
+
     <!-- LEFT COLUMN: ORDER DETAILS -->
     <div class="md:col-span-2">
       <!-- HEADER -->
       <div class="mb-8">
-        <button
-          (click)="router.navigate(['/cart'])"
-          class="flex items-center gap-2 text-orange-600 hover:text-orange-700 mb-4"
-        >
+        <button (click)="router.navigate(['/cart'])"
+          class="flex items-center gap-2 text-orange-600 hover:text-orange-700 mb-4">
           <span>â†</span>
           <span>Back to Cart</span>
         </button>
-        
+
         <h1 class="text-2xl font-bold text-orange-700">Checkout</h1>
         <p class="text-gray-600 mt-1">Complete your order in 3 simple steps</p>
       </div>
@@ -24,21 +22,19 @@
             <h2 class="text-lg font-semibold text-gray-800">Delivery Address</h2>
             <p class="text-sm text-gray-500">Step 1: Where should we deliver?</p>
           </div>
-          <button 
-            (click)="changeAddress()"
-            class="text-orange-600 hover:text-orange-800 font-medium text-sm"
-          >
+          <button (click)="changeAddress()" class="text-orange-600 hover:text-orange-800 font-medium text-sm">
             Change
           </button>
         </div>
-        
+
         <div *ngIf="selectedAddress" class="space-y-2">
           <div class="flex items-start gap-3">
             <div class="text-orange-600 mt-1">ðŸ“</div>
             <div>
               <h3 class="font-semibold text-gray-800">{{ selectedAddress.name }}</h3>
               <p class="text-gray-600">
-                {{ selectedAddress.addressLine1 }}{{ selectedAddress.addressLine2 ? ', ' + selectedAddress.addressLine2 : '' }}
+                {{ selectedAddress.addressLine1 }}{{ selectedAddress.addressLine2 ? ', ' + selectedAddress.addressLine2
+                : '' }}
               </p>
               <p class="text-gray-600">
                 {{ selectedAddress.city }}, {{ selectedAddress.state }} - {{ selectedAddress.pincode }}
@@ -49,7 +45,7 @@
               <p class="text-gray-600 mt-2">ðŸ“ž {{ selectedAddress.phone }}</p>
             </div>
           </div>
-          
+
           <div *ngIf="selectedAddress.isDefault" class="inline-block mt-3">
             <span class="bg-orange-100 text-orange-800 text-xs px-3 py-1 rounded-full">
               Default Address
@@ -62,12 +58,10 @@
       <div class="bg-white rounded-xl shadow p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-800 mb-2">Delivery Instructions</h2>
         <p class="text-sm text-gray-500 mb-4">Step 2: Any special instructions?</p>
-        
-        <textarea
-          [(ngModel)]="deliveryInstructions"
+
+        <textarea [(ngModel)]="deliveryInstructions"
           placeholder="E.g., Leave at door, Call before delivery, Avoid spicy food"
-          class="w-full border rounded-lg px-4 py-3 min-h-[100px] focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-        ></textarea>
+          class="w-full border rounded-lg px-4 py-3 min-h-[100px] focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
         <p class="text-sm text-gray-500 mt-2">
           Optional: Tell us where to leave the order if you're not available
         </p>
@@ -77,25 +71,15 @@
       <div class="bg-white rounded-xl shadow p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-800 mb-2">Payment Method</h2>
         <p class="text-sm text-gray-500 mb-4">Step 3: How would you like to pay?</p>
-        
+
         <!-- PAYMENT METHOD SELECTION -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div *ngFor="let method of paymentMethods" class="relative">
-            <input
-              type="radio"
-              name="paymentMethod"
-              [id]="method.id"
-              [(ngModel)]="paymentMethod"
-              [value]="method.id"
-              (change)="onPaymentMethodChange()"
-              class="sr-only"
-            />
-            <label
-              [for]="method.id"
-              [class.border-orange-500]="paymentMethod === method.id"
+            <input type="radio" name="paymentMethod" [id]="method.id" [(ngModel)]="paymentMethod" [value]="method.id"
+              (change)="onPaymentMethodChange()" class="sr-only" />
+            <label [for]="method.id" [class.border-orange-500]="paymentMethod === method.id"
               [class.border-gray-200]="paymentMethod !== method.id"
-              class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-orange-50 transition-all"
-            >
+              class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-orange-50 transition-all">
               <div class="flex items-center gap-3">
                 <span class="text-2xl">{{ method.icon }}</span>
                 <div>
@@ -105,10 +89,9 @@
               </div>
               <div class="ml-auto">
                 <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
-                     [class.border-orange-500]="paymentMethod === method.id"
-                     [class.border-gray-300]="paymentMethod !== method.id">
-                  <div *ngIf="paymentMethod === method.id" 
-                       class="w-3 h-3 rounded-full bg-orange-500"></div>
+                  [class.border-orange-500]="paymentMethod === method.id"
+                  [class.border-gray-300]="paymentMethod !== method.id">
+                  <div *ngIf="paymentMethod === method.id" class="w-3 h-3 rounded-full bg-orange-500"></div>
                 </div>
               </div>
             </label>
@@ -120,13 +103,10 @@
           <!-- ONLINE PAYMENT METHODS -->
           <h3 class="font-medium text-gray-800 mb-4">Select Online Payment Option</h3>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <button
-              *ngFor="let method of onlinePaymentMethods"
-              (click)="onlinePaymentMethod = method.id"
+            <button *ngFor="let method of onlinePaymentMethods" (click)="onlinePaymentMethod = method.id"
               [class.border-orange-500]="onlinePaymentMethod === method.id"
               [class.border-gray-200]="onlinePaymentMethod !== method.id"
-              class="p-3 border-2 rounded-lg text-center hover:bg-orange-50 transition-colors"
-            >
+              class="p-3 border-2 rounded-lg text-center hover:bg-orange-50 transition-colors">
               <div class="text-xl mb-1">{{ method.icon }}</div>
               <div class="font-medium text-gray-800 text-sm">{{ method.name }}</div>
               <div class="text-xs text-gray-500">{{ method.description }}</div>
@@ -140,16 +120,10 @@
                 UPI ID *
               </label>
               <div class="flex gap-2">
-                <input
-                  type="text"
-                  [(ngModel)]="upiId"
-                  placeholder="username@upi"
-                  class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
-                <button
-                  (click)="generateUpiId()"
-                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
-                >
+                <input type="text" [(ngModel)]="upiId" placeholder="username@upi"
+                  class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
+                <button (click)="generateUpiId()"
+                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
                   Sample
                 </button>
               </div>
@@ -165,55 +139,35 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Card Number *
               </label>
-              <input
-                type="text"
-                [value]="cardNumber"
-                (input)="formatCardNumber($event)"
-                placeholder="1234 5678 9012 3456"
-                maxlength="19"
-                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              />
+              <input type="text" [value]="cardNumber" (input)="formatCardNumber($event)"
+                placeholder="1234 5678 9012 3456" maxlength="19"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
             </div>
-            
+
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   Expiry (MM/YY) *
                 </label>
-                <input
-                  type="text"
-                  [value]="cardExpiry"
-                  (input)="formatExpiry($event)"
-                  placeholder="MM/YY"
-                  maxlength="5"
-                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
+                <input type="text" [value]="cardExpiry" (input)="formatExpiry($event)" placeholder="MM/YY" maxlength="5"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
               </div>
-              
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   CVV *
                 </label>
-                <input
-                  type="password"
-                  [(ngModel)]="cardCvv"
-                  placeholder="123"
-                  maxlength="4"
-                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
+                <input type="password" [(ngModel)]="cardCvv" placeholder="123" maxlength="4"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
               </div>
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Name on Card *
               </label>
-              <input
-                type="text"
-                [(ngModel)]="cardName"
-                placeholder="John Doe"
-                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              />
+              <input type="text" [(ngModel)]="cardName" placeholder="John Doe"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" />
             </div>
           </div>
 
@@ -223,10 +177,8 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Select Bank
               </label>
-              <select
-                [(ngModel)]="selectedBank"
-                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
-              >
+              <select [(ngModel)]="selectedBank"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white">
                 <option *ngFor="let bank of banks" [value]="bank.id">
                   {{ bank.name }}
                 </option>
@@ -241,13 +193,10 @@
                 Select Wallet
               </label>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <button
-                  *ngFor="let wallet of wallets"
-                  (click)="walletType = wallet.id"
+                <button *ngFor="let wallet of wallets" (click)="walletType = wallet.id"
                   [class.border-orange-500]="walletType === wallet.id"
                   [class.border-gray-200]="walletType !== wallet.id"
-                  class="p-3 border-2 rounded-lg text-center hover:bg-orange-50 transition-colors"
-                >
+                  class="p-3 border-2 rounded-lg text-center hover:bg-orange-50 transition-colors">
                   <div class="text-xl mb-1">{{ wallet.icon }}</div>
                   <div class="font-medium text-gray-800 text-sm">{{ wallet.name }}</div>
                 </button>
@@ -274,13 +223,10 @@
       </div>
 
       <!-- PLACE ORDER BUTTON -->
-      <button
-        (click)="paymentMethod === 'online' ? processOnlinePayment() : placeOrder()"
-        [disabled]="!isFormValid() || isPlacingOrder || isProcessingPayment"
-        class="w-full bg-orange-600 text-white py-4 rounded-xl font-semibold text-lg
+      <button (click)="paymentMethod === 'online' ? processOnlinePayment() : placeOrder()"
+        [disabled]="!isFormValid() || isPlacingOrder || isProcessingPayment" class="w-full bg-orange-600 text-white py-4 rounded-xl font-semibold text-lg
                disabled:bg-gray-300 disabled:cursor-not-allowed
-               hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
-      >
+               hover:bg-orange-700 transition-colors flex items-center justify-center gap-2">
         <span *ngIf="!isPlacingOrder && !isProcessingPayment">
           {{ paymentMethod === 'cod' ? 'Place Order (COD)' : 'Pay Now' }}
         </span>
@@ -298,9 +244,9 @@
             <p class="text-sm text-blue-800 font-medium">Payment Information</p>
             <p class="text-xs text-blue-700 mt-1">
               {{
-                paymentMethod === 'cod' 
-                ? 'Please keep exact change ready for the delivery person.' 
-                : 'Your payment is secured with 256-bit SSL encryption. We do not store your card details.'
+              paymentMethod === 'cod'
+              ? 'Please keep exact change ready for the delivery person.'
+              : 'Your payment is secured with 256-bit SSL encryption. We do not store your card details.'
               }}
             </p>
           </div>
@@ -318,14 +264,14 @@
           <div *ngFor="let item of items" class="flex justify-between">
             <div class="flex-1">
               <p class="font-medium text-gray-800">{{ item.name }} Ã— {{ item.quantity }}</p>
-              <p *ngIf="item.addons.length" class="text-xs text-gray-500 mt-1">
-                <span *ngFor="let addon of item.addons; let last = last">
+              <p *ngIf="item.customizations?.addons?.length" class="text-xs text-gray-500 mt-1">
+                <span *ngFor="let addon of item.customizations.addons; let last = last">
                   {{ addon.name }}<span *ngIf="!last">, </span>
                 </span>
               </p>
             </div>
             <div class="text-right">
-              <p class="font-medium text-gray-800">â‚¹{{ item.totalPrice * item.quantity }}</p>
+              <p class="font-medium text-gray-800">â‚¹{{ item.price * item.quantity }}</p>
             </div>
           </div>
         </div>
@@ -336,17 +282,17 @@
             <span>Subtotal</span>
             <span>â‚¹{{ getGrandTotal() | number:'1.2-2' }}</span>
           </div>
-          
+
           <div class="flex justify-between text-gray-600">
             <span>Delivery Charge</span>
-            <span class="text-orange-600">FREE</span>
+            <span>₹{{ getDeliveryCharge() | number:'1.2-2' }}</span>
           </div>
-          
+
           <div *ngIf="paymentMethod === 'online'" class="flex justify-between text-gray-600">
             <span>GST (5%)</span>
             <span>â‚¹{{ getGst() | number:'1.2-2' }}</span>
           </div>
-          
+
           <div class="border-t pt-4">
             <div class="flex justify-between font-bold text-lg">
               <span>Total Amount</span>
@@ -364,8 +310,7 @@
           <p class="font-semibold text-orange-700 mt-1">
             {{ getPaymentMethodName() }}
           </p>
-          <p *ngIf="paymentMethod === 'online'" 
-             class="text-sm text-orange-600 mt-1">
+          <p *ngIf="paymentMethod === 'online'" class="text-sm text-orange-600 mt-1">
             {{ getOnlinePaymentMethodName() }}
           </p>
         </div>

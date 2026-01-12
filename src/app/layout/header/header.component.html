@@ -12,6 +12,18 @@
     <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
       <a routerLink="/menu" class="hover:text-orange-600 transition-colors">Menu</a>
 
+      <!-- WISHLIST WITH ICON -->
+      <a routerLink="/wishlist" class="relative hover:text-orange-600 transition-colors flex items-center gap-2">
+        <div class="relative">
+          <span class="text-lg">❤️</span>
+          <span *ngIf="wishlistCount > 0" class="absolute -top-2 -right-3 bg-red-500 text-white text-xs
+                   w-5 h-5 flex items-center justify-center rounded-full">
+            {{ wishlistCount }}
+          </span>
+        </div>
+        <span>Wishlist</span>
+      </a>
+
       <!-- CART WITH ICON -->
       <a routerLink="/cart" class="relative hover:text-orange-600 transition-colors flex items-center gap-2">
         <div class="relative">
@@ -50,7 +62,7 @@
               </div>
               <div>
                 <h3 class="font-semibold text-gray-800">
-                  {{ getUserName() || 'Welcome!' }}
+                  {{ isLoggedIn() ? 'Welcome! ' + (getUserName() || 'User') : 'Welcome!' }}
                 </h3>
                 <p class="text-sm text-gray-600">
                   {{ isLoggedIn() ? 'Manage your account' : 'Sign in to continue' }}
@@ -127,8 +139,17 @@
       </div>
     </nav>
 
-    <!-- MOBILE MENU BUTTON WITH CART ICON -->
+    <!-- MOBILE MENU BUTTON WITH CART AND WISHLIST ICONS -->
     <div class="md:hidden flex items-center gap-4">
+      <!-- WISHLIST ICON FOR MOBILE -->
+      <a routerLink="/wishlist" class="relative">
+        <span class="text-xl text-red-400">❤️</span>
+        <span *ngIf="wishlistCount > 0" class="absolute -top-2 -right-3 bg-red-500 text-white text-xs
+                 w-5 h-5 flex items-center justify-center rounded-full">
+          {{ wishlistCount }}
+        </span>
+      </a>
+
       <!-- CART ICON FOR MOBILE -->
       <a routerLink="/cart" class="relative">
         <span class="text-xl text-orange-600">🛒</span>
@@ -162,7 +183,7 @@
           </div>
           <div>
             <h3 class="font-semibold text-gray-800">
-              {{ getUserName() || 'Welcome!' }}
+              {{ isLoggedIn() ? 'Welcome! ' + (getUserName() || 'User') : 'Welcome!' }}
             </h3>
             <p class="text-sm text-gray-600">
               {{ isLoggedIn() ? 'Manage your account' : 'Sign in to continue' }}
@@ -266,7 +287,7 @@
           </div>
           <div>
             <p class="font-medium text-gray-800">
-              {{ isLoggedIn() ? (getUserName() || 'User') : 'Welcome!' }}
+              {{ isLoggedIn() ? 'Welcome! ' + (getUserName() || 'User') : 'Welcome!' }}
             </p>
             <p class="text-xs text-gray-600">
               {{ isLoggedIn() ? 'Account' : 'Guest User' }}
@@ -305,6 +326,10 @@
             class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
             <span class="text-red-400">❤️</span>
             <span>Wishlist</span>
+            <span *ngIf="wishlistCount > 0"
+              class="ml-auto bg-red-500 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full">
+              {{ wishlistCount }}
+            </span>
           </a>
 
           <div class="border-t my-2 mx-6"></div>
@@ -338,6 +363,10 @@
             class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
             <span class="text-red-400">❤️</span>
             <span>Wishlist</span>
+            <span *ngIf="wishlistCount > 0"
+              class="ml-auto bg-red-500 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full">
+              {{ wishlistCount }}
+            </span>
           </a>
 
           <div class="border-t my-2 mx-6"></div>

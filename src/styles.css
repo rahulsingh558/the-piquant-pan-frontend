@@ -7,6 +7,16 @@ body {
   font-family: 'Poppins', sans-serif;
 }
 
+/* Pointer cursor for all clickable elements */
+a,
+button,
+[role="button"],
+[routerLink],
+[ng-reflect-router-link],
+.cursor-pointer {
+  cursor: pointer;
+}
+
 /* Headings use Playfair Display for elegance */
 h1,
 h2,
@@ -150,4 +160,45 @@ h6 {
 
 :host ::ng-deep .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
   background-color: #FF6B35;
+}
+
+
+/* Add to styles.css */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-center {
+  scroll-snap-align: center;
+}
+
+/* Smooth transitions */
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Carousel indicators */
+.carousel-indicator {
+  transition: all 0.3s ease;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }

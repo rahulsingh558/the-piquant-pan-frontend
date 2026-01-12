@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-green-50 py-12 flex items-center justify-center">
   <div class="max-w-2xl mx-auto px-4 text-center">
-    
+
     <!-- SUCCESS ICON -->
     <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
       <span class="text-4xl text-green-600">✅</span>
@@ -10,10 +10,43 @@
     <h1 class="text-3xl font-bold text-green-700 mb-4">
       Payment Successful!
     </h1>
-    
+
     <p class="text-gray-600 text-lg mb-8">
       Your order has been placed successfully and will be delivered soon.
     </p>
+
+    <!-- ORDER TIMELINE -->
+    <div class="mb-10 max-w-3xl mx-auto overflow-x-auto">
+      <div class="flex items-center justify-between min-w-[500px] px-4">
+        <div *ngFor="let step of timelineSteps; let last = last" class="flex-1 flex flex-col items-center relative">
+
+          <!-- Connecting Line -->
+          <div *ngIf="!last" class="absolute top-5 left-[50%] w-full h-1 bg-gray-200 -z-10">
+            <div class="h-full bg-green-500 transition-all duration-500"
+              [style.width]="getStepStatus(step.status) === 'completed' ? '100%' : '0%'"></div>
+          </div>
+
+          <!-- Icon Circle -->
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center border-2 mb-2 bg-white z-10 transition-colors duration-300"
+            [class.border-green-500]="getStepStatus(step.status) !== 'upcoming'"
+            [class.bg-green-500]="getStepStatus(step.status) !== 'upcoming'"
+            [class.text-white]="getStepStatus(step.status) !== 'upcoming'"
+            [class.border-gray-300]="getStepStatus(step.status) === 'upcoming'"
+            [class.text-gray-400]="getStepStatus(step.status) === 'upcoming'">
+            <span class="text-lg">{{ step.icon }}</span>
+          </div>
+
+          <!-- Label -->
+          <span class="text-xs font-medium transition-colors duration-300"
+            [class.text-green-700]="getStepStatus(step.status) === 'current'"
+            [class.text-gray-500]="getStepStatus(step.status) !== 'current'"
+            [class.font-bold]="getStepStatus(step.status) === 'current'">
+            {{ step.label }}
+          </span>
+        </div>
+      </div>
+    </div>
 
     <!-- ORDER DETAILS -->
     <div class="bg-white rounded-xl shadow p-6 mb-8 max-w-md mx-auto">
@@ -22,17 +55,17 @@
           <span class="text-gray-600">Order ID</span>
           <span class="font-semibold">{{ getOrderId() }}</span>
         </div>
-        
+
         <div class="flex justify-between">
           <span class="text-gray-600">Transaction ID</span>
           <span class="font-semibold">{{ transactionId }}</span>
         </div>
-        
+
         <div class="flex justify-between">
           <span class="text-gray-600">Amount Paid</span>
           <span class="font-bold text-green-700">₹{{ orderAmount | number:'1.2-2' }}</span>
         </div>
-        
+
         <div class="flex justify-between">
           <span class="text-gray-600">Estimated Delivery</span>
           <span class="font-semibold">{{ estimatedDelivery }}</span>
@@ -55,17 +88,13 @@
 
     <!-- ACTION BUTTONS -->
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <button
-        (click)="viewOrder()"
-        class="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
-      >
+      <button (click)="viewOrder()"
+        class="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
         View My Orders
       </button>
-      
-      <button
-        (click)="continueShopping()"
-        class="px-8 py-3 bg-white text-green-600 border border-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors"
-      >
+
+      <button (click)="continueShopping()"
+        class="px-8 py-3 bg-white text-green-600 border border-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors">
         Continue Shopping
       </button>
     </div>
@@ -78,12 +107,12 @@
           <div class="text-2xl mb-2">👨‍🍳</div>
           <p class="text-sm text-gray-700">Chef prepares your meal with fresh ingredients</p>
         </div>
-        
+
         <div class="p-4 bg-white rounded-lg shadow-sm">
           <div class="text-2xl mb-2">🚗</div>
           <p class="text-sm text-gray-700">Delivery partner picks up your order</p>
         </div>
-        
+
         <div class="p-4 bg-white rounded-lg shadow-sm">
           <div class="text-2xl mb-2">🏠</div>
           <p class="text-sm text-gray-700">Enjoy your delicious meal at your doorstep!</p>

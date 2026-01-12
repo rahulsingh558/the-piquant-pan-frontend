@@ -1,4 +1,4 @@
-import { Component, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { Component, ViewChildren, QueryList, ElementRef, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
 })
-export class Login {
+export class Login implements OnInit {
   @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
 
   // Main login form
@@ -35,6 +35,12 @@ export class Login {
     private cartService: CartService,
     private authService: AuthService
   ) { }
+
+  ngOnInit() {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/menu']);
+    }
+  }
 
   // Main login method
   login() {

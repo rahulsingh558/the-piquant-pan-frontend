@@ -15,21 +15,36 @@ export class OrderSuccessComponent implements OnInit {
   transactionId = '';
   paymentMethod = '';
   estimatedDelivery = '';
+  orderStatus = 'pending';
 
-  constructor(private router: Router) { }
+  timelineSteps = [
+    { status: 'pending', label: 'Pending', icon: '⏳' },
+    { status: 'confirmed', label: 'Confirmed', icon: '✅' },
+    { status: 'preparing', label: 'Preparing', icon: '👨‍🍳' },
+    { status: 'out_for_delivery', label: 'Out for Delivery', icon: '🛵' },
+    { status: 'delivered', label: 'Delivered', icon: '🏠' }
+  ];
+
+  constructor(private router: Router) {
+    // Get order data from navigation state - must be in constructor
+    const navigation = this.router.getCurrentNavigation();
+
+    if (navigation?.extras?.state) {
+      this.setOrderDetails(navigation.extras.state);
+    } else {
+      // Fallback: Check history.state directly (useful for reloads or if navigation object is lost)
+      const state = history.state;
+      if (state && state.orderId) {
+        this.setOrderDetails(state);
+      } else {
+        // If no state, redirect to home
+        // We do this in ngOnInit to avoid router errors in constructor
+      }
+    }
+  }
 
   ngOnInit(): void {
-    // Get order data from navigation state
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras?.state) {
-      this.orderId = navigation.extras.state['orderId'] || '';
-      this.orderNumber = navigation.extras.state['orderNumber'] || 0;
-      this.totalAmount = navigation.extras.state['totalAmount'] || 0;
-      this.orderAmount = this.totalAmount;
-      this.transactionId = this.orderId;
-      this.paymentMethod = navigation.extras.state['paymentMethod'] || '';
-    } else {
-      // If no state, redirect to home
+    if (!this.orderId) {
       this.router.navigate(['/menu']);
       return;
     }
@@ -41,6 +56,16 @@ export class OrderSuccessComponent implements OnInit {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  private setOrderDetails(state: any) {
+    this.orderId = state['orderId'] || '';
+    this.orderNumber = state['orderNumber'] || 0;
+    this.totalAmount = state['totalAmount'] || 0;
+    this.orderAmount = this.totalAmount;
+    this.transactionId = this.orderId;
+    this.paymentMethod = state['paymentMethod'] || '';
+    this.orderStatus = state['orderStatus'] || 'pending';
   }
 
   viewOrder() {
@@ -57,5 +82,15 @@ export class OrderSuccessComponent implements OnInit {
 
   getPaymentMethodText(): string {
     return this.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment';
+  }
+
+  getStepStatus(stepStatus: string): 'completed' | 'current' | 'upcoming' {
+    const statusOrder = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered'];
+    const currentIndex = statusOrder.indexOf(this.orderStatus);
+    const stepIndex = statusOrder.indexOf(stepStatus);
+
+    if (stepIndex < currentIndex) return 'completed';
+    if (stepIndex === currentIndex) return 'current';
+    return 'upcoming';
   }
 }

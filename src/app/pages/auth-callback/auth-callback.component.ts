@@ -22,11 +22,30 @@ export class AuthCallbackComponent implements OnInit {
                 const token = params['token'];
                 const userId = params['userId'];
                 const role = params['role'];
+                const userName = params['userName'];
+                const userEmail = params['userEmail'];
 
                 if (token) {
                     localStorage.setItem('token', token);
                     localStorage.setItem('userId', userId);
                     localStorage.setItem('userRole', role);
+
+                    // Store user data for display
+                    if (userName) {
+                        localStorage.setItem('userName', userName);
+                    }
+                    if (userEmail) {
+                        localStorage.setItem('userEmail', userEmail);
+                    }
+
+                    // Store user data object for consistency
+                    const userData = {
+                        id: userId,
+                        name: userName || 'User',
+                        email: userEmail || '',
+                        role: role
+                    };
+                    localStorage.setItem('userData', JSON.stringify(userData));
 
                     localStorage.setItem('isLoggedIn', 'true');
 

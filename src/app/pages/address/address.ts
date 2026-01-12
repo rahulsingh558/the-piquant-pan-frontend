@@ -1,5 +1,4 @@
 export interface Address {
-  id: number;
   name: string;
   phone: string;
   addressLine1: string;

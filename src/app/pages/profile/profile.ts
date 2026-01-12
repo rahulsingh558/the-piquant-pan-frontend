@@ -10,6 +10,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 export class Profile {
   isBrowser = false;
   loggedIn = false;
+  userName: string | null = null;
 
   constructor(
     private router: Router,
@@ -19,6 +20,7 @@ export class Profile {
 
     if (this.isBrowser) {
       this.loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      this.userName = localStorage.getItem('userName');
     }
   }
 

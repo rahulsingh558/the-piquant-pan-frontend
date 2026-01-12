@@ -121,6 +121,7 @@ export class AuthService {
 
         // For backwards compatibility with existing code
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', response.user.id); // Add userId for order association
         localStorage.setItem('userEmail', response.user.email);
         localStorage.setItem('userName', response.user.name);
 
@@ -137,6 +138,7 @@ export class AuthService {
         localStorage.removeItem('token');
         localStorage.removeItem('userData');
         localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId'); // Remove userId
         localStorage.removeItem('userEmail');
         localStorage.removeItem('userName');
         localStorage.removeItem('authProvider');
