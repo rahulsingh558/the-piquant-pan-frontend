@@ -1,485 +1,493 @@
-<!-- HERO SECTION -->
-<section class="bg-gradient-to-br from-orange-50 to-red-50 py-16 md:py-20 overflow-hidden">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-      <!-- TEXT -->
-      <div class="animate-on-scroll animate-hidden">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-          Savor Every Bite,<br />
-          <span class="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">Delivered Fresh</span>
+<!-- home.html -->
+<div class="min-h-screen bg-gradient-to-b from-orange-50 to-white">
+
+  <!-- Hero Section -->
+  <section class="container mx-auto px-4 py-12 md:py-20">
+    <div class="flex flex-col md:flex-row items-center justify-between">
+      <div class="md:w-1/2 mb-10 md:mb-0 animate-on-scroll">
+        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          Taste the
+          <span class="text-orange-600">Spice</span> of
+          <span class="text-orange-600">Life</span>
         </h1>
-
-        <p class="mt-4 text-gray-600 text-lg md:text-xl">
-          Delicious meals crafted with passion and delivered hot to your door.
-          From comfort food to gourmet cuisine, taste the difference with The Piquant Pan.
+        <p class="text-xl text-gray-600 mb-8">
+          Authentic flavors delivered to your doorstep. From traditional recipes to modern fusion,
+          experience culinary excellence with every bite.
         </p>
-
-        <div class="mt-8 flex flex-col sm:flex-row gap-4">
-          <a routerLink="/menu" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-4 rounded-xl font-semibold
-                   hover:from-orange-700 hover:to-red-700 transition-all duration-300 shadow-lg
-                   hover:shadow-xl text-center">
-            🍽️ Order Now
-          </a>
-
-          <a routerLink="/menu" class="border-2 border-orange-600 text-orange-700 px-8 py-4 rounded-xl
-                   font-semibold hover:bg-orange-50 transition-all duration-300
-                   text-center">
-            📋 View Full Menu
-          </a>
-        </div>
-
-        <!-- QUICK STATS -->
-        <div class="mt-10 grid grid-cols-3 gap-4">
-          <div class="text-center">
-            <div class="text-2xl font-bold text-orange-600">1000+</div>
-            <div class="text-sm text-gray-600">Happy Customers</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-orange-600">25 min</div>
-            <div class="text-sm text-gray-600">Avg Delivery</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-orange-600">4.9 ★</div>
-            <div class="text-sm text-gray-600">Customer Rating</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- HERO IMAGE -->
-      <div class="relative animate-on-scroll animate-hidden">
-        <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=900&q=80"
-          alt="Delicious Indian and Chinese Cuisine"
-          class="rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-500" />
-        <div class="absolute -bottom-4 -right-4 bg-white p-4 rounded-2xl shadow-xl">
-          <div class="text-orange-600 font-bold">🔥 Hot & Fresh</div>
-          <div class="text-sm text-gray-600">Every Order</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ROTATING BOWL SECTION -->
-<section class="py-16 bg-gradient-to-b from-white to-orange-50">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="text-center mb-12 animate-on-scroll animate-hidden">
-      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-        Explore Our Signature Dishes
-      </h2>
-      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-        Click the arrows to discover our chef-crafted bowls. Each dish is prepared with premium ingredients
-        and bursting with flavor.
-      </p>
-    </div>
-
-    <div class="flex flex-col lg:flex-row items-center gap-12 animate-on-scroll animate-hidden">
-      <!-- Bowl Display Area -->
-      <div class="lg:w-1/2 relative">
-        <!-- Main Bowl Container -->
-        <div class="relative w-80 h-80 mx-auto" [class.animate-bowl-rotate]="isBowlAnimating()">
-
-          <!-- Bowl Image -->
-          <div class="absolute inset-0 flex items-center justify-center">
-            <div class="w-64 h-64 rounded-full bg-gradient-to-br 
-                        from-orange-100 to-red-100 shadow-2xl 
-                        border-8 border-white flex items-center justify-center
-                        transition-all duration-500">
-              <img [src]="activeBowl.image" [alt]="activeBowl.title" class="w-56 h-56 object-cover rounded-full shadow-inner
-                          transition-all duration-500" [class.scale-105]="isBowlAnimating()">
-            </div>
-          </div>
-
-          <!-- Navigation Arrows -->
-          <button (click)="prevBowl()" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4
-                         w-12 h-12 bg-white rounded-full shadow-lg flex items-center 
-                         justify-center hover:bg-orange-50 transition-all duration-300
-                         border border-gray-200 z-10 hover:scale-110">
-            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+          <button routerLink="/menu"
+            class="bg-orange-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-700 transition transform hover:scale-105 shadow-lg">
+            Explore Menu
           </button>
-
-          <button (click)="nextBowl()" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4
-                         w-12 h-12 bg-white rounded-full shadow-lg flex items-center 
-                         justify-center hover:bg-orange-50 transition-all duration-300
-                         border border-gray-200 z-10 hover:scale-110">
-            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-          <!-- Ingredients Floating Animation -->
-          <div class="absolute inset-0 pointer-events-none">
-            <div *ngFor="let ingredient of activeBowl.ingredients; let i = index" class="absolute text-xs font-medium px-3 py-1.5 bg-white/90 backdrop-blur-sm 
-                        rounded-full shadow-sm border border-orange-100 whitespace-nowrap
-                        transition-all duration-500 animate-float" [style]="getIngredientPosition(i)">
-              {{ ingredient }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Bowl Indicators -->
-        <div class="flex justify-center gap-3 mt-8">
-          <button *ngFor="let bowl of bowls; let i = index" (click)="goToBowl(i)"
-            class="w-3 h-3 rounded-full transition-all duration-300" [class]="activeBowlIndex() === i 
-                    ? 'bg-orange-600 scale-125' 
-                    : 'bg-gray-300 hover:bg-gray-400'" [attr.aria-label]="'Go to ' + bowl.type + ' bowl'">
+          <button routerLink="/signup"
+            class="border-2 border-orange-600 text-orange-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-orange-50 transition">
+            Get 20% Off First Order
           </button>
         </div>
       </div>
 
-      <!-- Bowl Details -->
-      <div class="lg:w-1/2">
-        <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 animate-on-scroll animate-hidden">
-          <!-- Bowl Type Badge -->
-          <div class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4" [ngClass]="{
-                 'bg-orange-100 text-orange-800': activeBowl.type === 'sprouts',
-                 'bg-amber-100 text-amber-800': activeBowl.type === 'egg',
-                 'bg-red-100 text-red-800': activeBowl.type === 'paneer',
-                 'bg-rose-100 text-rose-800': activeBowl.type === 'chicken'
-               }">
-            {{ toTitleCase(activeBowl.type) }} Bowl
-          </div>
-
-          <h3 class="text-2xl font-bold text-gray-800 mb-3">
-            {{ activeBowl.title }}
-          </h3>
-
-          <p class="text-gray-600 mb-6">
-            {{ activeBowl.description }}
-          </p>
-
-          <!-- Nutrition Info -->
-          <div class="flex items-center gap-6 mb-6">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <span class="text-orange-600">🔥</span>
+      <div class="md:w-1/2 relative animate-on-scroll" style="animation-delay: 0.2s">
+        <div class="relative">
+          <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=800&fit=crop&crop=center"
+            alt="Delicious Food" class="rounded-3xl shadow-2xl w-full max-w-lg mx-auto" />
+          <div class="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl">
+            <div class="flex items-center space-x-4">
+              <div class="bg-green-100 p-3 rounded-full">
+                <span class="text-2xl">🚀</span>
               </div>
               <div>
-                <div class="font-bold text-gray-800">{{ activeBowl.calories }}</div>
-                <div class="text-xs text-gray-500">Calories</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <span class="text-orange-600">🥗</span>
-              </div>
-              <div>
-                <div class="font-bold text-gray-800">{{ activeBowl.ingredients.length }}</div>
-                <div class="text-xs text-gray-500">Ingredients</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <span class="text-orange-600">⚡</span>
-              </div>
-              <div>
-                <div class="font-bold text-gray-800">Premium</div>
-                <div class="text-xs text-gray-500">Quality</div>
+                <h3 class="font-bold text-lg">Fast Delivery</h3>
+                <p class="text-gray-600">25-30 min</p>
               </div>
             </div>
           </div>
-
-          <!-- Price & CTA -->
-          <div class="flex items-center justify-between pt-6 border-t border-gray-100">
-            <div>
-              <p class="text-sm text-gray-500">Starting from</p>
-              <p class="text-3xl font-bold text-orange-600">₹{{ activeBowl.basePrice }}</p>
+          <div class="absolute -top-6 -right-6 bg-white p-6 rounded-2xl shadow-xl">
+            <div class="flex items-center space-x-4">
+              <div class="bg-orange-100 p-3 rounded-full">
+                <span class="text-2xl">⭐</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-lg">4.8 Rating</h3>
+                <p class="text-gray-600">5000+ reviews</p>
+              </div>
             </div>
-            <button routerLink="/menu" class="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 
-                     text-white font-semibold rounded-xl hover:from-orange-700 
-                     hover:to-red-700 transition-all duration-300 shadow-md 
-                     hover:shadow-lg flex items-center gap-2">
-              <span>Customize Bowl</span>
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </button>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- BENEFITS SECTION -->
-<section class="py-16 bg-white">
-  <div class="max-w-6xl mx-auto px-4">
-    <h2 class="text-3xl font-bold text-center text-gray-900 mb-12 animate-on-scroll animate-hidden">
-      Why Choose The Piquant Pan?
-    </h2>
+  <!-- Featured Categories Carousel -->
+  <section class="container mx-auto px-4 py-16">
+    <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Popular Categories</h2>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div *ngFor="let benefit of foodBenefits" class="bg-orange-50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300
-                  animate-on-scroll animate-hidden hover:-translate-y-1">
-        <div class="text-3xl mb-4">{{ benefit.icon }}</div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ benefit.title }}</h3>
-        <p class="text-gray-600">{{ benefit.description }}</p>
+    <div class="relative">
+      <div class="flex overflow-x-auto pb-8 space-x-6 snap-x snap-mandatory scrollbar-hide">
+        <!-- Category 1 -->
+        <div
+          class="flex-shrink-0 w-80 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow cursor-pointer border border-gray-100 snap-center">
+          <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
+            <span class="text-3xl">🍗</span>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Non-Veg Starters</h3>
+          <p class="text-gray-600 mb-4">Spicy chicken, tikkas, and more</p>
+          <span class="text-orange-600 font-semibold">From ₹175</span>
+        </div>
+
+        <!-- Category 2 -->
+        <div
+          class="flex-shrink-0 w-80 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow cursor-pointer border border-gray-100 snap-center">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+            <span class="text-3xl">🥘</span>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Biryani Special</h3>
+          <p class="text-gray-600 mb-4">Authentic rice dishes</p>
+          <span class="text-orange-600 font-semibold">From ₹199</span>
+        </div>
+
+        <!-- Category 3 -->
+        <div
+          class="flex-shrink-0 w-80 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow cursor-pointer border border-gray-100 snap-center">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+            <span class="text-3xl">🥗</span>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Healthy Bowls</h3>
+          <p class="text-gray-600 mb-4">Protein-packed meals</p>
+          <span class="text-orange-600 font-semibold">From ₹99</span>
+        </div>
+
+        <!-- Category 4 -->
+        <div
+          class="flex-shrink-0 w-80 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow cursor-pointer border border-gray-100 snap-center">
+          <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6">
+            <span class="text-3xl">🍜</span>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Maggi & Noodles</h3>
+          <p class="text-gray-600 mb-4">Comfort food classics</p>
+          <span class="text-orange-600 font-semibold">From ₹40</span>
+        </div>
+
+        <!-- Category 5 -->
+        <div
+          class="flex-shrink-0 w-80 bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow cursor-pointer border border-gray-100 snap-center">
+          <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <span class="text-3xl">🍛</span>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Curry Special</h3>
+          <p class="text-gray-600 mb-4">Rich and creamy gravies</p>
+          <span class="text-orange-600 font-semibold">From ₹100</span>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- FEATURED MENU CAROUSEL -->
-<section class="py-16 bg-orange-50">
-  <div class="max-w-6xl mx-auto px-4">
-    <h2 class="text-3xl font-bold text-center text-gray-900 mb-12 animate-on-scroll animate-hidden">
-      Customer Favorites
-    </h2>
+  <!-- Most Selling Products Carousel -->
+  <section class="container mx-auto px-4 py-16">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold text-gray-900 mb-4">🔥 Most Selling Products</h2>
+      <p class="text-gray-600 text-lg">Customer favorites this week</p>
+    </div>
 
     <div class="relative">
       <!-- Carousel Container -->
-      <div class="overflow-hidden">
-        <div class="flex gap-8 transition-transform duration-500"
-          [style.transform]="'translateX(-' + (activeBowlIndex() * 100) + '%)'">
-
-          <!-- Product 1 -->
-          <div class="min-w-full md:min-w-[50%] lg:min-w-[33.333%] flex-shrink-0">
-            <div class="bg-white rounded-2xl shadow-lg p-6 mx-4 hover:shadow-xl transition-all duration-300">
-              <div class="relative">
-                <img src="https://images.unsplash.com/photo-1540420828642-fca2c5c18abe?w=600&h=400&fit=crop&crop=center"
-                  alt="Classic Sprouts Bowl" class="rounded-xl w-full h-48 object-cover mb-4">
-                <div
-                  class="absolute top-4 right-4 bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  VEG
-                </div>
+      <div class="flex overflow-x-auto pb-8 space-x-6 snap-x snap-mandatory scrollbar-hide">
+        @for (item of mostSellingItems; track item.id) {
+        <div
+          class="flex-shrink-0 w-80 bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow snap-center">
+          <div class="relative">
+            <img [src]="item.image" [alt]="item.name" class="w-full h-48 object-cover">
+            @if (item.isBestSeller) {
+            <div class="absolute top-4 right-4 bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+              Best Seller
+            </div>
+            }
+          </div>
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-xl font-bold">{{ item.name }}</h3>
+              <span [ngClass]="{
+                'bg-green-100 text-green-800': item.type === 'veg',
+                'bg-red-100 text-red-800': item.type === 'nonveg',
+                'bg-yellow-100 text-yellow-800': item.type === 'egg'
+              }" class="text-sm px-3 py-1 rounded-full">
+                {{ item.type === 'veg' ? 'Veg' : item.type === 'nonveg' ? 'Non-Veg' : 'Egg' }}
+              </span>
+            </div>
+            <p class="text-gray-600 mb-4">{{ item.subtitle }}</p>
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="text-2xl font-bold text-gray-900">₹{{ item.basePrice }}</span>
+                @if (item.discountPrice) {
+                <span class="text-gray-500 text-sm line-through ml-2">₹{{ item.discountPrice }}</span>
+                }
               </div>
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Classic Sprouts Bowl</h3>
-              <p class="text-gray-600 text-sm mb-4">Fresh moong sprouts with seasonal vegetables and lemon dressing</p>
-              <div class="flex items-center justify-between">
-                <div>
-                  <div class="text-sm text-gray-500">Starting at</div>
-                  <div class="text-2xl font-bold text-orange-600">₹99</div>
+              <button (click)="addToCartFromHome({foodId: item.id, name: item.name, basePrice: item.basePrice})"
+                class="bg-orange-600 text-white px-6 py-2 rounded-full hover:bg-orange-700 transition font-semibold">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Chef's Special Carousel -->
+  <section class="container mx-auto px-4 py-16 bg-gradient-to-r from-orange-50 to-amber-50 rounded-3xl my-16">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold text-gray-900 mb-4">👨‍🍳 Chef's Special</h2>
+      <p class="text-gray-600 text-lg">Handcrafted with passion by our master chefs</p>
+    </div>
+
+    <div class="relative">
+      <!-- Navigation Buttons -->
+      <button (click)="prevCarousel('chefSpecial')"
+        class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition">
+        ←
+      </button>
+      <button (click)="nextCarousel('chefSpecial')"
+        class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 z-10 bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition">
+        →
+      </button>
+
+      <!-- Carousel Container -->
+      <div class="flex overflow-hidden">
+        <div class="flex transition-transform duration-500 ease-in-out"
+          [style.transform]="'translateX(-' + (activeChefSpecialIndex() * 100) + '%)'">
+          @for (item of chefSpecialItems; track item.id) {
+          <div class="w-full flex-shrink-0">
+            <div class="max-w-4xl mx-auto">
+              <div
+                class="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-8 text-white relative overflow-hidden">
+                <div class="absolute -right-8 -top-8 w-32 h-32 bg-white bg-opacity-20 rounded-full"></div>
+                <div class="relative z-10">
+                  <div class="mb-6">
+                    @if (item.tag) {
+                    <span class="bg-white bg-opacity-20 px-4 py-1 rounded-full text-sm font-semibold">
+                      {{ item.tag }}
+                    </span>
+                    }
+                    @if (item.isBestSeller) {
+                    <span class="ml-2 bg-yellow-500 px-4 py-1 rounded-full text-sm font-semibold">
+                      ⭐ Best Seller
+                    </span>
+                    }
+                  </div>
+                  <h3 class="text-3xl font-bold mb-3">{{ item.name }}</h3>
+                  <p class="text-white text-opacity-90 mb-6 text-lg">{{ item.subtitle }}</p>
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <span class="text-4xl font-bold">₹{{ item.basePrice }}</span>
+                      @if (item.discountPrice) {
+                      <span class="text-white text-opacity-70 line-through ml-2 text-xl">₹{{ item.discountPrice
+                        }}</span>
+                      }
+                    </div>
+                    <button (click)="addToCartFromHome({foodId: item.id, name: item.name, basePrice: item.basePrice})"
+                      class="bg-white text-orange-600 px-8 py-3 rounded-full hover:bg-gray-100 transition font-semibold text-lg">
+                      Order Now
+                    </button>
+                  </div>
                 </div>
-                <button (click)="addToCartFromHome({ foodId: 1, name: 'Classic Sprouts Bowl', basePrice: 99 })"
-                  class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                  Add to Cart
-                </button>
               </div>
             </div>
           </div>
-
-          <!-- Product 2 -->
-          <div class="min-w-full md:min-w-[50%] lg:min-w-[33.333%] flex-shrink-0">
-            <div class="bg-white rounded-2xl shadow-lg p-6 mx-4 hover:shadow-xl transition-all duration-300">
-              <div class="relative">
-                <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop&crop=center"
-                  alt="Corn Paneer Mix" class="rounded-xl w-full h-48 object-cover mb-4">
-                <div
-                  class="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  EGG
-                </div>
-              </div>
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Corn Paneer Mix</h3>
-              <p class="text-gray-600 text-sm mb-4">Sweet corn with air-fried paneer cubes and Mexican seasoning</p>
-              <div class="flex items-center justify-between">
-                <div>
-                  <div class="text-sm text-gray-500">Starting at</div>
-                  <div class="text-2xl font-bold text-orange-600">₹149</div>
-                </div>
-                <button (click)="addToCartFromHome({ foodId: 2, name: 'Corn Paneer Mix', basePrice: 149 })"
-                  class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                  Add to Cart
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Product 3 -->
-          <div class="min-w-full md:min-w-[50%] lg:min-w-[33.333%] flex-shrink-0">
-            <div class="bg-white rounded-2xl shadow-lg p-6 mx-4 hover:shadow-xl transition-all duration-300">
-              <div class="relative">
-                <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=600&h=400&fit=crop&crop=center"
-                  alt="Chicken Protein Bowl" class="rounded-xl w-full h-48 object-cover mb-4">
-                <div class="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  NON-VEG
-                </div>
-              </div>
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Chicken Protein Bowl</h3>
-              <p class="text-gray-600 text-sm mb-4">Grilled chicken breast with quinoa and roasted vegetables</p>
-              <div class="flex items-center justify-between">
-                <div>
-                  <div class="text-sm text-gray-500">Starting at</div>
-                  <div class="text-2xl font-bold text-green-700">₹169</div>
-                </div>
-                <button (click)="addToCartFromHome({ foodId: 3, name: 'Chicken Protein Bowl', basePrice: 169 })"
-                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                  Add to Cart
-                </button>
-              </div>
-            </div>
-          </div>
-
+          }
         </div>
       </div>
 
-      <!-- Carousel Navigation -->
-      <div class="flex justify-center gap-4 mt-8">
-        <button *ngFor="let bowl of bowls; let i = index" (click)="goToBowl(i)"
-          class="w-12 h-2 rounded-full transition-all duration-300" [class]="activeBowlIndex() === i 
-                  ? 'bg-orange-600' 
-                  : 'bg-gray-300 hover:bg-gray-400'">
+      <!-- Indicators -->
+      <div class="flex justify-center mt-8 space-x-2">
+        @for (item of chefSpecialItems; track item.id; let i = $index) {
+        <button (click)="goToSlide('chefSpecial', i)" class="w-3 h-3 rounded-full transition-all"
+          [class.bg-orange-600]="activeChefSpecialIndex() === i" [class.bg-gray-300]="activeChefSpecialIndex() !== i"
+          [class.w-8]="activeChefSpecialIndex() === i">
+        </button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Starter Items Carousel -->
+  <section class="container mx-auto px-4 py-16">
+    <div class="flex justify-between items-center mb-12">
+      <div>
+        <h2 class="text-4xl font-bold text-gray-900 mb-2">🍢 Popular Starters</h2>
+        <p class="text-gray-600 text-lg">Perfect appetizers to begin your meal</p>
+      </div>
+      <div class="flex space-x-4">
+        <button (click)="prevCarousel('starter')" class="bg-gray-100 p-3 rounded-full hover:bg-gray-200 transition">
+          ←
+        </button>
+        <button (click)="nextCarousel('starter')" class="bg-gray-100 p-3 rounded-full hover:bg-gray-200 transition">
+          →
         </button>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- TESTIMONIALS CAROUSEL -->
-<section class="py-16 bg-white">
-  <div class="max-w-4xl mx-auto px-4">
-    <h2 class="text-3xl font-bold text-center text-gray-900 mb-12 animate-on-scroll animate-hidden">
-      What Our Customers Say
-    </h2>
+    <div class="relative">
+      <div class="flex overflow-hidden">
+        <div class="flex transition-transform duration-500 ease-in-out"
+          [style.transform]="'translateX(-' + (activeStarterIndex() * 100) + '%)'">
+          @for (item of starterItems; track item.id) {
+          <div class="w-1/3 flex-shrink-0 px-4">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow h-full">
+              <img [src]="item.image" [alt]="item.name" class="w-full h-48 object-cover">
+              <div class="p-6">
+                <div class="flex justify-between items-start mb-3">
+                  <h3 class="text-xl font-bold">{{ item.name }}</h3>
+                  <span [ngClass]="{
+                    'bg-green-100 text-green-800': item.type === 'veg',
+                    'bg-red-100 text-red-800': item.type === 'nonveg',
+                    'bg-yellow-100 text-yellow-800': item.type === 'egg'
+                  }" class="text-sm px-3 py-1 rounded-full">
+                    {{ item.type === 'veg' ? 'Veg' : item.type === 'nonveg' ? 'Non-Veg' : 'Egg' }}
+                  </span>
+                </div>
+                <p class="text-gray-600 mb-4">{{ item.subtitle }}</p>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <span class="text-2xl font-bold text-gray-900">₹{{ item.basePrice }}</span>
+                    <div class="text-sm text-gray-500">🔥 {{ item.calories }} cal</div>
+                  </div>
+                  <button (click)="addToCartFromHome({foodId: item.id, name: item.name, basePrice: item.basePrice})"
+                    class="bg-orange-600 text-white px-6 py-2 rounded-full hover:bg-orange-700 transition font-semibold">
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <div class="relative bg-green-50 rounded-3xl p-8 md:p-12">
-      <!-- Testimonial Content -->
-      <div class="text-center">
-        <div class="flex justify-center mb-6">
-          <div class="flex">
-            <span *ngFor="let star of getStars(activeTestimonial.rating)" class="text-yellow-500 text-2xl">★</span>
+  <!-- Vegetarian & Non-Veg Side by Side Carousels -->
+  <section class="container mx-auto px-4 py-16">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Vegetarian Carousel -->
+      <div>
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">🥗 Vegetarian Delights</h2>
+            <p class="text-gray-600">Fresh and flavorful veg options</p>
+          </div>
+          <div class="flex space-x-2">
+            <button (click)="prevCarousel('vegetarian')"
+              class="bg-green-100 p-2 rounded-full hover:bg-green-200 transition">
+              ←
+            </button>
+            <button (click)="nextCarousel('vegetarian')"
+              class="bg-green-100 p-2 rounded-full hover:bg-green-200 transition">
+              →
+            </button>
           </div>
         </div>
 
-        <p class="text-lg italic text-gray-700 mb-8">
-          "{{ activeTestimonial.text }}"
-        </p>
-
-        <div class="flex items-center justify-center gap-4">
-          <img [src]="activeTestimonial.avatar" [alt]="activeTestimonial.name"
-            class="w-16 h-16 rounded-full object-cover">
-          <div class="text-left">
-            <div class="font-bold text-gray-800">{{ activeTestimonial.name }}</div>
-            <div class="text-orange-600">{{ activeTestimonial.role }}</div>
+        <div class="bg-green-50 rounded-2xl p-6">
+          <div class="flex overflow-hidden">
+            <div class="flex transition-transform duration-500 ease-in-out"
+              [style.transform]="'translateX(-' + (activeVegetarianIndex() * 100) + '%)'">
+              @for (item of vegetarianItems; track item.id) {
+              <div class="w-full flex-shrink-0 px-2">
+                <div class="bg-white rounded-xl overflow-hidden shadow-md">
+                  <div class="flex">
+                    <div class="w-1/3">
+                      <img [src]="item.image" [alt]="item.name" class="w-full h-32 object-cover">
+                    </div>
+                    <div class="w-2/3 p-4">
+                      <h3 class="font-bold text-lg mb-1">{{ item.name }}</h3>
+                      <p class="text-gray-600 text-sm mb-2">{{ item.subtitle }}</p>
+                      <div class="flex justify-between items-center">
+                        <span class="text-xl font-bold text-gray-900">₹{{ item.basePrice }}</span>
+                        <button
+                          (click)="addToCartFromHome({foodId: item.id, name: item.name, basePrice: item.basePrice})"
+                          class="bg-green-600 text-white px-4 py-1 rounded-full hover:bg-green-700 transition text-sm">
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Testimonial Navigation -->
-      <div class="flex justify-center gap-3 mt-8">
-        <button *ngFor="let testimonial of testimonials; let i = index" (click)="goToTestimonial(i)"
-          class="w-3 h-3 rounded-full transition-all duration-300" [class]="activeTestimonialIndex() === i 
-                  ? 'bg-orange-600 scale-125' 
-                  : 'bg-gray-300 hover:bg-gray-400'">
+      <!-- Non-Veg Carousel -->
+      <div>
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">🍗 Non-Veg Specials</h2>
+            <p class="text-gray-600">Meat lovers' paradise</p>
+          </div>
+          <div class="flex space-x-2">
+            <button (click)="prevCarousel('nonVeg')" class="bg-red-100 p-2 rounded-full hover:bg-red-200 transition">
+              ←
+            </button>
+            <button (click)="nextCarousel('nonVeg')" class="bg-red-100 p-2 rounded-full hover:bg-red-200 transition">
+              →
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-red-50 rounded-2xl p-6">
+          <div class="flex overflow-hidden">
+            <div class="flex transition-transform duration-500 ease-in-out"
+              [style.transform]="'translateX(-' + (activeNonVegIndex() * 100) + '%)'">
+              @for (item of nonVegItems; track item.id) {
+              <div class="w-full flex-shrink-0 px-2">
+                <div class="bg-white rounded-xl overflow-hidden shadow-md">
+                  <div class="flex">
+                    <div class="w-1/3">
+                      <img [src]="item.image" [alt]="item.name" class="w-full h-32 object-cover">
+                    </div>
+                    <div class="w-2/3 p-4">
+                      <h3 class="font-bold text-lg mb-1">{{ item.name }}</h3>
+                      <p class="text-gray-600 text-sm mb-2">{{ item.subtitle }}</p>
+                      <div class="flex justify-between items-center">
+                        <span class="text-xl font-bold text-gray-900">₹{{ item.basePrice }}</span>
+                        <button
+                          (click)="addToCartFromHome({foodId: item.id, name: item.name, basePrice: item.basePrice})"
+                          class="bg-red-600 text-white px-4 py-1 rounded-full hover:bg-red-700 transition text-sm">
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="container mx-auto px-4 py-16">
+    <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Why Choose The Piquant Pan?</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      @for (benefit of foodBenefits; track benefit.title) {
+      <div
+        class="bg-white rounded-2xl p-8 text-center border border-gray-100 hover:border-orange-200 transition-colors">
+        <div class="text-4xl mb-6">{{ benefit.icon }}</div>
+        <h3 class="text-xl font-bold mb-3">{{ benefit.title }}</h3>
+        <p class="text-gray-600">{{ benefit.description }}</p>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- Testimonials Carousel -->
+  <section class="bg-gray-50 py-16">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">What Our Customers Say</h2>
+
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+          <div class="flex items-center mb-6">
+            <img [src]="activeTestimonial.avatar" [alt]="activeTestimonial.name"
+              class="w-16 h-16 rounded-full object-cover">
+            <div class="ml-6">
+              <h3 class="text-xl font-bold">{{ activeTestimonial.name }}</h3>
+              <p class="text-gray-600">{{ activeTestimonial.role }}</p>
+            </div>
+            <div class="ml-auto">
+              <div class="flex">
+                @for (star of getStars(activeTestimonial.rating); track i; let i = $index) {
+                <span class="text-2xl text-yellow-500">★</span>
+                }
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-700 text-lg italic">"{{ activeTestimonial.text }}"</p>
+        </div>
+
+        <div class="flex justify-center items-center">
+          <button (click)="prevTestimonial()" class="p-3 rounded-full bg-white shadow hover:shadow-md transition">
+            ←
+          </button>
+
+          <div class="flex mx-8">
+            @for (testimonial of testimonials; track testimonial.name; let i = $index) {
+            <button (click)="goToTestimonial(i)" class="w-3 h-3 rounded-full mx-2"
+              [class.bg-orange-600]="activeTestimonialIndex() === i"
+              [class.bg-gray-300]="activeTestimonialIndex() !== i"></button>
+            }
+          </div>
+
+          <button (click)="nextTestimonial()" class="p-3 rounded-full bg-white shadow hover:shadow-md transition">
+            →
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="container mx-auto px-4 py-16">
+    <div class="bg-gradient-to-r from-orange-600 to-red-600 rounded-3xl p-12 text-center text-white">
+      <h2 class="text-4xl font-bold mb-6">Ready to Taste the Difference?</h2>
+      <p class="text-xl mb-8 text-white text-opacity-90">
+        Download our app for exclusive offers and faster ordering
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+        <button
+          class="bg-white text-orange-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition">
+          Download on App Store
+        </button>
+        <button class="bg-black text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-900 transition">
+          Get it on Google Play
         </button>
       </div>
     </div>
-  </div>
-</section>
-
-
-<!-- CTA SECTION -->
-<section class="py-16 bg-gradient-to-r from-orange-600 to-red-600 text-white">
-  <div class="max-w-6xl mx-auto px-4 text-center animate-on-scroll animate-hidden">
-    <h2 class="text-3xl md:text-4xl font-bold mb-6">
-      Start Your Culinary Journey Today
-    </h2>
-
-    <p class="text-xl text-orange-100 mb-8 max-w-2xl mx-auto">
-      Get <span class="font-bold">20% OFF</span> your first order with code:
-      <span class="bg-white text-orange-600 px-3 py-1 rounded-lg font-bold">PIQUANT20</span>
-    </p>
-
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <a routerLink="/menu" class="bg-white text-orange-600 px-8 py-4 rounded-xl font-bold
-                hover:bg-orange-50 transition-all duration-300 text-lg
-                shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-        <span>Order Now</span>
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      </a>
-
-      <a href="tel:+919876543210" class="border-2 border-white text-white px-8 py-4 rounded-xl font-bold
-                hover:bg-white/10 transition-all duration-300 text-lg
-                flex items-center justify-center gap-2">
-        <span>📞 Call: +91 98765 43210</span>
-      </a>
-    </div>
-
-    <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <div>
-        <div class="text-2xl font-bold">25 min</div>
-        <div class="text-orange-100">Delivery Time</div>
-      </div>
-      <div>
-        <div class="text-2xl font-bold">Citywide</div>
-        <div class="text-orange-100">Delivery</div>
-      </div>
-      <div>
-        <div class="text-2xl font-bold">11 AM - 11 PM</div>
-        <div class="text-orange-100">Daily Hours</div>
-      </div>
-      <div>
-        <div class="text-2xl font-bold">Free</div>
-        <div class="text-orange-100">Delivery Over ₹300</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- After other sections -->
-<app-products-carousel></app-products-carousel>
-
-<!-- Add CSS Animations -->
-<style>
-  @keyframes bowlRotate {
-    0% {
-      transform: rotate(0deg) scale(0.95);
-    }
-
-    50% {
-      transform: rotate(180deg) scale(1.05);
-    }
-
-    100% {
-      transform: rotate(360deg) scale(1);
-    }
-  }
-
-  @keyframes floatUp {
-
-    0%,
-    100% {
-      transform: translateY(0) scale(1);
-      opacity: 0.9;
-    }
-
-    50% {
-      transform: translateY(-10px) scale(1.05);
-      opacity: 1;
-    }
-  }
-
-  .animate-bowl-rotate {
-    animation: bowlRotate 0.6s ease-in-out;
-  }
-
-  .animate-float {
-    animation: floatUp 3s ease-in-out infinite;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-on-scroll {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-
-  .animate-on-scroll.animate-show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-</style>
+  </section>
+</div>

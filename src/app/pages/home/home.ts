@@ -3,52 +3,15 @@ import {
   AfterViewInit,
   Inject,
   PLATFORM_ID,
-  signal
+  signal,
+  OnInit
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { ProductsCarouselComponent } from '../../components/products-carousel/products-carousel.component';
-import { ChatWidgetComponent } from '../../components/chat/chat.component';
-
-@Component({
-  standalone: true,
-  imports: [ChatWidgetComponent],
-  template: `
-    <!-- Your existing page content -->
-    <app-chat-widget></app-chat-widget>
-  `
-})
-export class YourPageComponent { }
-
-
-
-interface WishlistItem {
-  id: number;
-  name: string;
-  price: number;
-}
-
-interface BowlType {
-  type: 'sprouts' | 'egg' | 'paneer' | 'chicken';
-  title: string;
-  description: string;
-  calories: string;
-  ingredients: string[];
-  image: string;
-  basePrice: number;
-}
-
-interface Testimonial {
-  name: string;
-  role: string;
-  text: string;
-  rating: number;
-  avatar: string;
-}
-
-
+import { FoodApiService, ApiFood } from '../../services/food-api.service';
 
 @Component({
   standalone: true,
@@ -56,13 +19,10 @@ interface Testimonial {
   imports: [
     RouterLink,
     CommonModule,
-    ProductsCarouselComponent  // Add this
+    ProductsCarouselComponent
   ],
 })
-
-
-export class Home implements AfterViewInit {
-
+export class Home implements AfterViewInit, OnInit {
   private isBrowser = false;
   wishlist: WishlistItem[] = [];
 
@@ -112,33 +72,22 @@ export class Home implements AfterViewInit {
   ];
 
   /* =========================
+     MENU ITEMS FOR CAROUSELS
+  ========================== */
+  mostSellingItems: MenuItem[] = [];
+  chefSpecialItems: MenuItem[] = [];
+  starterItems: MenuItem[] = [];
+  vegetarianItems: MenuItem[] = [];
+  nonVegItems: MenuItem[] = [];
+
+  /* =========================
      CAROUSEL STATE
   ========================== */
   activeTestimonialIndex = signal(0);
-
-  testimonials: Testimonial[] = [
-    {
-      name: 'Priya Sharma',
-      role: 'Food Blogger',
-      text: 'The Piquant Pan never disappoints! Every dish is bursting with flavor and the variety keeps me coming back. Best food delivery in town!',
-      rating: 5,
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face'
-    },
-    {
-      name: 'Rohan Mehta',
-      role: 'IT Professional',
-      text: 'Working long hours made finding good food tough. The Piquant Pan delivers amazing meals right to my desk. The flavors are incredible!',
-      rating: 5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face'
-    },
-    {
-      name: 'Ananya Reddy',
-      role: 'Chef',
-      text: 'As a professional chef, I appreciate the attention to detail and quality ingredients. The Piquant Pan has mastered the art of delivery without compromising taste.',
-      rating: 5,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face'
-    }
-  ];
+  activeChefSpecialIndex = signal(0);
+  activeStarterIndex = signal(0);
+  activeVegetarianIndex = signal(0);
+  activeNonVegIndex = signal(0);
 
   /* =========================
      FOOD ORDERING BENEFITS
@@ -166,9 +115,34 @@ export class Home implements AfterViewInit {
     }
   ];
 
+  testimonials: Testimonial[] = [
+    {
+      name: 'Priya Sharma',
+      role: 'Food Blogger',
+      text: 'The Piquant Pan never disappoints! Every dish is bursting with flavor and the variety keeps me coming back. Best food delivery in town!',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face'
+    },
+    {
+      name: 'Rohan Mehta',
+      role: 'IT Professional',
+      text: 'Working long hours made finding good food tough. The Piquant Pan delivers amazing meals right to my desk. The flavors are incredible!',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face'
+    },
+    {
+      name: 'Ananya Reddy',
+      role: 'Chef',
+      text: 'As a professional chef, I appreciate the attention to detail and quality ingredients. The Piquant Pan has mastered the art of delivery without compromising taste.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face'
+    }
+  ];
+
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
-    private cartService: CartService
+    private cartService: CartService,
+    private foodApiService: FoodApiService
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
@@ -214,20 +188,6 @@ export class Home implements AfterViewInit {
     setTimeout(() => this.isBowlAnimating.set(false), 600);
   }
 
-  getIngredientPosition(index: number): any {
-    const total = this.activeBowl.ingredients.length;
-    const angle = (index * 360 / total) * (Math.PI / 180);
-    const radius = 120;
-
-    return {
-      left: `calc(50% + ${Math.cos(angle) * radius}px)`,
-      top: `calc(50% + ${Math.sin(angle) * radius}px)`,
-      transform: 'translate(-50%, -50%)',
-      'animation-delay': `${index * 0.1}s`
-    };
-  }
-
-  // Helper function for title case (replaces the pipe)
   toTitleCase(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
@@ -263,7 +223,7 @@ export class Home implements AfterViewInit {
      CART
   ========================== */
   addToCartFromHome(food: {
-    foodId: number;
+    foodId: string | number;
     name: string;
     basePrice: number;
   }) {
@@ -275,7 +235,6 @@ export class Home implements AfterViewInit {
       customizations: {}
     });
 
-    // Subscribe if it's an observable (logged-in user)
     if (result && typeof result.subscribe === 'function') {
       result.subscribe({
         next: () => console.log('Item added to cart'),
@@ -285,7 +244,7 @@ export class Home implements AfterViewInit {
   }
 
   /* =========================
-     WISHLIST (FIXED)
+     WISHLIST
   ========================== */
   toggleWishlist(item: WishlistItem) {
     if (!this.isBrowser) return;
@@ -315,9 +274,7 @@ export class Home implements AfterViewInit {
     if (!this.isBrowser) return;
 
     setTimeout(() => {
-      const elements =
-        document.querySelectorAll('.animate-on-scroll');
-
+      const elements = document.querySelectorAll('.animate-on-scroll');
       const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -329,4 +286,144 @@ export class Home implements AfterViewInit {
       elements.forEach(el => observer.observe(el));
     }, 0);
   }
+
+  ngOnInit(): void {
+    this.initializeMenuItems();
+  }
+
+  initializeMenuItems(): void {
+    this.foodApiService.getAllFoods().subscribe({
+      next: (foods) => {
+        // Map ApiFood to MenuItem and populate lists
+        const menuItems: MenuItem[] = foods.map(food => ({
+          id: food._id,
+          name: food.name,
+          subtitle: food.subtitle,
+          basePrice: food.basePrice,
+          calories: food.calories,
+          type: food.type as 'veg' | 'nonveg' | 'egg',
+          category: food.category,
+          image: food.image,
+          isBestSeller: false,
+          discountPrice: null
+        }));
+
+        // Populate Categories
+        this.mostSellingItems = menuItems.slice(0, 8); // Just take first 8 as most selling for now
+        this.chefSpecialItems = menuItems.filter((_, i) => i % 3 === 0).slice(0, 4); // Simulate random selection
+        this.starterItems = menuItems.filter(item => item.category === 'starter');
+        this.vegetarianItems = menuItems.filter(item => item.type === 'veg');
+        this.nonVegItems = menuItems.filter(item => item.type === 'nonveg');
+      },
+      error: (err) => console.error('Error fetching foods:', err)
+    });
+  }
+
+  /* =========================
+     CAROUSEL NAVIGATION FUNCTIONS
+  ========================== */
+  nextCarousel(carouselType: string): void {
+    switch (carouselType) {
+      case 'chefSpecial':
+        this.activeChefSpecialIndex.update(current =>
+          (current + 1) % this.chefSpecialItems.length
+        );
+        break;
+      case 'starter':
+        this.activeStarterIndex.update(current =>
+          (current + 1) % this.starterItems.length
+        );
+        break;
+      case 'vegetarian':
+        this.activeVegetarianIndex.update(current =>
+          (current + 1) % this.vegetarianItems.length
+        );
+        break;
+      case 'nonVeg':
+        this.activeNonVegIndex.update(current =>
+          (current + 1) % this.nonVegItems.length
+        );
+        break;
+    }
+  }
+
+  prevCarousel(carouselType: string): void {
+    switch (carouselType) {
+      case 'chefSpecial':
+        this.activeChefSpecialIndex.update(current =>
+          current === 0 ? this.chefSpecialItems.length - 1 : current - 1
+        );
+        break;
+      case 'starter':
+        this.activeStarterIndex.update(current =>
+          current === 0 ? this.starterItems.length - 1 : current - 1
+        );
+        break;
+      case 'vegetarian':
+        this.activeVegetarianIndex.update(current =>
+          current === 0 ? this.vegetarianItems.length - 1 : current - 1
+        );
+        break;
+      case 'nonVeg':
+        this.activeNonVegIndex.update(current =>
+          current === 0 ? this.nonVegItems.length - 1 : current - 1
+        );
+        break;
+    }
+  }
+
+  goToSlide(carouselType: string, index: number): void {
+    switch (carouselType) {
+      case 'chefSpecial':
+        this.activeChefSpecialIndex.set(index);
+        break;
+      case 'starter':
+        this.activeStarterIndex.set(index);
+        break;
+      case 'vegetarian':
+        this.activeVegetarianIndex.set(index);
+        break;
+      case 'nonVeg':
+        this.activeNonVegIndex.set(index);
+        break;
+    }
+  }
+}
+
+interface WishlistItem {
+  id: number;
+  name: string;
+  price: number;
+}
+
+interface BowlType {
+  type: 'sprouts' | 'egg' | 'paneer' | 'chicken';
+  title: string;
+  description: string;
+  calories: string;
+  ingredients: string[];
+  image: string;
+  basePrice: number;
+}
+
+interface Testimonial {
+  name: string;
+  role: string;
+  text: string;
+  rating: number;
+  avatar: string;
+}
+
+interface MenuItem {
+  id: string; // Changed from number to string for MongoDB _id
+  name: string;
+  subtitle: string;
+  basePrice: number;
+  calories: number;
+  type: 'veg' | 'nonveg' | 'egg';
+  category: string;
+  image: string;
+  isBestSeller: boolean;
+  discountPrice: number | null;
+  tag?: string;
 }
