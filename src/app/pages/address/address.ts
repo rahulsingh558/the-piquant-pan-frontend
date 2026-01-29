@@ -8,6 +8,8 @@ export interface Address {
   pincode: string;
   landmark?: string;
   isDefault: boolean;
+  lat?: number;
+  lng?: number;
 }
 
 export interface AddressFormData {
@@ -20,4 +22,6 @@ export interface AddressFormData {
   pincode: string;
   landmark: string;
   isDefault: boolean;
+  lat?: number;
+  lng?: number;
 }

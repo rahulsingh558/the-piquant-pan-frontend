@@ -1,0 +1,230 @@
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { io, Socket } from 'socket.io-client';
+import { OrderService, Order } from '../../services/order.service';
+import { MapplsService, Coordinates } from '../../services/mappls.service';
+import { environment } from '../../../environments/environment';
+
+@Component({
+  standalone: true,
+  selector: 'app-track-order',
+  templateUrl: './track-order.html',
+  imports: [CommonModule, RouterModule]
+})
+export class TrackOrderPage implements OnInit, OnDestroy {
+  orderId: string | null = null;
+  order: Order | null = null;
+  loading = true;
+  error = '';
+  isBrowser = false;
+
+  // Tracking State
+  deliveryProgress = 0;
+  isLiveTracking = false;
+  socket: Socket | null = null;
+  mapInitialized = false;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private orderService: OrderService,
+    private mapplsService: MapplsService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  ngOnInit(): void {
+    // Get Order ID from URL
+    this.orderId = this.route.snapshot.paramMap.get('id');
+    
+    if (!this.orderId) {
+      this.error = 'Invalid Order ID';
+      this.loading = false;
+      return;
+    }
+
+    this.loadOrder();
+  }
+
+  ngOnDestroy(): void {
+    if (this.socket) {
+      this.socket.disconnect();
+    }
+    // Cleanup map if needed? Mappls usually cleans itself or we reuse the div
+  }
+
+  loadOrder() {
+    if (!this.orderId) return;
+
+    this.orderService.getOrderById(this.orderId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.order = response.order;
+          this.loading = false;
+          
+          if (this.isBrowser) {
+            // Need a small timeout for DOM to render map div
+            setTimeout(() => {
+              this.initializeMap();
+              this.setupSocketConnection();
+            }, 100);
+          }
+        } else {
+          this.error = 'Order not found';
+          this.loading = false;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading order:', err);
+        this.error = 'Failed to load order details';
+        this.loading = false;
+      }
+    });
+  }
+
+  // --- Map Logic (Copied/Adapted from OrdersPage) ---
+
+  async initializeMap(): Promise<void> {
+    if (!this.order || this.mapInitialized) return;
+
+    // REMOVED CHECK FOR TESTING: User wants to see markers
+    /*
+    if (!['out_for_delivery', 'delivered'].includes(this.order.orderStatus)) {
+        return;
+    }
+    */
+
+    try {
+      console.log('Initializing map for order:', this.order.orderNumber);
+
+      const deliveryCoords = await this.getDeliveryCoordinates();
+      const restaurantCoords = await this.mapplsService.getRestaurantCoordinates();
+
+      // Calculate center
+      const centerCoords: Coordinates = {
+        lat: (restaurantCoords.lat + deliveryCoords.lat) / 2,
+        lng: (restaurantCoords.lng + deliveryCoords.lng) / 2
+      };
+
+      // Create map
+      await this.mapplsService.createMap('tracking-map-page', centerCoords, 13);
+      this.mapInitialized = true;
+
+      // Add markers (Orange: Restaurant, Green: Delivery)
+      this.mapplsService.addColoredMarker(restaurantCoords, 'orange', 'The Piquant Pan');
+      this.mapplsService.addColoredMarker(deliveryCoords, 'green', 'Delivery Address');
+
+      // Draw Route
+      await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
+
+      // Fit bounds
+      this.mapplsService.fitBounds([restaurantCoords, deliveryCoords]);
+
+      // Progress
+      this.deliveryProgress = this.mapplsService.getDeliveryProgress(this.order.orderStatus);
+
+      // Check for Delivery Partner (if any stored location, or wait for socket)
+      // Socket will handle live updates
+
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
+  }
+
+  async getDeliveryCoordinates(): Promise<Coordinates> {
+    const address = this.order?.deliveryAddress;
+    if (!address) {
+      return { lat: 12.9750, lng: 77.6600 };
+    }
+
+    if (address.lat && address.lng) {
+      return { lat: address.lat, lng: address.lng };
+    }
+
+    const fullAddress = [
+      address.street,
+      address.landmark,
+      address.city,
+      address.state,
+      address.zipCode
+    ].filter(Boolean).join(', ');
+
+    return await this.mapplsService.geocodeAddress(fullAddress);
+  }
+
+  // --- Socket Logic ---
+  setupSocketConnection() {
+    if (!this.isBrowser || !this.order) return;
+
+    this.socket = io(environment.apiUrl.replace('/api', ''), {
+        transports: ['websocket', 'polling']
+    });
+
+    this.socket.on('connect', () => {
+        console.log('Connected to tracking server');
+        // Join room
+        this.socket?.emit('join:tracking', { orderId: this.order?.orderNumber });
+    });
+
+    // Listen for location updates
+    this.socket.on('delivery:location_update', (data: any) => {
+        console.log('Received location update:', data);
+        if (data.lat && data.lng) {
+            this.isLiveTracking = true;
+            this.updateDeliveryLocation(data.lat, data.lng);
+        }
+    });
+
+    // Listen for status updates
+    this.socket.on('order:status_update', (data: any) => {
+        if (this.order && data.orderId === this.order._id) {
+            this.order.orderStatus = data.status;
+            this.deliveryProgress = this.mapplsService.getDeliveryProgress(data.status);
+            this.cdr.detectChanges();
+        }
+    });
+  }
+
+  updateDeliveryLocation(lat: number, lng: number) {
+    if (!this.mapInitialized) return;
+    const pos = { lat, lng };
+    // This handles creates or updates the 'blue' marker
+    this.mapplsService.updateDeliveryMarker(pos);
+  }
+
+
+  // Helpers
+  formatDate(date: any): string {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('en-US', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  }
+
+  formatTime(date: any): string {
+    if (!date) return '';
+    return new Date(date).toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  getStatusText(status: string): string {
+    switch (status) {
+      case 'pending': return 'Order Placed';
+      case 'confirmed': return 'Confirmed';
+      case 'preparing': return 'Preparing';
+      case 'out_for_delivery': return 'Out for Delivery';
+      case 'delivered': return 'Delivered';
+      case 'cancelled': return 'Cancelled';
+      default: return status;
+    }
+  }
+
+  goBack() {
+    this.router.navigate(['/orders']);
+  }
+}

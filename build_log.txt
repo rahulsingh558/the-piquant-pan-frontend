@@ -1,0 +1,89 @@
+[33m❯[39m Building...
+[32m✔[39m Building...
+[35mBrowser bundles[39m     
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m            [2m | [22m [1mRaw size[22m
+[32mchunk-5TWSHKYQ.js[39m   [2m | [22m[2m-[22m                [2m | [22m  [36m1.01 MB[39m[2m | [22m
+[32mmain.js[39m             [2m | [22m[2mmain[22m             [2m | [22m[36m438.10 kB[39m[2m | [22m
+[32mchunk-KYY6XG3P.js[39m   [2m | [22m[2m-[22m                [2m | [22m[36m193.35 kB[39m[2m | [22m
+[32mchunk-Q2Z3MRAC.js[39m   [2m | [22m[2m-[22m                [2m | [22m[36m153.36 kB[39m[2m | [22m
+[32mstyles.css[39m          [2m | [22m[2mstyles[22m           [2m | [22m [36m81.51 kB[39m[2m | [22m
+[32mchunk-UBX3QVZG.js[39m   [2m | [22m[2m-[22m                [2m | [22m [36m73.42 kB[39m[2m | [22m
+[32mchunk-QKYD3WLP.js[39m   [2m | [22m[2m-[22m                [2m | [22m [36m49.07 kB[39m[2m | [22m
+[32mchunk-GGOP2F74.js[39m   [2m | [22m[2m-[22m                [2m | [22m [36m16.15 kB[39m[2m | [22m
+[32mchunk-BRW6JIWP.js[39m   [2m | [22m[2m-[22m                [2m | [22m  [36m7.02 kB[39m[2m | [22m
+[32mchunk-737R5WPL.js[39m   [2m | [22m[2m-[22m                [2m | [22m  [36m5.41 kB[39m[2m | [22m
+[32mchunk-WKWMEATR.js[39m   [2m | [22m[2m-[22m                [2m | [22m  [36m4.21 kB[39m[2m | [22m
+[32mchunk-6HL4SBBC.js[39m   [2m | [22m[2m-[22m                [2m | [22m  [36m2.69 kB[39m[2m | [22m
+[32mchunk-V77S2TCV.js[39m   [2m | [22m[2m-[22m                [2m | [22m  [36m2.64 kB[39m[2m | [22m
+
+[1m [22m                   [2m | [22m[1mInitial total[22m    [2m | [22m  [1m2.04 MB[22m
+
+[1mLazy chunk files[22m    [2m | [22m[1mNames[22m            [2m | [22m [1mRaw size[22m
+[32mchunk-YTOHETDI.js[39m   [2m | [22m[2mmenu[22m             [2m | [22m[36m187.14 kB[39m[2m | [22m
+[32mchunk-SC2ZST54.js[39m   [2m | [22m[2madmin-routes[22m     [2m | [22m[36m113.59 kB[39m[2m | [22m
+[32mchunk-VTXSGO6Q.js[39m   [2m | [22m[2m-[22m                [2m | [22m[36m106.22 kB[39m[2m | [22m
+[32mchunk-7OU5J7BR.js[39m   [2m | [22m[2mhome[22m             [2m | [22m [36m97.22 kB[39m[2m | [22m
+[32mchunk-C3K3TBRO.js[39m   [2m | [22m[2madmin-orders[22m     [2m | [22m [36m89.16 kB[39m[2m | [22m
+[32mchunk-VAS6CZQ6.js[39m   [2m | [22m[2madmin-dashboard[22m  [2m | [22m [36m63.49 kB[39m[2m | [22m
+[32mchunk-LNEZMVLT.js[39m   [2m | [22m[2mcheckout[22m         [2m | [22m [36m61.62 kB[39m[2m | [22m
+[32mchunk-5AGHJSPB.js[39m   [2m | [22m[2mlogin[22m            [2m | [22m [36m50.52 kB[39m[2m | [22m
+[32mchunk-3H3B65JL.js[39m   [2m | [22m[2madmin-menu[22m       [2m | [22m [36m49.80 kB[39m[2m | [22m
+[32mchunk-CGRDCUFW.js[39m   [2m | [22m[2maccount[22m          [2m | [22m [36m41.66 kB[39m[2m | [22m
+[32mchunk-BEM632CZ.js[39m   [2m | [22m[2mtrack-order[22m      [2m | [22m [36m36.05 kB[39m[2m | [22m
+[32mchunk-32DEYZMH.js[39m   [2m | [22m[2madmin-analytics[22m  [2m | [22m [36m32.42 kB[39m[2m | [22m
+[32mchunk-YO4O6DRA.js[39m   [2m | [22m[2morders[22m           [2m | [22m [36m31.59 kB[39m[2m | [22m
+[32mchunk-U4CWKBHP.js[39m   [2m | [22m[2madmin-customers[22m  [2m | [22m [36m23.83 kB[39m[2m | [22m
+[32mchunk-4NLALK4L.js[39m   [2m | [22m[2mdelivery-tracking[22m[2m | [22m [36m23.17 kB[39m[2m | [22m
+[2m...and 9 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+
+[35mServer bundles[39m      
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m            [2m | [22m [1mRaw size[22m
+[32mserver.mjs[39m          [2m | [22m[2mserver[22m           [2m | [22m  [36m1.94 MB[39m[2m | [22m
+[32mmain.server.mjs[39m     [2m | [22m[2mmain.server[22m      [2m | [22m  [36m1.31 MB[39m[2m | [22m
+[32mchunk-H4Y3TUSB.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m  [36m1.03 MB[39m[2m | [22m
+[32mpolyfills.server.mjs[39m[2m | [22m[2mpolyfills.server[22m [2m | [22m[36m427.77 kB[39m[2m | [22m
+[32mchunk-EMY724KZ.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m[36m193.44 kB[39m[2m | [22m
+[32mchunk-QYBCDPDB.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m[36m153.43 kB[39m[2m | [22m
+[32mchunk-5BIGOHV2.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m [36m73.62 kB[39m[2m | [22m
+[32mchunk-NPP2RNPS.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m [36m49.35 kB[39m[2m | [22m
+[32mchunk-DNBKKXSN.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m [36m16.23 kB[39m[2m | [22m
+[32mchunk-Z3VBUK7B.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m  [36m7.10 kB[39m[2m | [22m
+[32mchunk-TLH3A6A6.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m  [36m5.48 kB[39m[2m | [22m
+[32mchunk-XXKT73MY.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m  [36m4.25 kB[39m[2m | [22m
+[32mchunk-UFAUNXOA.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m  [36m3.18 kB[39m[2m | [22m
+[32mchunk-3II4UTYF.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m  [36m2.81 kB[39m[2m | [22m
+[32mchunk-O43SKPON.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m  [36m2.73 kB[39m[2m | [22m
+[32mchunk-ZRNXIR6E.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m  [36m2.68 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m    [2m | [22m[1mNames[22m            [2m | [22m [1mRaw size[22m
+[32mchunk-OFTIN6ST.mjs[39m  [2m | [22m[2m-[22m                [2m | [22m[36m256.92 kB[39m[2m | [22m
+[32mchunk-55A4LRXF.mjs[39m  [2m | [22m[2mmenu[22m             [2m | [22m[36m187.25 kB[39m[2m | [22m
+[32mchunk-UXZVW57E.mjs[39m  [2m | [22m[2madmin-routes[22m     [2m | [22m[36m113.67 kB[39m[2m | [22m
+[32mchunk-S5X73IHL.mjs[39m  [2m | [22m[2mhome[22m             [2m | [22m [36m97.29 kB[39m[2m | [22m
+[32mchunk-NGEB2YQH.mjs[39m  [2m | [22m[2madmin-orders[22m     [2m | [22m [36m89.24 kB[39m[2m | [22m
+[32mchunk-XMXKUFYY.mjs[39m  [2m | [22m[2madmin-dashboard[22m  [2m | [22m [36m63.57 kB[39m[2m | [22m
+[32mchunk-IBI4QJ2R.mjs[39m  [2m | [22m[2mcheckout[22m         [2m | [22m [36m61.69 kB[39m[2m | [22m
+[32mchunk-4S7QGIA5.mjs[39m  [2m | [22m[2mlogin[22m            [2m | [22m [36m50.59 kB[39m[2m | [22m
+[32mchunk-XU2POBWZ.mjs[39m  [2m | [22m[2madmin-menu[22m       [2m | [22m [36m49.87 kB[39m[2m | [22m
+[32mchunk-VTURFJRN.mjs[39m  [2m | [22m[2maccount[22m          [2m | [22m [36m41.73 kB[39m[2m | [22m
+[32mchunk-F5FD6IK3.mjs[39m  [2m | [22m[2mxhr2[22m             [2m | [22m [36m40.11 kB[39m[2m | [22m
+[32mchunk-6JLMVI5M.mjs[39m  [2m | [22m[2mxhr2[22m             [2m | [22m [36m40.04 kB[39m[2m | [22m
+[32mchunk-MX6I7CL6.mjs[39m  [2m | [22m[2mtrack-order[22m      [2m | [22m [36m36.12 kB[39m[2m | [22m
+[32mchunk-72KKV45C.mjs[39m  [2m | [22m[2madmin-analytics[22m  [2m | [22m [36m32.49 kB[39m[2m | [22m
+[32mchunk-HZ5QPE3Z.mjs[39m  [2m | [22m[2morders[22m           [2m | [22m [36m31.66 kB[39m[2m | [22m
+[2m...and 11 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+[35mPrerendered 25 static routes.[39m
+Application bundle generation failed. [4.402 seconds] - 2026-01-29T12:36:59.777Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: ProductsCarouselComponent is not used within the template of Home[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/pages/home/home.ts:22:4:
+[37m      22 │     [32mProductsCarouselComponent[37m
+         ╵     [32m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mThe 'track-order/:id' route uses prerendering and includes parameters, but 'getPrerenderParams' is missing. Please define 'getPrerenderParams' function for this route in your server routing configuration or specify a different 'renderMode'.[0m
+
+[39m[22m

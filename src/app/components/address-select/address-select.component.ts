@@ -43,8 +43,32 @@ export class AddressSelectComponent implements OnInit {
       state: ['', [Validators.required]],
       pincode: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]],
       landmark: [''],
-      isDefault: [false]
+      isDefault: [false],
+      lat: [null],
+      lng: [null]
     });
+  }
+
+  detectLocation() {
+    if (this.isBrowser && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        this.addressForm.patchValue({
+          lat: latitude,
+          lng: longitude
+        });
+
+        // Auto-fill address details (Optional: Call Geocoding API if available)
+        // For now, we just save the coords for the map
+        console.log('Location detected:', latitude, longitude);
+        alert('Location detected successfully!');
+      }, (error) => {
+        console.error('Geolocation error:', error);
+        alert('Failed to detect location. Please enter manually.');
+      });
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
   }
 
   ngOnInit() {

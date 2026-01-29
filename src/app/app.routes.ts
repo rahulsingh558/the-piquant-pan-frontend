@@ -46,6 +46,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/contact/contact').then(m => m.Contact),
   },
+  {
+    path: 'delivery-tracking',
+    loadComponent: () =>
+      import('./pages/delivery-tracking/delivery-tracking').then(m => m.DeliveryTrackingPage),
+  },
 
   /* ================= USER PROTECTED ================= */
   {
@@ -53,6 +58,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/checkout/checkout').then(m => m.Checkout),
+  },
+  {
+    path: 'track-order/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/track-order/track-order').then(m => m.TrackOrderPage),
   },
   {
     path: 'address-select', component: AddressSelectComponent

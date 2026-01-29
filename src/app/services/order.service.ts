@@ -26,6 +26,8 @@ export interface Order {
         state: string;
         zipCode: string;
         landmark?: string;
+        lat?: number;
+        lng?: number;
     };
     subtotal: number;
     deliveryCharge: number;
