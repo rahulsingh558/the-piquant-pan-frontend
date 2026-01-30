@@ -39,7 +39,7 @@ export class TrackOrderPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Get Order ID from URL
     this.orderId = this.route.snapshot.paramMap.get('id');
-    
+
     if (!this.orderId) {
       this.error = 'Invalid Order ID';
       this.loading = false;
@@ -64,7 +64,7 @@ export class TrackOrderPage implements OnInit, OnDestroy {
         if (response.success) {
           this.order = response.order;
           this.loading = false;
-          
+
           if (this.isBrowser) {
             // Need a small timeout for DOM to render map div
             setTimeout(() => {
@@ -113,9 +113,9 @@ export class TrackOrderPage implements OnInit, OnDestroy {
       await this.mapplsService.createMap('tracking-map-page', centerCoords, 13);
       this.mapInitialized = true;
 
-      // Add markers (Orange: Restaurant, Green: Delivery)
-      this.mapplsService.addColoredMarker(restaurantCoords, 'orange', 'The Piquant Pan');
-      this.mapplsService.addColoredMarker(deliveryCoords, 'green', 'Delivery Address');
+      // Add markers (Restaurant icon and Home icon)
+      this.mapplsService.addRestaurantMarker(restaurantCoords, 'The Piquant Pan');
+      this.mapplsService.addDeliveryAddressMarker(deliveryCoords, 'Delivery Address');
 
       // Draw Route
       await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
@@ -161,31 +161,31 @@ export class TrackOrderPage implements OnInit, OnDestroy {
     if (!this.isBrowser || !this.order) return;
 
     this.socket = io(environment.apiUrl.replace('/api', ''), {
-        transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling']
     });
 
     this.socket.on('connect', () => {
-        console.log('Connected to tracking server');
-        // Join room
-        this.socket?.emit('join:tracking', { orderId: this.order?.orderNumber });
+      console.log('Connected to tracking server');
+      // Join room
+      this.socket?.emit('join:tracking', { orderId: this.order?.orderNumber });
     });
 
     // Listen for location updates
     this.socket.on('delivery:location_update', (data: any) => {
-        console.log('Received location update:', data);
-        if (data.lat && data.lng) {
-            this.isLiveTracking = true;
-            this.updateDeliveryLocation(data.lat, data.lng);
-        }
+      console.log('Received location update:', data);
+      if (data.lat && data.lng) {
+        this.isLiveTracking = true;
+        this.updateDeliveryLocation(data.lat, data.lng);
+      }
     });
 
     // Listen for status updates
     this.socket.on('order:status_update', (data: any) => {
-        if (this.order && data.orderId === this.order._id) {
-            this.order.orderStatus = data.status;
-            this.deliveryProgress = this.mapplsService.getDeliveryProgress(data.status);
-            this.cdr.detectChanges();
-        }
+      if (this.order && data.orderId === this.order._id) {
+        this.order.orderStatus = data.status;
+        this.deliveryProgress = this.mapplsService.getDeliveryProgress(data.status);
+        this.cdr.detectChanges();
+      }
     });
   }
 

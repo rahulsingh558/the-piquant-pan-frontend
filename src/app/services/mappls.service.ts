@@ -226,6 +226,52 @@ export class MapplsService {
     }
 
     /**
+     * Add a restaurant marker with fork/knife icon
+     */
+    addRestaurantMarker(coords: Coordinates, label?: string): any {
+        // Restaurant marker with fork & knife icon inside orange pin
+        const svgHtml = `
+            <div style="width: 48px; height: 48px; transform: translate(-50%, -100%);">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); width: 100%; height: 100%;">
+                    <!-- Pin shape -->
+                    <path fill="#F97316" stroke="white" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                    <!-- Fork icon inside -->
+                    <g transform="translate(8.5, 5) scale(0.35)">
+                        <path fill="white" d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+                    </g>
+                </svg>
+            </div>
+        `;
+
+        return this.addMarker(coords, {
+            html: svgHtml
+        });
+    }
+
+    /**
+     * Add a home/delivery marker with house icon
+     */
+    addDeliveryAddressMarker(coords: Coordinates, label?: string): any {
+        // Home marker with house icon inside green pin
+        const svgHtml = `
+            <div style="width: 48px; height: 48px; transform: translate(-50%, -100%);">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); width: 100%; height: 100%;">
+                    <!-- Pin shape -->
+                    <path fill="#22C55E" stroke="white" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                    <!-- Home icon inside -->
+                    <g transform="translate(7, 4.5) scale(0.45)">
+                        <path fill="white" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </g>
+                </svg>
+            </div>
+        `;
+
+        return this.addMarker(coords, {
+            html: svgHtml
+        });
+    }
+
+    /**
      * Add a colored marker using inline SVG HTML (Guaranteed Visibility)
      */
     addColoredMarker(coords: Coordinates, color: 'orange' | 'green' | 'blue', label?: string): any {
