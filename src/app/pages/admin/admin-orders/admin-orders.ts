@@ -315,7 +315,7 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
       let deliveryCoords: Coordinates;
 
       if (order.deliveryCoords?.lat && order.deliveryCoords?.lng) {
-        deliveryCoords = { lat: order.deliveryCoords.lat, lng: order.deliveryCoords.lng };
+        deliveryCoords = { lat: Number(order.deliveryCoords.lat), lng: Number(order.deliveryCoords.lng) };
       } else {
         // Fallback: geocode from address string
         deliveryCoords = await this.mapplsService.geocodeAddress(order.deliveryAddress);
@@ -374,7 +374,7 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
     this.socket.on('delivery:position', (data: any) => {
       console.log('[AdminOrders] Delivery person location update:', data);
       if (data.lat && data.lng) {
-        this.updateDeliveryPersonMarker(data.lat, data.lng);
+        this.updateDeliveryPersonMarker(Number(data.lat), Number(data.lng));
       }
     });
   }
