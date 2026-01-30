@@ -117,12 +117,12 @@ export class TrackOrderPage implements OnInit, OnDestroy {
       await this.mapplsService.createMap('tracking-map-page', centerCoords, 13);
       this.mapInitialized = true;
 
-      // Add markers (Restaurant icon and Home icon)
+      // Add markers (Orange for Restaurant, Green for Delivery)
       console.log('[TrackOrder] Adding restaurant marker at:', restaurantCoords);
-      this.mapplsService.addRestaurantMarker(restaurantCoords, 'The Piquant Pan');
+      this.mapplsService.addColoredMarker(restaurantCoords, 'orange', 'The Piquant Pan');
 
       console.log('[TrackOrder] Adding delivery marker at:', deliveryCoords);
-      this.mapplsService.addDeliveryAddressMarker(deliveryCoords, 'Delivery Address');
+      this.mapplsService.addColoredMarker(deliveryCoords, 'green', 'Delivery Address');
 
       // Draw Route
       await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
