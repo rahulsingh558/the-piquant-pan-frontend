@@ -181,14 +181,15 @@ export class TrackOrderPage implements OnInit, OnDestroy {
     });
 
     this.socket.on('connect', () => {
-      console.log('Connected to tracking server');
-      // Join room
-      this.socket?.emit('join:tracking', { orderId: this.order?.orderNumber });
+      console.log('[TrackOrder] Connected to tracking server');
+      // Join tracking room (must match backend: tracking:join)
+      this.socket?.emit('tracking:join', { orderId: this.order?.orderNumber });
+      console.log('[TrackOrder] Joined tracking room for order:', this.order?.orderNumber);
     });
 
-    // Listen for location updates
-    this.socket.on('delivery:location_update', (data: any) => {
-      console.log('Received location update:', data);
+    // Listen for location updates (must match backend: delivery:position)
+    this.socket.on('delivery:position', (data: any) => {
+      console.log('[TrackOrder] Received location update:', data);
       if (data.lat && data.lng) {
         this.isLiveTracking = true;
         this.updateDeliveryLocation(data.lat, data.lng);
