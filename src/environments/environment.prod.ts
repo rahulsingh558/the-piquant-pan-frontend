@@ -1,6 +1,7 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://YOUR_RENDER_URL.onrender.com/api', // Replace with your Render backend URL
+    backendUrl: 'https://piquant-pan-api.onrender.com',
+    apiUrl: 'https://piquant-pan-api.onrender.com/api',
     mappls: {
         apiKey: '771985f5b0af98e110a1b13a73e27767',
         restaurantELoc: 'ta34s7',

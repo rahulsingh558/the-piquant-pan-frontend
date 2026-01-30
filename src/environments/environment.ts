@@ -2,8 +2,8 @@ export const environment = {
     production: false,
     // Change this to your ngrok URL when testing externally
     // Example: 'https://abc123.ngrok-free.app'
-    backendUrl: 'http://localhost:5001',
-    apiUrl: 'http://localhost:5001/api',
+    backendUrl: 'https://piquant-pan-api.onrender.com',
+    apiUrl: 'https://piquant-pan-api.onrender.com/api',
     mappls: {
         apiKey: '771985f5b0af98e110a1b13a73e27767',
         restaurantELoc: 'ta34s7',
