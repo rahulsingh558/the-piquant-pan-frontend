@@ -28,12 +28,7 @@
             "styles": [
               "src/styles.css"
             ],
-            "server": "src/main.server.ts",
-            "prerender": false,
-            "outputMode": "server",
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            "outputPath": "dist/the-piquant-pan"
           },
           "configurations": {
             "production": {
