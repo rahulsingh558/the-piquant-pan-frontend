@@ -3,7 +3,6 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { FoodApiService, ApiFood } from '../../services/food-api.service';
-import { Food } from '../../models/food';
 import { Addon } from '../../models/addon';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
@@ -12,8 +11,14 @@ import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
    TYPES
 ========================= */
 type FoodType = 'veg' | 'egg' | 'nonveg';
+type CuisineFilter = 'all' | 'chinese' | 'north_indian' | 'veg_curry' | 'nonveg_curry' | 'snacks' | 'starters' | 'rice' | 'thali' | 'beverages' | 'healthy' | 'noodles' | 'maggi';
 
-interface MenuFood extends Food {
+interface MenuFood {
+  id: any;
+  name: string;
+  subtitle?: string;
+  basePrice: number;
+  category: string;
   image: string;
   type: FoodType;
   freeAddonIds: number[];
@@ -34,7 +39,26 @@ export class Menu implements OnInit {
   faCartPlus = faCartPlus;
 
   selectedType: 'all' | FoodType = 'all';
+  selectedCuisine: CuisineFilter = 'all';
   foods: MenuFood[] = [];
+
+  /* =========================
+     CUISINE FILTERS CONFIG
+  ========================== */
+  cuisineFilters: { key: CuisineFilter; label: string; icon: string; color: string }[] = [
+    { key: 'all', label: 'All', icon: '🍽️', color: 'bg-gradient-to-r from-orange-500 to-red-500' },
+    { key: 'chinese', label: 'Chinese', icon: '🥢', color: 'bg-gradient-to-r from-red-600 to-red-700' },
+    { key: 'north_indian', label: 'North Indian', icon: '🍛', color: 'bg-gradient-to-r from-amber-500 to-orange-600' },
+    { key: 'veg_curry', label: 'Veg Curry', icon: '🥬', color: 'bg-gradient-to-r from-green-500 to-emerald-600' },
+    { key: 'nonveg_curry', label: 'Non-Veg Curry', icon: '🍗', color: 'bg-gradient-to-r from-red-500 to-rose-600' },
+    { key: 'snacks', label: 'Snacks', icon: '🍟', color: 'bg-gradient-to-r from-yellow-500 to-amber-500' },
+    { key: 'starters', label: 'Starters', icon: '🥗', color: 'bg-gradient-to-r from-lime-500 to-green-500' },
+    { key: 'rice', label: 'Rice & Biryani', icon: '🍚', color: 'bg-gradient-to-r from-amber-400 to-yellow-500' },
+    { key: 'noodles', label: 'Noodles', icon: '🍜', color: 'bg-gradient-to-r from-orange-400 to-amber-500' },
+    { key: 'thali', label: 'Thali', icon: '🍱', color: 'bg-gradient-to-r from-purple-500 to-indigo-600' },
+    { key: 'beverages', label: 'Beverages', icon: '☕', color: 'bg-gradient-to-r from-cyan-500 to-blue-500' },
+    { key: 'healthy', label: 'Healthy', icon: '🥦', color: 'bg-gradient-to-r from-teal-500 to-green-500' },
+  ];
 
   /* =========================
      MODAL STATE
@@ -148,7 +172,7 @@ export class Menu implements OnInit {
       name: food.name,
       subtitle: food.subtitle,
       basePrice: food.basePrice,
-      category: food.category as 'sprouts' | 'airfried',
+      category: food.category,
       type: food.type,
       image: `http://localhost:5001${food.image}`,
       addons: [...freeAddons, ...premiumAddons],
@@ -160,8 +184,92 @@ export class Menu implements OnInit {
      FILTER
   ========================== */
   get filteredFoods() {
-    if (this.selectedType === 'all') return this.foods;
-    return this.foods.filter(f => f.type === this.selectedType);
+    let filtered = this.foods;
+
+    // Apply type filter (veg/egg/nonveg)
+    if (this.selectedType !== 'all') {
+      filtered = filtered.filter(f => f.type === this.selectedType);
+    }
+
+    // Apply cuisine/category filter
+    if (this.selectedCuisine !== 'all') {
+      filtered = filtered.filter(f => this.matchesCuisineFilter(f));
+    }
+
+    return filtered;
+  }
+
+  /* =========================
+     CUISINE MATCHING LOGIC
+  ========================== */
+  private matchesCuisineFilter(food: MenuFood): boolean {
+    const name = food.name.toLowerCase();
+    const category = food.category.toLowerCase();
+
+    switch (this.selectedCuisine) {
+      case 'chinese':
+        // Chinese/Indo-Chinese items
+        return name.includes('manchurian') ||
+          name.includes('chilli') ||
+          name.includes('noodles') ||
+          name.includes('fried rice') ||
+          name.includes('65') || // Chicken 65, Paneer 65
+          category === 'noodles';
+
+      case 'north_indian':
+        // North Indian items
+        return name.includes('dal') ||
+          name.includes('paneer') ||
+          name.includes('biryani') ||
+          name.includes('curry') ||
+          name.includes('tikka') ||
+          name.includes('masala') ||
+          name.includes('chole') ||
+          name.includes('rajma') ||
+          name.includes('palak') ||
+          name.includes('roti') ||
+          category === 'gravy' ||
+          category === 'thali';
+
+      case 'veg_curry':
+        // Veg curry items
+        return category === 'gravy' && food.type === 'veg';
+
+      case 'nonveg_curry':
+        // Non-veg curry items
+        return category === 'gravy' && (food.type === 'nonveg' || food.type === 'egg');
+
+      case 'snacks':
+        return category === 'snacks';
+
+      case 'starters':
+        return category === 'starter';
+
+      case 'rice':
+        return category === 'rice';
+
+      case 'noodles':
+        return category === 'noodles';
+
+      case 'maggi':
+        return category === 'maggi';
+
+      case 'thali':
+        return category === 'thali';
+
+      case 'beverages':
+        return category === 'beverages';
+
+      case 'healthy':
+        return category === 'healthy';
+
+      default:
+        return true;
+    }
+  }
+
+  selectCuisine(cuisine: CuisineFilter) {
+    this.selectedCuisine = cuisine;
   }
 
   /* =========================
@@ -194,7 +302,7 @@ export class Menu implements OnInit {
   /* =========================
    WISHLIST
 ========================== */
-  toggleWishlist(food: Food) {
+  toggleWishlist(food: MenuFood) {
     if (this.isWishlisted(food.id)) {
       this.wishlistService.removeFromWishlist(food.id);
     } else {

@@ -9,7 +9,21 @@
       Choose from our variety of flavorful dishes crafted with fresh ingredients
     </p>
 
-    <!-- FILTER SWITCHES -->
+    <!-- CUISINE FILTER BAR -->
+    <div class="mb-6 overflow-x-auto pb-2">
+      <div class="flex gap-3 min-w-max px-1">
+        <button *ngFor="let filter of cuisineFilters" (click)="selectCuisine(filter.key)"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-300 whitespace-nowrap cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5"
+          [class]="selectedCuisine === filter.key 
+            ? filter.color + ' text-white shadow-lg scale-105' 
+            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'">
+          <span class="text-lg">{{ filter.icon }}</span>
+          <span>{{ filter.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- TYPE FILTER SWITCHES (Veg/Egg/Non-Veg) -->
     <div class="flex flex-wrap justify-center gap-4 md:gap-6 mb-10">
 
       <!-- ALL -->

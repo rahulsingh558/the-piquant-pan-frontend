@@ -303,7 +303,7 @@ export class Home implements AfterViewInit, OnInit {
           calories: food.calories,
           type: food.type as 'veg' | 'nonveg' | 'egg',
           category: food.category,
-          image: food.image,
+          image: `http://localhost:5001${food.image}`,
           isBestSeller: false,
           discountPrice: null
         }));
@@ -324,15 +324,26 @@ export class Home implements AfterViewInit, OnInit {
   ========================== */
   nextCarousel(carouselType: string): void {
     switch (carouselType) {
+      case 'mostSelling':
+        if (this.isBrowser) {
+          const container = document.querySelector('.most-selling-carousel');
+          if (container) {
+            container.scrollBy({ left: 350, behavior: 'smooth' });
+          }
+        }
+        break;
       case 'chefSpecial':
         this.activeChefSpecialIndex.update(current =>
           (current + 1) % this.chefSpecialItems.length
         );
         break;
       case 'starter':
-        this.activeStarterIndex.update(current =>
-          (current + 1) % this.starterItems.length
-        );
+        if (this.isBrowser) {
+          const container = document.querySelector('.starter-carousel');
+          if (container) {
+            container.scrollBy({ left: 300, behavior: 'smooth' });
+          }
+        }
         break;
       case 'vegetarian':
         this.activeVegetarianIndex.update(current =>
@@ -349,15 +360,26 @@ export class Home implements AfterViewInit, OnInit {
 
   prevCarousel(carouselType: string): void {
     switch (carouselType) {
+      case 'mostSelling':
+        if (this.isBrowser) {
+          const container = document.querySelector('.most-selling-carousel');
+          if (container) {
+            container.scrollBy({ left: -350, behavior: 'smooth' });
+          }
+        }
+        break;
       case 'chefSpecial':
         this.activeChefSpecialIndex.update(current =>
           current === 0 ? this.chefSpecialItems.length - 1 : current - 1
         );
         break;
       case 'starter':
-        this.activeStarterIndex.update(current =>
-          current === 0 ? this.starterItems.length - 1 : current - 1
-        );
+        if (this.isBrowser) {
+          const container = document.querySelector('.starter-carousel');
+          if (container) {
+            container.scrollBy({ left: -300, behavior: 'smooth' });
+          }
+        }
         break;
       case 'vegetarian':
         this.activeVegetarianIndex.update(current =>
