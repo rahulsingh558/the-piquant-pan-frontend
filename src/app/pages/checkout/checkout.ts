@@ -54,6 +54,12 @@ export class Checkout implements OnInit {
   selectedBank = 'hdfc';
   isProcessingPayment = false;
 
+  // Geolocation for tracking
+  userLocation: { lat: number; lng: number } | null = null;
+  locationError = '';
+  isRequestingLocation = false;
+  locationCaptured = false;
+
   // Payment methods
   paymentMethods: PaymentMethod[] = [
     { id: 'cod', name: 'Cash on Delivery', icon: '💵', description: 'Pay when you receive' },
@@ -127,7 +133,57 @@ export class Checkout implements OnInit {
       if (!this.selectedAddress) {
         this.router.navigate(['/address-select']);
       }
+
+      // Auto-request location for delivery tracking
+      this.requestLocation();
     }
+  }
+
+  /**
+   * Request user's exact location for delivery tracking
+   */
+  requestLocation(): void {
+    if (!this.isBrowser || !navigator.geolocation) {
+      this.locationError = 'Geolocation is not supported by your browser';
+      return;
+    }
+
+    this.isRequestingLocation = true;
+    this.locationError = '';
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        this.locationCaptured = true;
+        this.isRequestingLocation = false;
+        console.log('Location captured:', this.userLocation);
+      },
+      (error) => {
+        this.isRequestingLocation = false;
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            this.locationError = 'Location access denied. Delivery tracking may be less accurate.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            this.locationError = 'Location unavailable.';
+            break;
+          case error.TIMEOUT:
+            this.locationError = 'Location request timed out.';
+            break;
+          default:
+            this.locationError = 'Unable to get location.';
+        }
+        console.warn('Location error:', this.locationError);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   }
 
   // Helper method to get payment method name
@@ -277,7 +333,9 @@ export class Checkout implements OnInit {
         city: this.selectedAddress?.city || '',
         state: this.selectedAddress?.state || '',
         zipCode: this.selectedAddress?.pincode || '',
-        landmark: this.selectedAddress?.landmark
+        landmark: this.selectedAddress?.landmark,
+        lat: this.userLocation?.lat,
+        lng: this.userLocation?.lng
       },
       subtotal: this.getGrandTotal(),
       deliveryCharge: this.getDeliveryCharge(),
