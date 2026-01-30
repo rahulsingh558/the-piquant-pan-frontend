@@ -9,6 +9,13 @@ export interface Coordinates {
     lng: number;
 }
 
+export interface RouteInfo {
+    distance: number;  // in kilometers
+    duration: number;  // in minutes
+    distanceText: string;
+    durationText: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -325,10 +332,20 @@ export class MapplsService {
     }
 
     /**
-     * Draw route between points (straight line - Directions API is CORS blocked)
+     * Draw route between points and return route info (distance, duration)
      */
-    async drawActualRoute(start: Coordinates, end: Coordinates, color: string = '#FF6B00'): Promise<any> {
+    async drawActualRoute(start: Coordinates, end: Coordinates, color: string = '#FF6B00'): Promise<RouteInfo | null> {
         if (!this.mapObject) return null;
+
+        // Calculate straight-line distance as fallback
+        const fallbackDistance = this.calculateDistance(start, end);
+        const fallbackDuration = Math.round(fallbackDistance * 3); // Assume ~3 min per km
+        const fallbackInfo: RouteInfo = {
+            distance: fallbackDistance,
+            duration: fallbackDuration,
+            distanceText: `${fallbackDistance.toFixed(1)} km`,
+            durationText: `${fallbackDuration} min`
+        };
 
         try {
             // Call backend proxy to get directions
@@ -347,17 +364,50 @@ export class MapplsService {
                     }));
 
                     console.log('Got route points from backend:', routePoints.length);
-                    return this.drawPolyline(routePoints, color);
+                    this.drawPolyline(routePoints, color);
+
+                    // Extract distance and duration from route
+                    const distanceMeters = route.distance || 0;
+                    const durationSeconds = route.duration || 0;
+                    const distance = distanceMeters / 1000; // Convert to km
+                    const duration = Math.round(durationSeconds / 60); // Convert to minutes
+
+                    return {
+                        distance: parseFloat(distance.toFixed(1)),
+                        duration: duration || Math.round(distance * 3),
+                        distanceText: `${distance.toFixed(1)} km`,
+                        durationText: `${duration || Math.round(distance * 3)} min`
+                    };
                 }
             }
 
             // Fallback
             console.warn('No route data from backend, using straight line');
-            return this.drawPolyline([start, end], color);
+            this.drawPolyline([start, end], color);
+            return fallbackInfo;
         } catch (error) {
             console.error('Error fetching route from backend:', error);
-            return this.drawPolyline([start, end], color);
+            this.drawPolyline([start, end], color);
+            return fallbackInfo;
         }
+    }
+
+    /**
+     * Calculate straight-line distance between two coordinates (Haversine formula)
+     */
+    private calculateDistance(start: Coordinates, end: Coordinates): number {
+        const R = 6371; // Earth's radius in km
+        const dLat = this.toRad(end.lat - start.lat);
+        const dLng = this.toRad(end.lng - start.lng);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(this.toRad(start.lat)) * Math.cos(this.toRad(end.lat)) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return parseFloat((R * c).toFixed(1));
+    }
+
+    private toRad(deg: number): number {
+        return deg * (Math.PI / 180);
     }
 
     /**

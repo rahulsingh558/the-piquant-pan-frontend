@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { io, Socket } from 'socket.io-client';
 import { OrderService, Order } from '../../services/order.service';
-import { MapplsService, Coordinates } from '../../services/mappls.service';
+import { MapplsService, Coordinates, RouteInfo } from '../../services/mappls.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -25,6 +25,7 @@ export class TrackOrderPage implements OnInit, OnDestroy {
   socket: Socket | null = null;
   mapInitialized = false;
   deliveryAddressCoords: Coordinates | null = null;  // Store for route redrawing
+  routeInfo: RouteInfo | null = null;  // Distance and ETA
 
   constructor(
     private route: ActivatedRoute,
@@ -220,7 +221,8 @@ export class TrackOrderPage implements OnInit, OnDestroy {
     // Redraw route from delivery person to delivery address
     if (this.deliveryAddressCoords) {
       console.log('[TrackOrder] Redrawing route from delivery person to destination');
-      await this.mapplsService.drawActualRoute(pos, this.deliveryAddressCoords);
+      this.routeInfo = await this.mapplsService.drawActualRoute(pos, this.deliveryAddressCoords);
+      console.log('[TrackOrder] Route info:', this.routeInfo);
     }
 
     this.cdr.detectChanges();

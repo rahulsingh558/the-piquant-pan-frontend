@@ -510,9 +510,16 @@
           <div class="bg-gray-100 rounded-lg overflow-hidden" style="height: 300px;">
             <div id="admin-order-map" class="w-full h-full"></div>
           </div>
-          <p class="text-xs text-gray-500 mt-2">
-            🟠 Restaurant &nbsp;&nbsp; 🟢 Delivery Address
-          </p>
+          <div class="flex flex-wrap justify-between items-center mt-2">
+            <p class="text-xs text-gray-500">
+              🟠 Restaurant &nbsp;&nbsp; 🟢 Delivery Address &nbsp;&nbsp; 🔵 Delivery Partner
+            </p>
+            <!-- Distance & ETA (when delivery person is tracking) -->
+            <div *ngIf="selectedOrderRouteInfo" class="flex gap-4 text-sm">
+              <span class="font-semibold text-orange-600">📍 {{ selectedOrderRouteInfo.distanceText }}</span>
+              <span class="font-semibold text-green-600">⏱️ {{ selectedOrderRouteInfo.durationText }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Action Buttons -->

@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { AdminAuthService } from '../../../services/admin-auth.service';
 import { AdminSidebarComponent } from '../sidebar/admin-sidebar.component';
 import { OrderService, Order as ApiOrder } from '../../../services/order.service';
-import { MapplsService, Coordinates } from '../../../services/mappls.service';
+import { MapplsService, Coordinates, RouteInfo } from '../../../services/mappls.service';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../../environments/environment';
 
@@ -97,6 +97,7 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
   private socket: Socket | null = null;
   private deliveryMarker: any = null;
   private selectedOrderDeliveryCoords: Coordinates | null = null;
+  selectedOrderRouteInfo: RouteInfo | null = null;  // Public for template access
 
   constructor(
     private auth: AdminAuthService,
@@ -391,7 +392,8 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
     // Redraw route from delivery person to delivery address
     if (this.selectedOrderDeliveryCoords) {
       console.log('[AdminOrders] Redrawing route from delivery person to destination');
-      await this.mapplsService.drawActualRoute(pos, this.selectedOrderDeliveryCoords);
+      this.selectedOrderRouteInfo = await this.mapplsService.drawActualRoute(pos, this.selectedOrderDeliveryCoords);
+      console.log('[AdminOrders] Route info:', this.selectedOrderRouteInfo);
     }
 
     this.cdr.detectChanges();
