@@ -305,6 +305,27 @@ export class MapplsService {
     }
 
     /**
+     * Add a rider/delivery person avatar marker with scooter icon
+     */
+    addRiderMarker(coords: Coordinates): any {
+        // Rider avatar with scooter emoji - more visible and friendly
+        const riderHtml = `
+            <div style="transform: translate(-50%, -50%); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));">
+                <div style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);">
+                    <span style="font-size: 24px;">🛵</span>
+                </div>
+                <div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #22C55E; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; white-space: nowrap;">
+                    LIVE
+                </div>
+            </div>
+        `;
+
+        return this.addMarker(coords, {
+            html: riderHtml
+        });
+    }
+
+    /**
      * Draw a polyline with multiple points
      */
     drawPolyline(points: Coordinates[], color: string = '#FF6B00'): any {
@@ -448,13 +469,13 @@ export class MapplsService {
     private deliveryMarker: any = null;
 
     /**
-     * Update or create delivery marker
+     * Update or create delivery marker (rider avatar)
      */
     updateDeliveryMarker(coords: Coordinates): void {
         if (this.deliveryMarker) {
             this.updateMarkerPosition(this.deliveryMarker, coords);
         } else {
-            this.deliveryMarker = this.addColoredMarker(coords, 'blue', 'Delivery Partner');
+            this.deliveryMarker = this.addRiderMarker(coords);
         }
     }
 

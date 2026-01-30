@@ -382,12 +382,8 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
   async updateDeliveryPersonMarker(lat: number, lng: number) {
     const pos = { lat, lng };
 
-    // Add new delivery person marker (blue for delivery person)
-    this.deliveryMarker = this.mapplsService.addColoredMarker(
-      pos,
-      'blue',
-      'Delivery Partner 📍'
-    );
+    // Add rider avatar marker with scooter icon
+    this.deliveryMarker = this.mapplsService.addRiderMarker(pos);
 
     // Redraw route from delivery person to delivery address
     if (this.selectedOrderDeliveryCoords) {
