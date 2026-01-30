@@ -382,6 +382,15 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
   async updateDeliveryPersonMarker(lat: number, lng: number) {
     const pos = { lat, lng };
 
+    // Remove existing marker if any
+    if (this.deliveryMarker) {
+      try {
+        this.deliveryMarker.remove();
+      } catch (e) {
+        console.error('Error removing delivery marker:', e);
+      }
+    }
+
     // Add rider avatar marker with scooter icon
     this.deliveryMarker = this.mapplsService.addRiderMarker(pos);
 

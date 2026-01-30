@@ -471,12 +471,18 @@ export class MapplsService {
     /**
      * Update or create delivery marker (rider avatar)
      */
+    /**
+     * Update or create delivery marker (rider avatar)
+     */
     updateDeliveryMarker(coords: Coordinates): void {
         if (this.deliveryMarker) {
-            this.updateMarkerPosition(this.deliveryMarker, coords);
-        } else {
-            this.deliveryMarker = this.addRiderMarker(coords);
+            try {
+                this.deliveryMarker.remove();
+            } catch (e) {
+                console.error('Error removing delivery marker:', e);
+            }
         }
+        this.deliveryMarker = this.addRiderMarker(coords);
     }
 
     /**
