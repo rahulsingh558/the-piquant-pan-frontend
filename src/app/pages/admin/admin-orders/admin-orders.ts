@@ -336,10 +336,8 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
       this.mapplsService.addColoredMarker(restaurantCoords, 'orange', 'Restaurant');
       this.mapplsService.addColoredMarker(deliveryCoords, 'green', 'Delivery');
 
-      // Draw route only for out_for_delivery status
-      if (['out_for_delivery', 'delivered'].includes(order.status)) {
-        await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
-      }
+      // Route will be drawn dynamically from delivery person's live location
+      console.log('[AdminOrders] Waiting for delivery person location to draw route');
 
       this.mapplsService.fitBounds([restaurantCoords, deliveryCoords]);
 
