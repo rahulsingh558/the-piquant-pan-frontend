@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -6,6 +6,8 @@ import { AdminAuthService } from '../../../services/admin-auth.service';
 import { AdminSidebarComponent } from '../sidebar/admin-sidebar.component';
 import { OrderService, Order as ApiOrder } from '../../../services/order.service';
 import { MapplsService, Coordinates } from '../../../services/mappls.service';
+import { io, Socket } from 'socket.io-client';
+import { environment } from '../../../../environments/environment';
 
 interface OrderItem {
   name: string;
@@ -41,7 +43,7 @@ interface Order {
   imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent], // Add AdminSidebarComponent here
   templateUrl: './admin-orders.html',
 })
-export class AdminOrdersComponent implements OnInit {
+export class AdminOrdersComponent implements OnInit, OnDestroy {
   /* =========================
      SIDEBAR STATE
   ========================== */
@@ -89,6 +91,12 @@ export class AdminOrdersComponent implements OnInit {
   selectedOrderMapInitialized = false;
   selectedOrderRawAddress: { lat?: number; lng?: number; street: string; city: string } | null = null;
 
+  /* =========================
+     SOCKET & DELIVERY TRACKING
+  ========================== */
+  private socket: Socket | null = null;
+  private deliveryMarker: any = null;
+
   constructor(
     private auth: AdminAuthService,
     private orderService: OrderService,
@@ -110,6 +118,13 @@ export class AdminOrdersComponent implements OnInit {
 
     // On desktop, sidebar is open by default
     this.isSidebarOpen = window.innerWidth >= 1024;
+  }
+
+  ngOnDestroy() {
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+    }
   }
 
   /* =========================
@@ -317,13 +332,59 @@ export class AdminOrdersComponent implements OnInit {
       this.mapplsService.addColoredMarker(restaurantCoords, 'orange', 'Restaurant');
       this.mapplsService.addColoredMarker(deliveryCoords, 'green', 'Delivery');
 
-      await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
+      // Draw route only for out_for_delivery status
+      if (['out_for_delivery', 'delivered'].includes(order.status)) {
+        await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
+      }
+
       this.mapplsService.fitBounds([restaurantCoords, deliveryCoords]);
+
+      // Setup socket for delivery person tracking
+      this.setupDeliveryTracking(order.orderNumber);
 
       this.cdr.detectChanges();
     } catch (error) {
       console.error('[AdminOrders] Error initializing order map:', error);
     }
+  }
+
+  setupDeliveryTracking(orderNumber: number) {
+    if (!this.isBrowser) return;
+
+    // Disconnect existing socket if any
+    if (this.socket) {
+      this.socket.disconnect();
+    }
+
+    // Connect to socket server
+    this.socket = io(environment.backendUrl, {
+      transports: ['websocket', 'polling']
+    });
+
+    this.socket.on('connect', () => {
+      console.log('[AdminOrders] Connected to tracking server');
+      // Join tracking room for this order
+      this.socket?.emit('tracking:join', { orderId: orderNumber });
+    });
+
+    // Listen for delivery person location updates
+    this.socket.on('delivery:position', (data: any) => {
+      console.log('[AdminOrders] Delivery person location update:', data);
+      if (data.lat && data.lng) {
+        this.updateDeliveryPersonMarker(data.lat, data.lng);
+      }
+    });
+  }
+
+  updateDeliveryPersonMarker(lat: number, lng: number) {
+    // Add new delivery person marker (blue for delivery person)
+    // Note: Previous markers remain but this is acceptable as the map is recreated for each order
+    this.deliveryMarker = this.mapplsService.addColoredMarker(
+      { lat, lng },
+      'blue',
+      'Delivery Partner 📍'
+    );
+    this.cdr.detectChanges();
   }
 
   updateOrderStatus(order: Order) {
