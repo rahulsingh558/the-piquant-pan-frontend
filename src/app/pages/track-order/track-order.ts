@@ -24,6 +24,7 @@ export class TrackOrderPage implements OnInit, OnDestroy {
   isLiveTracking = false;
   socket: Socket | null = null;
   mapInitialized = false;
+  deliveryAddressCoords: Coordinates | null = null;  // Store for route redrawing
 
   constructor(
     private route: ActivatedRoute,
@@ -113,6 +114,9 @@ export class TrackOrderPage implements OnInit, OnDestroy {
       };
       console.log('[TrackOrder] Center coords:', centerCoords);
 
+      // Store delivery address for route redrawing
+      this.deliveryAddressCoords = deliveryCoords;
+
       // Create map
       await this.mapplsService.createMap('tracking-map-page', centerCoords, 13);
       this.mapInitialized = true;
@@ -126,7 +130,7 @@ export class TrackOrderPage implements OnInit, OnDestroy {
 
       // Draw Route only when order is out for delivery or delivered
       if (['out_for_delivery', 'delivered'].includes(this.order.orderStatus)) {
-        console.log('[TrackOrder] Drawing route - order is out for delivery');
+        console.log('[TrackOrder] Drawing initial route from restaurant to delivery');
         await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
       } else {
         console.log('[TrackOrder] Route not shown - order status:', this.order.orderStatus);
@@ -211,11 +215,20 @@ export class TrackOrderPage implements OnInit, OnDestroy {
     });
   }
 
-  updateDeliveryLocation(lat: number, lng: number) {
+  async updateDeliveryLocation(lat: number, lng: number) {
     if (!this.mapInitialized) return;
     const pos = { lat, lng };
-    // This handles creates or updates the 'blue' marker
+
+    // Update delivery person marker (blue)
     this.mapplsService.updateDeliveryMarker(pos);
+
+    // Redraw route from delivery person to delivery address
+    if (this.deliveryAddressCoords) {
+      console.log('[TrackOrder] Redrawing route from delivery person to destination');
+      await this.mapplsService.drawActualRoute(pos, this.deliveryAddressCoords);
+    }
+
+    this.cdr.detectChanges();
   }
 
 

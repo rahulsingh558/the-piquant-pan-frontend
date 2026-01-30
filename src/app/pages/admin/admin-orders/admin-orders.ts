@@ -96,6 +96,7 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
   ========================== */
   private socket: Socket | null = null;
   private deliveryMarker: any = null;
+  private selectedOrderDeliveryCoords: Coordinates | null = null;
 
   constructor(
     private auth: AdminAuthService,
@@ -321,6 +322,9 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
 
       console.log('[AdminOrders] Restaurant:', restaurantCoords, 'Delivery:', deliveryCoords);
 
+      // Store for route redrawing
+      this.selectedOrderDeliveryCoords = deliveryCoords;
+
       const centerCoords: Coordinates = {
         lat: (restaurantCoords.lat + deliveryCoords.lat) / 2,
         lng: (restaurantCoords.lng + deliveryCoords.lng) / 2
@@ -376,14 +380,22 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateDeliveryPersonMarker(lat: number, lng: number) {
+  async updateDeliveryPersonMarker(lat: number, lng: number) {
+    const pos = { lat, lng };
+
     // Add new delivery person marker (blue for delivery person)
-    // Note: Previous markers remain but this is acceptable as the map is recreated for each order
     this.deliveryMarker = this.mapplsService.addColoredMarker(
-      { lat, lng },
+      pos,
       'blue',
       'Delivery Partner 📍'
     );
+
+    // Redraw route from delivery person to delivery address
+    if (this.selectedOrderDeliveryCoords) {
+      console.log('[AdminOrders] Redrawing route from delivery person to destination');
+      await this.mapplsService.drawActualRoute(pos, this.selectedOrderDeliveryCoords);
+    }
+
     this.cdr.detectChanges();
   }
 
