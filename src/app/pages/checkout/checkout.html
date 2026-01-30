@@ -258,7 +258,7 @@
 
       <!-- PLACE ORDER BUTTON -->
       <button (click)="paymentMethod === 'online' ? processOnlinePayment() : placeOrder()"
-        [disabled]="!isFormValid() || isPlacingOrder || isProcessingPayment" class="w-full bg-orange-600 text-white py-4 rounded-xl font-semibold text-lg
+        [disabled]="!isFormValid() || isPlacingOrder || isProcessingPayment || !locationCaptured" class="w-full bg-orange-600 text-white py-4 rounded-xl font-semibold text-lg
                disabled:bg-gray-300 disabled:cursor-not-allowed
                hover:bg-orange-700 transition-colors flex items-center justify-center gap-2">
         <span *ngIf="!isPlacingOrder && !isProcessingPayment">
