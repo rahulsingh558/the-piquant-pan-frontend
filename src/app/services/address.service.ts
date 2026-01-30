@@ -5,12 +5,13 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Address } from '../pages/address/address';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AddressService {
-  private API_URL = 'http://localhost:5001/api/addresses';
+  private API_URL = `${environment.apiUrl}/addresses`;
   private addressesSubject: BehaviorSubject<Address[]>;
   private selectedAddressIndexKey = 'selectedAddressIndex';
   private isBrowser = false;

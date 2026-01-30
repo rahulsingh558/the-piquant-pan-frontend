@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Addon {
   id: number;
@@ -26,9 +27,9 @@ export interface ApiFood {
 
 @Injectable({ providedIn: 'root' })
 export class FoodApiService {
-  private API_URL = 'http://localhost:5001/api/foods';
+  private API_URL = `${environment.apiUrl}/foods`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // User methods
   getAllFoods(): Observable<ApiFood[]> {

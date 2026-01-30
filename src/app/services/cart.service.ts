@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface CartItem {
     _id?: string;
@@ -23,7 +24,7 @@ export interface Cart {
     providedIn: 'root'
 })
 export class CartService {
-    private API_URL = 'http://localhost:5001/api/cart';
+    private API_URL = `${environment.apiUrl}/cart`;
     private COOKIE_NAME = 'guest_cart';
     private COOKIE_EXPIRY_DAYS = 7;
 

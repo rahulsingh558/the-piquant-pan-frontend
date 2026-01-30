@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 interface LoginResponse {
   token: string;
@@ -20,7 +21,7 @@ interface LoginResponse {
 export class AdminAuthService {
   private readonly TOKEN_KEY = 'admin_token';
   private readonly USER_KEY = 'admin_user';
-  private readonly API_URL = 'http://localhost:5001/api/auth';
+  private readonly API_URL = `${environment.apiUrl}/auth`;
   private isBrowser: boolean;
 
   constructor(

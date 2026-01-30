@@ -4,12 +4,13 @@ import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable, interval } from 'rxjs';
 import { switchMap, tap, catchError } from 'rxjs/operators';
 import { ChatMessage, ChatSession, QuickReply } from '../models/chat';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private readonly API_URL = 'http://localhost:5001/api/chat';
+  private readonly API_URL = `${environment.apiUrl}/chat`;
   private isBrowser = false;
 
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);

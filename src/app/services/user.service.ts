@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface UserProfile {
     id: string;
@@ -37,7 +38,7 @@ export interface UpdateProfileData {
     providedIn: 'root'
 })
 export class UserService {
-    private API_URL = 'http://localhost:5001/api/user';
+    private API_URL = `${environment.apiUrl}/user`;
     private isBrowser: boolean;
 
     constructor(
