@@ -2,6 +2,7 @@ import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy } from '@angular/core
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { io, Socket } from 'socket.io-client';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-delivery-tracking',
@@ -31,7 +32,7 @@ export class DeliveryTrackingPage implements OnInit, OnDestroy {
     ngOnInit(): void {
         if (this.isBrowser) {
             // Initialize socket connection
-            this.socket = io('http://localhost:5001', {
+            this.socket = io(environment.backendUrl, {
                 transports: ['websocket', 'polling']
             });
 

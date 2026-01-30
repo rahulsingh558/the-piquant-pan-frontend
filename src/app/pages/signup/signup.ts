@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -112,7 +113,7 @@ export class Signup implements OnInit {
     console.log('Google signup clicked');
     // Redirect to backend Google Auth endpoint
     // This handles both login and signup (creates account if not exists)
-    window.location.href = 'http://localhost:5001/api/auth/google';
+    window.location.href = `${environment.backendUrl}/api/auth/google`;
   }
 
   // WhatsApp modal methods

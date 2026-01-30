@@ -2,13 +2,14 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class WebSocketService {
     private socket: Socket | undefined;
-    private readonly URL = 'http://localhost:5001';
+    private readonly URL = environment.backendUrl;
     private isBrowser: boolean;
 
     constructor(@Inject(PLATFORM_ID) platformId: Object) {

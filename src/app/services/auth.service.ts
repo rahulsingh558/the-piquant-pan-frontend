@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface User {
     id: string;
@@ -21,7 +22,7 @@ export interface AuthResponse {
     providedIn: 'root'
 })
 export class AuthService {
-    private API_URL = 'http://localhost:5001/api/auth';
+    private API_URL = `${environment.apiUrl}/auth`;
 
     private currentUserSubject = new BehaviorSubject<User | null>(null);
     public currentUser$ = this.currentUserSubject.asObservable();

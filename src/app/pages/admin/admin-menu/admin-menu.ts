@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FoodApiService, ApiFood } from '../../../services/food-api.service';
+import { environment } from '../../../../environments/environment';
 
 interface Addon {
   id: number;
@@ -23,6 +24,7 @@ export class AdminMenuComponent {
   editingId: string | null = null;
   errorMessage = '';
   successMessage = '';
+  backendUrl = environment.backendUrl;
 
   // Form fields
   formData = {
@@ -95,7 +97,7 @@ export class AdminMenuComponent {
       type: item.type,
       category: item.category,
       image: null,
-      imagePreview: `http://localhost:5001${item.image}`,
+      imagePreview: `${environment.backendUrl}${item.image}`,
       defaultAddons: [...item.defaultAddons],
       extraAddons: [...item.extraAddons],
     };

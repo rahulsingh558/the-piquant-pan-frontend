@@ -12,6 +12,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { ProductsCarouselComponent } from '../../components/products-carousel/products-carousel.component';
 import { FoodApiService, ApiFood } from '../../services/food-api.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -303,7 +304,7 @@ export class Home implements AfterViewInit, OnInit {
           calories: food.calories,
           type: food.type as 'veg' | 'nonveg' | 'egg',
           category: food.category,
-          image: `http://localhost:5001${food.image}`,
+          image: `${environment.backendUrl}${food.image}`,
           isBestSeller: false,
           discountPrice: null
         }));

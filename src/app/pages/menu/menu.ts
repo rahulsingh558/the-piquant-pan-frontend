@@ -6,6 +6,7 @@ import { FoodApiService, ApiFood } from '../../services/food-api.service';
 import { Addon } from '../../models/addon';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import { environment } from '../../../environments/environment';
 
 /* =========================
    TYPES
@@ -174,7 +175,7 @@ export class Menu implements OnInit {
       basePrice: food.basePrice,
       category: food.category,
       type: food.type,
-      image: `http://localhost:5001${food.image}`,
+      image: `${environment.backendUrl}${food.image}`,
       addons: [...freeAddons, ...premiumAddons],
       freeAddonIds: freeAddons.map(a => a.id),
     };
