@@ -98,23 +98,30 @@ export class TrackOrderPage implements OnInit, OnDestroy {
     */
 
     try {
-      console.log('Initializing map for order:', this.order.orderNumber);
+      console.log('[TrackOrder] Initializing map for order:', this.order.orderNumber);
 
       const deliveryCoords = await this.getDeliveryCoordinates();
       const restaurantCoords = await this.mapplsService.getRestaurantCoordinates();
+
+      console.log('[TrackOrder] Restaurant coords:', restaurantCoords);
+      console.log('[TrackOrder] Delivery coords:', deliveryCoords);
 
       // Calculate center
       const centerCoords: Coordinates = {
         lat: (restaurantCoords.lat + deliveryCoords.lat) / 2,
         lng: (restaurantCoords.lng + deliveryCoords.lng) / 2
       };
+      console.log('[TrackOrder] Center coords:', centerCoords);
 
       // Create map
       await this.mapplsService.createMap('tracking-map-page', centerCoords, 13);
       this.mapInitialized = true;
 
       // Add markers (Restaurant icon and Home icon)
+      console.log('[TrackOrder] Adding restaurant marker at:', restaurantCoords);
       this.mapplsService.addRestaurantMarker(restaurantCoords, 'The Piquant Pan');
+
+      console.log('[TrackOrder] Adding delivery marker at:', deliveryCoords);
       this.mapplsService.addDeliveryAddressMarker(deliveryCoords, 'Delivery Address');
 
       // Draw Route
@@ -137,14 +144,21 @@ export class TrackOrderPage implements OnInit, OnDestroy {
 
   async getDeliveryCoordinates(): Promise<Coordinates> {
     const address = this.order?.deliveryAddress;
+    console.log('[TrackOrder] Getting delivery coordinates, address:', address);
+
     if (!address) {
+      console.warn('[TrackOrder] No delivery address found, using default');
       return { lat: 12.9750, lng: 77.6600 };
     }
 
+    // Check if we have exact coordinates from geolocation
     if (address.lat && address.lng) {
+      console.log('[TrackOrder] Using saved coordinates:', address.lat, address.lng);
       return { lat: address.lat, lng: address.lng };
     }
 
+    // Fallback: estimate coordinates from address
+    console.log('[TrackOrder] No saved coordinates, estimating from address');
     const fullAddress = [
       address.street,
       address.landmark,
@@ -153,7 +167,9 @@ export class TrackOrderPage implements OnInit, OnDestroy {
       address.zipCode
     ].filter(Boolean).join(', ');
 
-    return await this.mapplsService.geocodeAddress(fullAddress);
+    const coords = await this.mapplsService.geocodeAddress(fullAddress);
+    console.log('[TrackOrder] Estimated coordinates:', coords);
+    return coords;
   }
 
   // --- Socket Logic ---
