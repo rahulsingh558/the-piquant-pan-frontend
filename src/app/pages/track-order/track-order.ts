@@ -124,8 +124,13 @@ export class TrackOrderPage implements OnInit, OnDestroy {
       console.log('[TrackOrder] Adding delivery marker at:', deliveryCoords);
       this.mapplsService.addColoredMarker(deliveryCoords, 'green', 'Delivery Address');
 
-      // Draw Route
-      await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
+      // Draw Route only when order is out for delivery or delivered
+      if (['out_for_delivery', 'delivered'].includes(this.order.orderStatus)) {
+        console.log('[TrackOrder] Drawing route - order is out for delivery');
+        await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
+      } else {
+        console.log('[TrackOrder] Route not shown - order status:', this.order.orderStatus);
+      }
 
       // Fit bounds
       this.mapplsService.fitBounds([restaurantCoords, deliveryCoords]);
