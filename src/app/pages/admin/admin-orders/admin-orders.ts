@@ -1,10 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AdminAuthService } from '../../../services/admin-auth.service';
 import { AdminSidebarComponent } from '../sidebar/admin-sidebar.component';
 import { OrderService, Order as ApiOrder } from '../../../services/order.service';
+import { MapplsService, Coordinates } from '../../../services/mappls.service';
 
 interface OrderItem {
   name: string;
@@ -21,6 +22,7 @@ interface Order {
   customerPhone: string;
   customerEmail: string;
   deliveryAddress: string;
+  deliveryCoords?: { lat?: number; lng?: number };  // For map display
   items: OrderItem[];
   subtotal: number;
   deliveryCharge: number;
@@ -80,11 +82,22 @@ export class AdminOrdersComponent implements OnInit {
   totalRevenue = 0;
   loading = true;
 
+  /* =========================
+     MAP STATE
+  ========================== */
+  isBrowser = false;
+  selectedOrderMapInitialized = false;
+  selectedOrderRawAddress: { lat?: number; lng?: number; street: string; city: string } | null = null;
+
   constructor(
     private auth: AdminAuthService,
     private orderService: OrderService,
-    private cdr: ChangeDetectorRef
-  ) { }
+    private cdr: ChangeDetectorRef,
+    private mapplsService: MapplsService,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit() {
     // Load orders from backend
@@ -244,6 +257,10 @@ export class AdminOrdersComponent implements OnInit {
       customerPhone: apiOrder.customerPhone,
       customerEmail: apiOrder.customerEmail,
       deliveryAddress: `${apiOrder.deliveryAddress.street}, ${apiOrder.deliveryAddress.city}`,
+      deliveryCoords: {
+        lat: apiOrder.deliveryAddress.lat,
+        lng: apiOrder.deliveryAddress.lng
+      },
       items: apiOrder.items.map(item => ({
         name: item.name,
         quantity: item.quantity,
@@ -264,8 +281,49 @@ export class AdminOrdersComponent implements OnInit {
     };
   }
 
-  viewOrderDetails(order: Order) {
+  async viewOrderDetails(order: Order) {
     this.selectedOrder = order;
+    this.selectedOrderMapInitialized = false;
+    this.cdr.detectChanges();
+
+    // Initialize map after modal is rendered
+    setTimeout(() => this.initOrderMap(order), 300);
+  }
+
+  async initOrderMap(order: Order) {
+    if (!this.isBrowser || this.selectedOrderMapInitialized) return;
+
+    try {
+      const restaurantCoords = await this.mapplsService.getRestaurantCoordinates();
+      let deliveryCoords: Coordinates;
+
+      if (order.deliveryCoords?.lat && order.deliveryCoords?.lng) {
+        deliveryCoords = { lat: order.deliveryCoords.lat, lng: order.deliveryCoords.lng };
+      } else {
+        // Fallback: geocode from address string
+        deliveryCoords = await this.mapplsService.geocodeAddress(order.deliveryAddress);
+      }
+
+      console.log('[AdminOrders] Restaurant:', restaurantCoords, 'Delivery:', deliveryCoords);
+
+      const centerCoords: Coordinates = {
+        lat: (restaurantCoords.lat + deliveryCoords.lat) / 2,
+        lng: (restaurantCoords.lng + deliveryCoords.lng) / 2
+      };
+
+      await this.mapplsService.createMap('admin-order-map', centerCoords, 13);
+      this.selectedOrderMapInitialized = true;
+
+      this.mapplsService.addColoredMarker(restaurantCoords, 'orange', 'Restaurant');
+      this.mapplsService.addColoredMarker(deliveryCoords, 'green', 'Delivery');
+
+      await this.mapplsService.drawActualRoute(restaurantCoords, deliveryCoords);
+      this.mapplsService.fitBounds([restaurantCoords, deliveryCoords]);
+
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('[AdminOrders] Error initializing order map:', error);
+    }
   }
 
   updateOrderStatus(order: Order) {
