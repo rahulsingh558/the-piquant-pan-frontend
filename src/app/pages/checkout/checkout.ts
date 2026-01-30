@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -93,6 +93,7 @@ export class Checkout implements OnInit {
     private addressService: AddressService,
     private orderService: OrderService,
     public router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -160,6 +161,7 @@ export class Checkout implements OnInit {
         this.locationCaptured = true;
         this.isRequestingLocation = false;
         console.log('Location captured:', this.userLocation);
+        this.cdr.detectChanges();  // Auto-update UI
       },
       (error) => {
         this.isRequestingLocation = false;
@@ -177,6 +179,7 @@ export class Checkout implements OnInit {
             this.locationError = 'Unable to get location.';
         }
         console.warn('Location error:', this.locationError);
+        this.cdr.detectChanges();  // Auto-update UI
       },
       {
         enableHighAccuracy: true,
