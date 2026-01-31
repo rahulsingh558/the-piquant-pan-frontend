@@ -165,11 +165,11 @@
               <span class="font-medium">{{ food.type === 'veg' ? '🥬' : food.type === 'egg' ? '🥚' : '🍗' }}</span>
               <span class="ml-2">Fresh & Tasty</span>
             </div>
-            <button (click)="addToCart(food)" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-5 py-2.5 rounded-xl
-                     hover:from-orange-700 hover:to-red-700 transition-all duration-300 
-                     cursor-pointer font-semibold shadow-md hover:shadow-lg flex items-center gap-2">
-              <fa-icon [icon]="faCartPlus" class="text-white" />
-              Add to Cart
+            <button (click)="addToCart(food)"
+              class="px-5 py-2.5 rounded-xl transition-all duration-300 cursor-pointer font-semibold shadow-md hover:shadow-lg flex items-center gap-2 text-white"
+              [ngClass]="isInCart(food) ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700' : 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700'">
+              <fa-icon [icon]="isInCart(food) ? faCheck : faCartPlus" class="text-white" />
+              {{ isInCart(food) ? 'Added to Cart' : 'Add to Cart' }}
             </button>
           </div>
 

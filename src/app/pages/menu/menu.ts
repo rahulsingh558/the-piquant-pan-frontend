@@ -1,11 +1,11 @@
 import { Component, Inject, PLATFORM_ID, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { CartService } from '../../services/cart.service';
+import { CartService, CartItem } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { FoodApiService, ApiFood } from '../../services/food-api.service';
 import { Addon } from '../../models/addon';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import { faCartPlus, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { environment } from '../../../environments/environment';
 
 /* =========================
@@ -38,6 +38,8 @@ interface MenuFood {
 export class Menu implements OnInit {
   isBrowser = false;
   faCartPlus = faCartPlus;
+  faCheck = faCheck;
+  cartItems: CartItem[] = [];
 
   selectedType: 'all' | FoodType = 'all';
   selectedCuisine: CuisineFilter = 'all';
@@ -115,6 +117,11 @@ export class Menu implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser) {
       this.loadMenu();
+
+      // Subscribe to cart updates
+      this.cartService.cart$.subscribe(cart => {
+        this.cartItems = cart.items;
+      });
     }
   }
 
@@ -345,6 +352,10 @@ export class Menu implements OnInit {
       // For guest users (non-observable)
       this.cdr.detectChanges(); // Trigger change detection
     }
+  }
+
+  isInCart(food: MenuFood): boolean {
+    return this.cartItems.some(item => item.menuItemId === String(food.id));
   }
 
   // Legacy methods - can be removed if addon feature is no longer needed
