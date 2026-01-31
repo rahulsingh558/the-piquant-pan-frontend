@@ -259,4 +259,19 @@ export class TrackOrderPage implements OnInit, OnDestroy {
   goBack() {
     this.router.navigate(['/orders']);
   }
+
+  // Custom Map Controls
+  is3D = false;
+
+  zoomIn() {
+    this.mapplsService.zoomIn();
+  }
+
+  zoomOut() {
+    this.mapplsService.zoomOut();
+  }
+
+  toggle3D() {
+    this.is3D = this.mapplsService.toggle3D();
+  }
 }

@@ -507,8 +507,19 @@
         <!-- Delivery Map -->
         <div class="mb-8">
           <h4 class="font-semibold text-gray-900 mb-4">Delivery Location</h4>
-          <div class="bg-gray-100 rounded-lg overflow-hidden" style="height: 300px;">
+          <div class="bg-gray-100 rounded-lg overflow-hidden relative" style="height: 300px;">
             <div id="admin-order-map" class="w-full h-full"></div>
+            <!-- Custom Map Controls -->
+            <div *ngIf="selectedOrderMapInitialized" class="absolute top-2 right-2 z-10 flex flex-col gap-1">
+              <button (click)="zoomIn()"
+                class="w-8 h-8 bg-white rounded shadow flex items-center justify-center text-gray-700 hover:bg-gray-50">
+                <span class="font-bold">+</span>
+              </button>
+              <button (click)="zoomOut()"
+                class="w-8 h-8 bg-white rounded shadow flex items-center justify-center text-gray-700 hover:bg-gray-50">
+                <span class="font-bold">-</span>
+              </button>
+            </div>
           </div>
           <div class="flex flex-wrap justify-between items-center mt-2">
             <p class="text-xs text-gray-500">

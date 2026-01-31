@@ -535,4 +535,13 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
   logout() {
     this.auth.logout();
   }
+
+  // Custom Map Controls
+  zoomIn() {
+    this.mapplsService.zoomIn();
+  }
+
+  zoomOut() {
+    this.mapplsService.zoomOut();
+  }
 }

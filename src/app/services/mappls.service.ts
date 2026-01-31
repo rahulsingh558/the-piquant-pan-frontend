@@ -163,7 +163,7 @@ export class MapplsService {
             this.mapObject = new mapplsObj.Map(containerId, {
                 center: [mapCenter.lat, mapCenter.lng],
                 zoom: zoom,
-                zoomControl: true,
+                zoomControl: false, // Custom controls to avoid overlap
                 location: false
             });
 
@@ -171,28 +171,9 @@ export class MapplsService {
                 this.mapObject.on('load', () => {
                     console.log('Map loaded successfully');
 
-                    // Fix mobile controls position (move from bottom-right to top-right)
-                    // CSS selector fallback
+                    // Mobile fix removed - using custom controls
                     if (window.innerWidth <= 768) {
-                        setTimeout(() => {
-                            try {
-                                const container = document.getElementById(containerId);
-                                if (container) {
-                                    // Target all bottom-right control containers
-                                    const controls = container.querySelectorAll('.mapboxgl-ctrl-bottom-right, .mapmyindia-ctrl-bottom-right');
-                                    controls.forEach((ctrl: any) => {
-                                        ctrl.style.bottom = 'auto';
-                                        ctrl.style.top = '100px';
-                                        ctrl.style.right = '12px';
-                                        ctrl.style.zIndex = '50';
-                                        ctrl.style.position = 'absolute'; // Ensure absolute positioning
-                                        console.log('Forced map controls position for mobile');
-                                    });
-                                }
-                            } catch (e) {
-                                console.error('Error repositioning map controls:', e);
-                            }
-                        }, 1000); // Wait a bit for controls to render
+                        // Ensure legacy styles don't interfere
                     }
 
                     resolve(this.mapObject);
@@ -583,5 +564,24 @@ export class MapplsService {
      */
     async geocodeAddress(address: string): Promise<Coordinates> {
         return this.getEstimatedCoordinates(address);
+    }
+
+    // Custom Map Controls
+    zoomIn() {
+        if (this.mapObject) this.mapObject.zoomIn();
+    }
+
+    zoomOut() {
+        if (this.mapObject) this.mapObject.zoomOut();
+    }
+
+    private is3D = false;
+    toggle3D(): boolean {
+        if (!this.mapObject) return false;
+        this.is3D = !this.is3D;
+        this.mapObject.easeTo({
+            pitch: this.is3D ? 60 : 0
+        });
+        return this.is3D;
     }
 }

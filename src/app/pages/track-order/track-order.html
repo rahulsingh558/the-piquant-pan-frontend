@@ -40,6 +40,23 @@
     <!-- Full Screen Map -->
     <div id="tracking-map-page" class="absolute inset-0 w-full h-full z-0"></div>
 
+    <!-- Custom Map Controls (Zoom & 3D) -->
+    <div *ngIf="!loading && !error" class="absolute top-24 right-4 z-50 flex flex-col gap-2">
+        <button (click)="zoomIn()"
+            class="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors">
+            <span class="text-2xl font-bold leading-none mb-1">+</span>
+        </button>
+        <button (click)="zoomOut()"
+            class="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors">
+            <span class="text-2xl font-bold leading-none mb-1">-</span>
+        </button>
+        <button (click)="toggle3D()"
+            class="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center font-bold text-gray-700 hover:text-orange-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors"
+            [class.text-orange-600]="is3D">
+            <span class="text-xs">{{ is3D ? '2D' : '3D' }}</span>
+        </button>
+    </div>
+
     <!-- Floating Status Card (Desktop: Left Side, Mobile: Bottom Sheet) -->
     <div *ngIf="!loading && !error" class="absolute z-10 
               bottom-0 left-0 right-0 p-4 md:top-20 md:left-4 md:right-auto md:bottom-auto md:w-[400px]">
