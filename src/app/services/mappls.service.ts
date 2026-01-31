@@ -170,6 +170,31 @@ export class MapplsService {
             return new Promise((resolve) => {
                 this.mapObject.on('load', () => {
                     console.log('Map loaded successfully');
+
+                    // Fix mobile controls position (move from bottom-right to top-right)
+                    // CSS selector fallback
+                    if (window.innerWidth <= 768) {
+                        setTimeout(() => {
+                            try {
+                                const container = document.getElementById(containerId);
+                                if (container) {
+                                    // Target all bottom-right control containers
+                                    const controls = container.querySelectorAll('.mapboxgl-ctrl-bottom-right, .mapmyindia-ctrl-bottom-right');
+                                    controls.forEach((ctrl: any) => {
+                                        ctrl.style.bottom = 'auto';
+                                        ctrl.style.top = '100px';
+                                        ctrl.style.right = '12px';
+                                        ctrl.style.zIndex = '50';
+                                        ctrl.style.position = 'absolute'; // Ensure absolute positioning
+                                        console.log('Forced map controls position for mobile');
+                                    });
+                                }
+                            } catch (e) {
+                                console.error('Error repositioning map controls:', e);
+                            }
+                        }, 1000); // Wait a bit for controls to render
+                    }
+
                     resolve(this.mapObject);
                 });
 
