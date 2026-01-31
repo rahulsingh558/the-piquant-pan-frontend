@@ -205,14 +205,21 @@ h6 {
 
 /* Fix for Map controls overlap on mobile (Tracking & Admin) */
 @media (max-width: 768px) {
+
   /* Move controls from bottom-right to top-right to avoid Status Card overlap */
+  /* Target Mapbox, Mappls, and generic control classes */
   #tracking-map-page .mapboxgl-ctrl-bottom-right,
   #tracking-map-page .mapmyindia-ctrl-bottom-right,
+  #tracking-map-page div[class*="ctrl-bottom-right"],
   #admin-order-map .mapboxgl-ctrl-bottom-right,
-  #admin-order-map .mapmyindia-ctrl-bottom-right {
-      bottom: auto !important;
-      top: 90px !important; /* Below the header */
-      right: 12px !important;
-      left: auto !important;
+  #admin-order-map .mapmyindia-ctrl-bottom-right,
+  #admin-order-map div[class*="ctrl-bottom-right"] {
+    bottom: auto !important;
+    top: 90px !important;
+    /* Below the header */
+    right: 12px !important;
+    left: auto !important;
+    z-index: 40 !important;
+    /* Ensure visibility above other elements */
   }
 }
