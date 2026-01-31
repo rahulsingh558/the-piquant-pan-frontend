@@ -28,6 +28,7 @@ export const appConfig = {
 export class App {
   isBrowser = false;
   showLayout = true;
+  showFooter = true;
 
   constructor(
     private router: Router,
@@ -39,7 +40,10 @@ export class App {
       this.router.events
         .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: NavigationEnd) => {
-          this.showLayout = !event.urlAfterRedirects.startsWith('/admin');
+          const url = event.urlAfterRedirects;
+          this.showLayout = !url.startsWith('/admin');
+          // Hide footer on admin pages AND tracking page
+          this.showFooter = !url.startsWith('/admin') && !url.includes('/track-order');
         });
     }
   }
